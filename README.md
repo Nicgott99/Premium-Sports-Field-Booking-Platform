@@ -354,7 +354,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Hasibullah Khan Alvie**
-- GitHub: [@hasibullahkhanalvie](https://github.com/hasibullahkhanalvie)
+- GitHub: https://github.com/Nicgott99
 - Email: hasibullah.alvie@example.com
 - LinkedIn: [Hasibullah Khan Alvie](https://linkedin.com/in/hasibullah-alvie)
 
@@ -488,4 +488,4 @@ If you encounter any issues or have questions:
 
 ---
 
-Made with ❤️ by [Hasibullah Khan Alvie](https://github.com/hasibullahkhanalvie) for CSE471 Project
+Made with ❤️ by Md Hasib Ullah Khan Alvie(https://github.com/Nicgott99) for CSE471 Project
