@@ -1,0 +1,180 @@
+/* PREMIUM OVERRIDE STYLES - MAXIMUM IMPACT */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+/* Force Override All Styles */
+* {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+html, body {
+  font-family: 'Orbitron', 'Rajdhani', system-ui, sans-serif !important;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #312e81 50%, #1e1b4b 75%, #0f0f23 100%) !important;
+  background-attachment: fixed !important;
+  color: #ffffff !important;
+  overflow-x: hidden !important;
+  min-height: 100vh !important;
+}
+
+#root {
+  min-height: 100vh !important;
+  background: transparent !important;
+}
+
+/* CLEAN PREMIUM BACKGROUND */
+.premium-bg-pattern {
+  background: transparent !important;
+}
+
+/* PREMIUM GLASS MORPHISM */
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* PREMIUM GRADIENTS */
+.premium-gradient-text {
+  background: linear-gradient(135deg, #1e40af, #7c3aed, #db2777, #059669) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* PREMIUM BUTTONS */
+.premium-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  padding: 1rem 2rem !important;
+  border-radius: 50px !important;
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.premium-btn:hover {
+  transform: translateY(-3px) scale(1.05) !important;
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6) !important;
+}
+
+/* PREMIUM CARDS */
+.premium-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 20px !important;
+  padding: 2rem !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.premium-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* PREMIUM NAVBAR STYLES */
+nav {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* PREMIUM TYPOGRAPHY */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Orbitron', sans-serif !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  margin-bottom: 1rem !important;
+}
+
+h1 {
+  font-size: 4rem !important;
+  background: linear-gradient(135deg, #1e40af, #7c3aed, #db2777, #059669) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+h2 {
+  font-size: 3rem !important;
+  color: #1e293b !important;
+}
+
+h3 {
+  font-size: 2rem !important;
+  color: #334155 !important;
+}
+
+p {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-size: 1.2rem !important;
+  line-height: 1.6 !important;
+  color: #475569 !important;
+}
+
+/* CLEAN DESIGN - NO FLOATING PARTICLES */
+
+/* PREMIUM ANIMATIONS */
+.fade-in-up {
+  animation: fadeInUp 1s ease forwards !important;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0 !important;
+    transform: translateY(50px) !important;
+  }
+  to {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+}
+
+.scale-hover:hover {
+  transform: scale(1.05) !important;
+  transition: transform 0.3s ease !important;
+}
+
+/* PREMIUM SCROLLBAR */
+::-webkit-scrollbar {
+  width: 10px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  border-radius: 10px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2, #667eea) !important;
+}
+
+/* PREVENT NAVIGATION DUPLICATION */
+@media (min-width: 768px) {
+  .mobile-only { display: none !important; }
+}
+
+@media (max-width: 767px) {
+  .desktop-only { display: none !important; }
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  h1 { font-size: 2.5rem !important; }
+  h2 { font-size: 2rem !important; }
+  h3 { font-size: 1.5rem !important; }
+}

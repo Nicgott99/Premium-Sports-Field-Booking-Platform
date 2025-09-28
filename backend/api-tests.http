@@ -1,0 +1,46 @@
+# MERN Sports Platform API Tests
+# Use VS Code REST Client extension to run these
+
+### Health Check
+GET http://localhost:5000/api/health
+
+### MongoDB Connection Test
+GET http://localhost:5000/api/db-test
+
+### API Info
+GET http://localhost:5000/api
+
+### Database Statistics (Users, Fields, Bookings count)
+GET http://localhost:5000/api/stats
+
+### All Users (see who logged in)
+GET http://localhost:5000/api/users
+
+### All Fields (see available sports fields)
+GET http://localhost:5000/api/fields
+
+### All Bookings (see field reservations)
+GET http://localhost:5000/api/bookings
+
+### Database Collections Info
+GET http://localhost:5000/api/collections
+
+### Test User Registration (when auth routes work)
+# POST http://localhost:5000/api/auth/register
+# Content-Type: application/json
+# 
+# {
+#   "firstName": "John",
+#   "lastName": "Doe", 
+#   "email": "john@example.com",
+#   "password": "password123"
+# }
+
+### Test User Login (when auth routes work)
+# POST http://localhost:5000/api/auth/login
+# Content-Type: application/json
+# 
+# {
+#   "email": "john@example.com",
+#   "password": "password123"
+# }
