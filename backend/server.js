@@ -50,7 +50,7 @@ await connectDB();
 await setupFirebase();
 
 // Setup Redis
-await createRedusClient();
+await createRedisClient();
 
 // Trust proxy
 app.set('trust proxy', 1);

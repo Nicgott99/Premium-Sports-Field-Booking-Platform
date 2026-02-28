@@ -124,8 +124,8 @@ A comprehensive, premium sports booking and community platform built with the ME
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/hasibullahkhanalvie/cse471-sports-platform.git
-cd cse471-sports-platform
+git clone https://github.com/Nicgott99/Premium-Sports-Field-Booking-Platform.git
+cd Premium-Sports-Field-Booking-Platform
 ```
 
 2. **Backend Setup**
@@ -133,9 +133,12 @@ cd cse471-sports-platform
 cd backend
 npm install
 
-# Copy environment variables
+# Copy and configure environment variables
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env with your actual configuration (MongoDB URI, API keys, etc.)
+
+# Seed the database with sample data
+npm run seed
 
 # Start development server
 npm run dev
@@ -152,49 +155,66 @@ npm run dev
 
 4. **Database Setup**
 ```bash
-# Make sure MongoDB is running
-# The application will automatically create collections
+# MongoDB should be running (local or Atlas)
+# Collections will be automatically created
+# Run seeder script to populate with sample data (already done in step 2)
 
-# Optional: Seed database with sample data
+# To re-seed the database:
 cd backend
 npm run seed
 ```
 
-### Environment Variables
+The application will be accessible at:
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000
+- **Health Check**: http://localhost:5000/api/health
 
-#### Backend (.env)
+## 🔐 Environment Variables
+
+**See `.env.example` for all required variables.**
+
+Key variables to configure in `.env`:
+
 ```env
-# Server Configuration
+# Server
 NODE_ENV=development
 PORT=5000
 
-# MongoDB
-MONGODB_URI=mongodb+srv://hasibullahkhanalvie_db_user:Hs3dWdziYhVhbIHw@cluster0.ugevzjs.mongodb.net/CSE471_Premium_Sports?retryWrites=true&w=majority&appName=Cluster0
+# Database
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database_name
 
-# JWT
-JWT_SECRET=your-ultra-secure-jwt-secret
+# Authentication
+JWT_SECRET=your_secure_random_string_here
 JWT_EXPIRE=30d
 
-# Firebase
-FIREBASE_PROJECT_ID=cse471-project-2dace
-FIREBASE_WEB_API_KEY=AIzaSyANwdvikQfZxAXFlw_QVZgr7eJlqlWUMp0
+# External Services
+FIREBASE_WEB_API_KEY=your_firebase_api_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
 
-# Stripe
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret
-STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable
+# Email (for notifications)
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_specific_password
 
-# Cloudinary
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
+# Frontend
+CLIENT_URL=http://localhost:3000
+```
 
-# Email
-EMAIL_HOST=smtp.gmail.com
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
+## 🌱 Database Seeding
 
-# Redis
-REDIS_URL=redis://localhost:6379
+The seeder creates:
+- **3 sample users** (admin, field owner, player)
+- **3 sample fields** (football, cricket, basketball)
+- **2 sample bookings**
+- **2 sample teams**
+- **1 sample tournament**
+- **1 sample review**
+
+**Test Credentials:**
+```
+Email: admin@sports.com      → Password: Test@1234
+Email: owner@sports.com      → Password: Test@1234
+Email: player@sports.com     → Password: Test@1234
 ```
 
 ## 📱 API Documentation
