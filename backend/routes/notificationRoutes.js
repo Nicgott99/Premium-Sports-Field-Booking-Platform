@@ -1,20 +1,13 @@
 import express from 'express';
 import {
-  getNotifications,
+  getUserNotifications,
   markAsRead,
   markAllAsRead,
   deleteNotification,
-  deleteAllNotifications,
-  getUnreadCount,
-  updateNotificationSettings,
   getNotificationSettings,
-  sendNotification,
-  subscribeToNotifications,
-  unsubscribeFromNotifications,
-  getNotificationHistory,
-  bulkMarkAsRead,
-  getNotificationPreferences,
-  updateNotificationPreferences
+  updateNotificationSettings,
+  sendPushNotification,
+  subscribeToPush
 } from '../controllers/notificationController.js';
 
 import { protect, admin } from '../middleware/authMiddleware.js';
@@ -25,26 +18,17 @@ const router = express.Router();
 router.use(protect);
 
 // User notification routes
-router.get('/', getNotifications);
-router.get('/unread-count', getUnreadCount);
-router.get('/history', getNotificationHistory);
+router.get('/', getUserNotifications);
 router.put('/:id/read', markAsRead);
 router.put('/mark-all-read', markAllAsRead);
-router.put('/bulk-read', bulkMarkAsRead);
 router.delete('/:id', deleteNotification);
-router.delete('/all', deleteAllNotifications);
 
 // Notification settings
 router.get('/settings', getNotificationSettings);
 router.put('/settings', updateNotificationSettings);
-router.get('/preferences', getNotificationPreferences);
-router.put('/preferences', updateNotificationPreferences);
 
-// Subscription management
-router.post('/subscribe', subscribeToNotifications);
-router.post('/unsubscribe', unsubscribeFromNotifications);
-
-// Admin routes
-router.post('/send', admin, sendNotification);
+// Push notification management
+router.post('/subscribe', subscribeToPush);
+router.post('/send', admin, sendPushNotification);
 
 export default router;
