@@ -375,7 +375,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Hasibullah Khan Alvie**
 - GitHub: https://github.com/Nicgott99
-- Email: hasibullah.kahn.alvie@g.bracu.ac.bd
+- Email: hasibullah.khan.alvie@g.bracu.ac.bd
+- Email (Alternative): hasibullah.khan.alvie@g.bracu.ac.bd
 - LinkedIn: MD. HASIB ULLAH KHAN ALVIE(https://www.linkedin.com/in/md-hasib-ullah-khan-alvie-7681aa27a/)
 
 ## 🙏 Acknowledgments
