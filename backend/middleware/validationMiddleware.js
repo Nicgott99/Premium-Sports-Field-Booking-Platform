@@ -1,6 +1,13 @@
 import { body, validationResult } from 'express-validator';
 
-// Validation middleware
+/**
+ * Express-validator error handler middleware
+ * Checks for validation errors and returns them in response
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Object} 400 error if validation fails, otherwise calls next()
+ */
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -13,7 +20,12 @@ export const handleValidationErrors = (req, res, next) => {
   next();
 };
 
-// User registration validation
+/**
+ * User registration validation rules
+ * Validates firstName, lastName, email, phone, and password strength
+ * Requires: names (2-50 chars), valid email, valid BD phone, strong password
+ * @type {Array} Express-validator middleware chain
+ */
 export const validateRegister = [
   body('firstName')
     .notEmpty()
@@ -40,7 +52,7 @@ export const validateRegister = [
     .isLength({ min: 8 })
     .withMessage('Password must be at least 8 characters long')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
-    .withMessage('Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character'),
+    .withMessage('Password must contain lowercase, uppercase, number, and special character'),
   
   handleValidationErrors
 ];
