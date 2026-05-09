@@ -1,8 +1,14 @@
 import mongoose from 'mongoose';
 
+/**
+ * Tournament Schema
+ * Represents a sports tournament with scheduling, participants, and bracket management
+ * Supports various formats (round-robin, knockout, group-stage, league)
+ * Tracks matches, results, and leaderboard standings
+ */
 const tournamentSchema = new mongoose.Schema(
   {
-    // Basic Information
+    // Basic Tournament Information
     name: {
       type: String,
       required: [true, 'Tournament name is required'],
@@ -18,7 +24,7 @@ const tournamentSchema = new mongoose.Schema(
       url: String
     },
 
-    // Tournament Details
+    // Tournament Organization and Details
     organizer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -29,13 +35,20 @@ const tournamentSchema = new mongoose.Schema(
       enum: ['football', 'cricket', 'basketball', 'tennis', 'badminton', 'volleyball', 'table-tennis', 'squash', 'swimming', 'golf', 'multi-sport'],
       required: [true, 'Sport is required']
     },
+    /**
+     * Tournament format determines bracket structure
+     * round-robin: Each participant plays every other participant
+     * knockout: Single elimination tournament
+     * group-stage: Teams divided into groups, then playoff rounds
+     * league: Points-based competition across multiple matches
+     */
     format: {
       type: String,
       enum: ['round-robin', 'knockout', 'group-stage', 'league'],
       required: [true, 'Tournament format is required']
     },
 
-    // Dates and Status
+    // Tournament Scheduling
     startDate: {
       type: Date,
       required: [true, 'Start date is required']
@@ -48,6 +61,13 @@ const tournamentSchema = new mongoose.Schema(
       type: Date,
       required: [true, 'Registration deadline is required']
     },
+    /**
+     * Tournament status lifecycle
+     * upcoming: Registration open, tournament not started
+     * ongoing: Tournament is currently happening
+     * completed: Tournament has finished
+     * cancelled: Tournament was cancelled
+     */
     status: {
       type: String,
       enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],
