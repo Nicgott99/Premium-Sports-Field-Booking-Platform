@@ -1,6 +1,25 @@
 import asyncHandler from 'express-async-handler';
+import logger from '../utils/logger.js';
 
-// Get all fields with filtering and pagination
+/**
+ * Retrieve all fields with advanced filtering, search, and pagination
+ * Supports filtering by sport type, location, price range, rating, and search text
+ * @async
+ * @route GET /api/fields
+ * @access Public
+ * @param {number} page - Page number (default: 1)
+ * @param {number} limit - Results per page (default: 12)
+ * @param {string} sport - Filter by sport type (Football, Basketball, Tennis)
+ * @param {string} city - Filter by city/location
+ * @param {number} minPrice - Minimum hourly rate
+ * @param {number} maxPrice - Maximum hourly rate
+ * @param {number} minRating - Minimum rating (0-5)
+ * @param {string} search - Search by field name or description
+ * @param {string} sortBy - Sort field (createdAt, price, rating) - default: createdAt
+ * @param {string} sortOrder - asc or desc - default: desc
+ * @returns {Object} Paginated fields with amenities, ratings, pricing
+ * @throws {Error} 400 - Invalid query parameters
+ */
 export const getFields = asyncHandler(async (req, res) => {
   try {
     const {
