@@ -24,14 +24,39 @@ export const registerUser = asyncHandler(async (req, res) => {
     location
   } = req.body;
 
+  // Validate required fields
+  if (!firstName || !lastName || !email || !phone || !password) {
+    res.status(400);
+    throw new Error('Please provide all required fields: firstName, lastName, email, phone, password');
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    res.status(400);
+    throw new Error('Please provide a valid email address');
+  }
+
+  // Validate password strength
+  if (password.length < 8) {
+    res.status(400);
+    throw new Error('Password must be at least 8 characters long');
+  }
+
   // Check if user already exists
   const existingUser = await User.findOne({
     $or: [{ email: email.toLowerCase() }, { phone }]
   });
 
   if (existingUser) {
-    res.status(400);
-    throw new Error('User with this email or phone already exists');
+    if (existingUser.email === email.toLowerCase()) {
+      res.status(400);
+      throw new Error('Email is already registered. Please login or use a different email.');
+    }
+    if (existingUser.phone === phone) {
+      res.status(400);
+      throw new Error('Phone number is already registered with another account.');
+    }
   }
 
   // Create user
@@ -88,6 +113,19 @@ export const registerUser = asyncHandler(async (req, res) => {
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password, rememberMe } = req.body;
 
+  // Validate required fields
+  if (!email || !password) {
+    res.status(400);
+    throw new Error('Please provide both email and password');
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    res.status(400);
+    throw new Error('Please provide a valid email address');
+  }
+
   // Find user by email
   const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 
@@ -99,13 +137,13 @@ export const loginUser = asyncHandler(async (req, res) => {
   // Check if account is locked
   if (user.isAccountLocked) {
     res.status(423);
-    throw new Error('Account is temporarily locked due to too many failed login attempts');
+    throw new Error('Account is temporarily locked due to too many failed login attempts. Please try again later or contact support.');
   }
 
   // Check if account is active
   if (!user.isActive) {
     res.status(403);
-    throw new Error('Account is deactivated. Please contact support.');
+    throw new Error('Account is deactivated. Please contact support for assistance.');
   }
 
   // Check password
