@@ -5,7 +5,13 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Define log format
+/**
+ * Winston logger configuration
+ * Logs to file (error.log, combined.log) and console (development mode)
+ * Log levels: error, warn, info, http, debug (in production: error, warn, info only)
+ */
+
+// Define comprehensive log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
@@ -13,29 +19,32 @@ const logFormat = winston.format.combine(
   winston.format.prettyPrint()
 );
 
-// Create logger instance
+/**
+ * Create and configure logger instance
+ * @returns {Object} Winston logger instance with file and console transports
+ */
 const logger = winston.createLogger({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
   format: logFormat,
   defaultMeta: { service: 'cse471-sports-platform' },
   transports: [
-    // Write all logs with level 'error' and below to error.log
+    // Error log file - only error level and below
     new winston.transports.File({
       filename: path.join(__dirname, '../logs/error.log'),
       level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
+      maxsize: 5242880, // 5MB per file
+      maxFiles: 5, // Keep 5 error log files
     }),
-    // Write all logs with level 'info' and below to combined.log
+    // Combined log file - all log levels
     new winston.transports.File({
       filename: path.join(__dirname, '../logs/combined.log'),
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
+      maxsize: 5242880, // 5MB per file
+      maxFiles: 5, // Keep 5 combined log files
     }),
   ],
 });
 
-// Add console transport for development
+// Add console transport for development environment
 if (process.env.NODE_ENV !== 'production') {
   logger.add(
     new winston.transports.Console({
