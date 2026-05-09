@@ -3,11 +3,29 @@ import handlebars from 'handlebars';
 import fs from 'fs';
 import path from 'path';
 
-// Create email transporter
+/**
+ * Create email transporter based on environment
+ * Production: Uses Gmail/SendGrid SMTP service
+ * Development: Uses Ethereal Email for testing
+ * 
+ * @function
+ * @returns {Object} Nodemailer transporter configured for sending emails
+ * 
+ * Environment Variables Required:
+ * - NODE_ENV: 'production' or 'development'
+ * - EMAIL_USER: Email address for authentication
+ * - EMAIL_PASS: Email password or app-specific password
+ * - EMAIL_HOST: SMTP host (dev only, optional)
+ * - EMAIL_PORT: SMTP port (dev only, optional)
+ * 
+ * @example
+ * const transporter = createTransporter();
+ * await transporter.sendMail({ to, subject, html });
+ */
 const createTransporter = () => {
   if (process.env.NODE_ENV === 'production') {
     // Production email service (Gmail, SendGrid, etc.)
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
@@ -27,7 +45,19 @@ const createTransporter = () => {
   }
 };
 
-// Email templates
+/**
+ * Email templates with subject and HTML content
+ * Uses Handlebars for template variable interpolation
+ * Supports {{name}}, {{verificationURL}}, {{resetURL}}, etc.
+ * 
+ * Available Templates:
+ * - emailVerification: Account email verification template
+ * - passwordReset: Password reset request template
+ * - bookingConfirmation: Booking confirmation template
+ * - paymentReceipt: Payment receipt template
+ * 
+ * @constant {Object}
+ */
 const emailTemplates = {
   emailVerification: {
     subject: 'Welcome to Premium MERN Sports Platform - Verify Your Email',
