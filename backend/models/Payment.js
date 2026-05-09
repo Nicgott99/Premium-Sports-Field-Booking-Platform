@@ -1,5 +1,40 @@
 import mongoose from 'mongoose';
 
+/**
+ * Payment Schema for tracking transactions
+ * Handles payment processing, status tracking, and refunds
+ * 
+ * Payment Lifecycle:
+ * pending → in_progress → completed/failed
+ * completed → refunded (if refund initiated)
+ * 
+ * Payment Methods Supported:
+ * - credit_card: Visa, Mastercard, American Express
+ * - debit_card: Bank debit cards
+ * - mobile_banking: Mobile banking apps
+ * - wallet: Digital wallets
+ * - bank_transfer: Direct bank transfers
+ * - cash: Cash payments (for in-person)
+ * 
+ * Payment Gateways:
+ * - stripe: International payments
+ * - sslcommerz: Bangladesh payments
+ * - paypal: PayPal integration
+ * - nagad/bkash/rocket: Bangladesh mobile wallets
+ * - cash: Manual cash handling
+ * 
+ * Currency Support:
+ * - BDT (Bangladesh Taka) - default
+ * - USD (US Dollar)
+ * - EUR (Euro)
+ * - INR (Indian Rupee)
+ * 
+ * Refund Support:
+ * - Full refunds: Returns entire amount to user
+ * - Partial refunds: Returns specified portion
+ * - Refund reason tracking for records
+ * - Refund timestamps for audit trail
+ */
 const paymentSchema = new mongoose.Schema(
   {
     // Payment Reference
