@@ -1,8 +1,14 @@
 import mongoose from 'mongoose';
 
+/**
+ * Team Schema
+ * Represents a sports team with members, roles, and organizational information
+ * Supports multiple sports and skill levels
+ * Maintains team statistics and achievements
+ */
 const teamSchema = new mongoose.Schema(
   {
-    // Basic Information
+    // Basic Team Information
     name: {
       type: String,
       required: [true, 'Team name is required'],
@@ -18,12 +24,16 @@ const teamSchema = new mongoose.Schema(
       url: String
     },
 
-    // Team Management
+    // Team Management - Members and Structure
     captain: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'Team captain is required']
     },
+    /**
+     * Team members array with role information
+     * Roles: captain, co-captain, player, substitute
+     */
     members: [
       {
         user: {
@@ -42,7 +52,7 @@ const teamSchema = new mongoose.Schema(
       }
     ],
 
-    // Sports and Level
+    // Sports and Competitive Level
     sport: {
       type: String,
       enum: ['football', 'cricket', 'basketball', 'tennis', 'badminton', 'volleyball', 'table-tennis', 'squash', 'swimming', 'golf', 'multi-sport'],
