@@ -1,5 +1,32 @@
 import mongoose from 'mongoose';
 
+/**
+ * Chat Schema for messaging system
+ * Supports both direct messages and group chats
+ * 
+ * Chat Types:
+ * - direct: One-to-one private messaging between users
+ * - group: Multi-user chat rooms with shared discussions
+ * 
+ * Group Chat Features:
+ * - Multiple participants with different roles
+ * - Group name and description
+ * - Chat icon for visual identification
+ * - Admin controls for chat management
+ * 
+ * Message Management:
+ * - Individual message storage
+ * - Message timestamps for ordering
+ * - Message sender attribution
+ * - Support for text, images, files
+ * 
+ * Use Cases:
+ * - Direct messages for booking inquiries
+ * - Group chats for team coordination
+ * - Tournament/league discussions
+ * - Field owner and renter communication
+ * - Support/help channel communications
+ */
 const chatSchema = new mongoose.Schema(
   {
     // Chat Type
