@@ -1,8 +1,19 @@
 import asyncHandler from 'express-async-handler';
+import logger from '../utils/logger.js';
 
-// @desc    Create new booking
-// @route   POST /api/bookings
-// @access  Private
+/**
+ * Create new booking for a field
+ * @async
+ * @route POST /api/bookings
+ * @access Private
+ * @param {string} fieldId - Target field ID
+ * @param {string} date - Booking date
+ * @param {string} timeSlot - Time slot for booking
+ * @param {number} duration - Duration in hours
+ * @param {number} participants - Number of participants
+ * @returns {Object} Created booking with reference number and pricing
+ * @throws {Error} 400 - Missing required booking fields
+ */
 export const createBooking = asyncHandler(async (req, res) => {
   try {
     const {
