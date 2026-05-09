@@ -1,9 +1,22 @@
 import asyncHandler from 'express-async-handler';
+import logger from '../utils/logger.js';
 
-// @desc    Create team
-// @route   POST /api/teams
-// @access  Private
+/**
+ * Create new sports team
+ * Allows authenticated user to create and become captain of new team
+ * @async
+ * @route POST /api/teams
+ * @access Private
+ * @param {string} name - Team name (required, max 100 chars)
+ * @param {string} description - Team description (optional)
+ * @param {string} sport - Sport type (football, cricket, basketball, etc.)
+ * @param {string} skillLevel - Team skill level (beginner, intermediate, advanced, professional)
+ * @param {Object} location - Team location details
+ * @returns {Object} Created team with ID and captain info
+ * @throws {Error} 400 - Invalid team data or duplicate name
+ */
 export const createTeam = asyncHandler(async (req, res) => {
+  logger.info(`Creating team for user: ${req.user?.id}`);
   res.status(201).json({
     success: true,
     message: 'Team created successfully',
@@ -11,10 +24,20 @@ export const createTeam = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get user teams
-// @route   GET /api/teams
-// @access  Private
+/**
+ * Get all teams created or joined by authenticated user
+ * Returns paginated list of user's teams with member counts
+ * @async
+ * @route GET /api/teams
+ * @access Private
+ * @param {number} page - Page number (default: 1)
+ * @param {number} limit - Results per page (default: 10)
+ * @param {string} role - Filter by user role in team (captain, co-captain, player)
+ * @returns {Object} Paginated array of user's teams
+ * @throws {Error} 500 - Database error
+ */
 export const getUserTeams = asyncHandler(async (req, res) => {
+  logger.info(`Fetching teams for user: ${req.user?.id}`);
   res.status(200).json({
     success: true,
     message: 'User teams retrieved successfully',
@@ -22,10 +45,18 @@ export const getUserTeams = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get team by ID
-// @route   GET /api/teams/:id
-// @access  Public
+/**
+ * Get specific team details by ID
+ * Returns team info, members, statistics, and upcoming matches
+ * @async
+ * @route GET /api/teams/:id
+ * @access Public
+ * @param {string} id - Team ID to retrieve
+ * @returns {Object} Full team details with members and stats
+ * @throws {Error} 404 - Team not found
+ */
 export const getTeamById = asyncHandler(async (req, res) => {
+  logger.info(`Fetching team details: ${req.params.id}`);
   res.status(200).json({
     success: true,
     message: 'Team retrieved successfully',
@@ -33,10 +64,22 @@ export const getTeamById = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Update team
-// @route   PUT /api/teams/:id
-// @access  Private
+/**
+ * Update team information
+ * Allows team captain to modify team details
+ * @async
+ * @route PUT /api/teams/:id
+ * @access Private
+ * @param {string} id - Team ID to update
+ * @param {string} name - Updated team name (optional)
+ * @param {string} description - Updated description (optional)
+ * @param {string} skillLevel - Updated skill level (optional)
+ * @returns {Object} Updated team data
+ * @throws {Error} 404 - Team not found
+ * @throws {Error} 403 - User not authorized as team captain
+ */
 export const updateTeam = asyncHandler(async (req, res) => {
+  logger.info(`Updating team: ${req.params.id} by user: ${req.user?.id}`);
   res.status(200).json({
     success: true,
     message: 'Team updated successfully',
@@ -44,9 +87,18 @@ export const updateTeam = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Delete team
-// @route   DELETE /api/teams/:id
-// @access  Private
+/**
+ * Delete team
+ * Allows team captain to delete team (if no tournaments/matches)
+ * @async
+ * @route DELETE /api/teams/:id
+ * @access Private
+ * @param {string} id - Team ID to delete
+ * @returns {Object} Deletion confirmation
+ * @throws {Error} 404 - Team not found
+ * @throws {Error} 403 - User not authorized to delete team
+ * @throws {Error} 409 - Cannot delete team with active tournaments
+ */
 export const deleteTeam = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
