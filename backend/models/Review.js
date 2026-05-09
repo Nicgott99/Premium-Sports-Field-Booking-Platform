@@ -1,5 +1,31 @@
 import mongoose from 'mongoose';
 
+/**
+ * Review Schema for field ratings and user feedback
+ * Allows users to rate and review sports facilities
+ * 
+ * Rating System:
+ * 1 star: Poor - Would not recommend
+ * 2 stars: Fair - Below average facility/experience
+ * 3 stars: Good - Average facility/experience
+ * 4 stars: Very Good - Above average facility/experience
+ * 5 stars: Excellent - Would highly recommend
+ * 
+ * Review Categories:
+ * - Facility Quality: Condition, maintenance, equipment
+ * - Cleanliness: Overall cleanliness and hygiene
+ * - Service: Staff behavior, responsiveness
+ * - Value: Price-to-quality ratio
+ * - Location: Accessibility, parking, transportation
+ * 
+ * Review Moderation:
+ * Flagged reviews are hidden until admin approval
+ * Helps prevent spam and inappropriate content
+ * 
+ * Helpful Count Tracking:
+ * Users can mark reviews as helpful for ranking
+ * Increases visibility of quality reviews
+ */
 const reviewSchema = new mongoose.Schema(
   {
     // Rating and Review Content
