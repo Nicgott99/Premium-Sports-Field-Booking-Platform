@@ -4,34 +4,46 @@ import User from '../models/User.js';
 import { verifyFirebaseToken } from '../config/firebase.js';
 import logger from '../utils/logger.js';
 
-// Protect routes - JWT Authentication
+/**
+ * JWT Authentication Middleware
+ * Verifies JWT token from Authorization header and attaches user to request object
+ * @async
+ * @param {Object} req - Express request object with Authorization header (Bearer token)
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @throws {Error} 401 - If token is missing, invalid, or user not found
+ * @throws {Error} 401 - If user account is deactivated
+ */
 export const protect = asyncHandler(async (req, res, next) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      // Get token from header
+      // Extract token from "Bearer <token>" format
       token = req.headers.authorization.split(' ')[1];
 
-      // Verify token
+      // Verify token signature and expiration using JWT_SECRET
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user from the token
+      // Fetch user from database using decoded token ID
       req.user = await User.findById(decoded.id)
-        .select('-password')
+        .select('-password') // Exclude password field for security
         .populate('profile')
         .populate('subscription');
 
+      // Verify user exists in database
       if (!req.user) {
         res.status(401);
         throw new Error('Not authorized, user not found');
       }
 
+      // Check if user account is active
       if (!req.user.isActive) {
         res.status(401);
         throw new Error('Account is deactivated');
       }
 
+      // Continue to next middleware with authenticated user
       next();
     } catch (error) {
       logger.error(`JWT Auth Error: ${error.message}`);
@@ -46,33 +58,46 @@ export const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Firebase Authentication
+/**
+ * Firebase Authentication Middleware
+ * Verifies Firebase ID token and retrieves corresponding user from database
+ * @async
+ * @param {Object} req - Express request object with Authorization header (Firebase token)
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @throws {Error} 401 - If token is missing or invalid
+ * @throws {Error} 401 - If user not found or account deactivated
+ */
 export const protectFirebase = asyncHandler(async (req, res, next) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
+      // Extract Firebase token from header
       token = req.headers.authorization.split(' ')[1];
 
-      // Verify Firebase token
+      // Verify Firebase ID token and decode claims
       const decodedToken = await verifyFirebaseToken(token);
       
-      // Get user from database
+      // Retrieve user from database using Firebase UID
       req.user = await User.findOne({ firebaseUid: decodedToken.uid })
         .select('-password')
         .populate('profile')
         .populate('subscription');
 
+      // Verify user exists
       if (!req.user) {
         res.status(401);
         throw new Error('Not authorized, user not found');
       }
 
+      // Check if user account is active
       if (!req.user.isActive) {
         res.status(401);
         throw new Error('Account is deactivated');
       }
 
+      // Store Firebase claims in request for later use
       req.firebaseUser = decodedToken;
       next();
     } catch (error) {
@@ -88,7 +113,16 @@ export const protectFirebase = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Admin authorization
+/**
+ * Admin Authorization Middleware
+ * Verifies that authenticated user has admin role
+ * Must be used after protect or protectFirebase middleware
+ * @async
+ * @param {Object} req - Express request object with req.user (from protect middleware)
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @throws {Error} 403 - If user is not admin
+ */
 export const admin = asyncHandler(async (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();
@@ -98,7 +132,16 @@ export const admin = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Manager authorization (admin or manager)
+/**
+ * Manager Authorization Middleware
+ * Verifies that authenticated user has admin or manager role
+ * Must be used after protect or protectFirebase middleware
+ * @async
+ * @param {Object} req - Express request object with req.user (from protect middleware)
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @throws {Error} 403 - If user is not admin or manager
+ */
 export const manager = asyncHandler(async (req, res, next) => {
   if (req.user && (req.user.role === 'admin' || req.user.role === 'manager')) {
     next();
