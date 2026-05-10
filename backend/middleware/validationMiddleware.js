@@ -1,6 +1,50 @@
 import { body, validationResult } from 'express-validator';
 
 /**
+ * Input Validation Middleware Module
+ * Provides comprehensive input validation for all user-submitted data
+ * Uses express-validator for declarative, reusable validation rules
+ * 
+ * Validation Strategy:
+ * - Declarative validation rules (DRY principle)
+ * - Centralized error handling
+ * - Prevents SQL injection and XSS attacks
+ * - Type coercion and sanitization
+ * - Field-level error messages
+ * 
+ * Validation Coverage:
+ * - Registration: Names, email, phone, password strength
+ * - Login: Email format, password required
+ * - Password Change: Current password, new password strength
+ * 
+ * Password Requirements:
+ * - Minimum 8 characters
+ * - At least one lowercase letter (a-z)
+ * - At least one uppercase letter (A-Z)
+ * - At least one number (0-9)
+ * - At least one special character (@$!%*?&)
+ * 
+ * Phone Format (Bangladesh):
+ * - Supported: 01XXXXXXXXX or +88 01XXXXXXXXX
+ * - 11 digits total (01 + 9 digits)
+ * - Second digit must be 3-9 (operator codes)
+ * 
+ * Email Validation:
+ * - Standard email format validation
+ * - Case-insensitive normalization
+ * - Duplicate check in database
+ * 
+ * Error Response Format:
+ * {
+ *   success: false,
+ *   message: "Validation failed",
+ *   errors: [
+ *     { field: "email", message: "Invalid email format" }
+ *   ]
+ * }
+ */
+
+/**
  * Express-validator error handler middleware
  * Checks for validation errors and returns them in response
  * @param {Object} req - Express request object
