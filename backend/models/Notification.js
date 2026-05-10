@@ -1,5 +1,37 @@
 import mongoose from 'mongoose';
 
+/**
+ * Notification Schema for user alerts and messages
+ * Tracks all platform notifications with delivery status
+ * 
+ * Notification Types:
+ * - booking_confirmed: Booking successfully created/confirmed
+ * - booking_cancelled: Booking was cancelled
+ * - payment_received: Payment processed successfully
+ * - payment_failed: Payment processing failed
+ * - booking_reminder: Upcoming booking reminder (24h before)
+ * - new_message: New message received in chat
+ * - team_invitation: User invited to team
+ * - tournament_registration: Tournament registration updated
+ * - tournament_start: Tournament is starting
+ * - field_availability: Subscribed field becomes available
+ * - review_posted: Someone reviewed your field
+ * - follow_user: User started following you
+ * - system_alert: System-wide alerts and maintenance
+ * - other: Miscellaneous notifications
+ * 
+ * Priority Levels:
+ * - low: Informational notifications
+ * - normal: Standard notifications (default)
+ * - high: Important notifications requiring attention
+ * - urgent: Critical notifications
+ * 
+ * Delivery Channels:
+ * - in_app: Display in app notifications
+ * - email: Send via email
+ * - sms: Send via SMS (if available)
+ * - push: Send push notification
+ */
 const notificationSchema = new mongoose.Schema(
   {
     // Recipient and Type

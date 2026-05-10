@@ -1,5 +1,33 @@
 import mongoose from 'mongoose';
 
+/**
+ * Booking Schema for field reservations
+ * Manages complete booking lifecycle from creation to completion
+ * 
+ * Booking Statuses:
+ * - pending: Awaiting confirmation (30 min timeout)
+ * - confirmed: Verified and ready for use
+ * - in-progress: Booking time has started
+ * - completed: Successfully finished
+ * - cancelled: User/admin cancelled booking
+ * - no-show: User didn't arrive for booking
+ * 
+ * Cancellation Policies:
+ * - 24+ hours: Full refund
+ * - 12-24 hours: 50% refund
+ * - <12 hours: No refund
+ * 
+ * Participants:
+ * - primary: User who made the booking
+ * - players: Additional players joining the session
+ * - max capacity: Field's maximum player count
+ * 
+ * Pricing:
+ * - base rate: Field hourly rate
+ * - discount: Applied promotional discount
+ * - total: Final amount after discounts
+ * - taxes: VAT/service tax
+ */
 const bookingSchema = new mongoose.Schema({
   // Basic Information
   bookingId: {

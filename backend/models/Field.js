@@ -1,5 +1,39 @@
 import mongoose from 'mongoose';
 
+/**
+ * Field Schema for sports facility listings
+ * Comprehensive model for managing sports fields
+ * 
+ * Field Types:
+ * - indoor: Climate controlled, roofed facilities
+ * - outdoor: Open air fields (weather dependent)
+ * - covered: Covered but open-sided facilities
+ * 
+ * Surface Types:
+ * - grass: Natural grass for football, cricket
+ * - artificial-turf: Synthetic grass (football, field hockey)
+ * - concrete: Hard surface (basketball, tennis)
+ * - wood: Wood courts (badminton, volleyball)
+ * - rubber: Rubberized surface (athletics)
+ * - clay: Clay courts (tennis)
+ * - synthetic: Synthetic track surface
+ * 
+ * Supported Sports:
+ * football, cricket, basketball, tennis, badminton, 
+ * volleyball, table-tennis, squash, swimming, golf, multi-sport
+ * 
+ * Amenities:
+ * - Parking: On-site vehicle parking
+ * - Changing rooms: Locker facilities
+ * - Lighting: Night game capabilities
+ * - Equipment: Available field equipment
+ * - Refreshments: Food/water services
+ * 
+ * Availability:
+ * - Weekly schedule-based slots
+ * - Booking buffer times (e.g., 30 min between bookings)
+ * - Blackout dates for maintenance
+ */
 const fieldSchema = new mongoose.Schema({
   // Basic Information
   name: {

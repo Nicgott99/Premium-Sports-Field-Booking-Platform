@@ -2,6 +2,37 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+/**
+ * User Schema for platform account management
+ * Supports both standard and Firebase authentication
+ * 
+ * User Roles:
+ * - user: Regular platform user
+ * - field_owner: Can list and manage fields
+ * - manager: Manages field and bookings
+ * - admin: Full platform administrative access
+ * 
+ * Subscription Plans:
+ * - free: Basic booking functionality
+ * - premium: Enhanced features, analytics
+ * - enterprise: Full access, priority support
+ * 
+ * Account Status:
+ * - active: Normal user account
+ * - banned: User account permanently suspended
+ * - suspended: Temporary account suspension
+ * - pending_verification: Email not yet verified
+ * 
+ * Authentication:
+ * - Standard: Email/password (hashed with bcrypt)
+ * - Firebase: Using Firebase Authentication
+ * 
+ * Profile Data:
+ * - Avatar: User profile picture
+ * - Preferences: User settings and preferences
+ * - Location: Primary location for field recommendations
+ * - Social: Followers/following system
+ */
 const userSchema = new mongoose.Schema({
   // Basic Information
   firstName: {
