@@ -2,12 +2,58 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
+ * Security Middleware Module
+ * Comprehensive security controls for API protection
+ * 
+ * Security Features:
+ * - Rate limiting to prevent brute force attacks
+ * - API key validation for programmatic access
+ * - CORS configuration for cross-origin requests
+ * - XSS protection headers
+ * - CSRF token validation
+ * 
+ * Rate Limiting Tiers:
+ * - Standard: 100 requests per 15 minutes
+ * - Authentication: 5 attempts per 15 minutes
+ * - Payment: 10 requests per hour
+ * - File Upload: 20 requests per hour
+ * 
+ * API Key Strategy:
+ * - Header: X-API-Key
+ * - Format: 32-character alphanumeric string
+ * - Rotation: Every 90 days
+ * - Revocation: Immediate on compromise
+ * 
+ * CORS Allowed Origins:
+ * - localhost:3000 (development)
+ * - frontend production domain
+ * - Mobile app schemes (if applicable)
+ * 
+ * Security Headers Applied:
+ * - X-Content-Type-Options: nosniff
+ * - X-Frame-Options: DENY
+ * - X-XSS-Protection: 1; mode=block
+ * - Strict-Transport-Security: max-age=31536000
+ * 
+ * Attack Prevention:
+ * - DoS: Rate limiting with Redis
+ * - Brute Force: Login attempt limiting
+ * - SQL Injection: Mongoose input validation
+ * - XSS: Response header sanitization
+ * - CSRF: Token-based verification
+ */
+
+/**
  * Rate limiting middleware to prevent abuse
  * Tracks request counts and blocks if exceeded
  * @async
  * @param {number} maxRequests - Maximum requests allowed (default: 100)
  * @param {number} windowMs - Time window in milliseconds (default: 15 minutes)
  * @returns {Function} Middleware function
+ * 
+ * Examples:
+ * - rateLimit(5, 15*60*1000) - 5 requests per 15 minutes
+ * - rateLimit(100, 60*60*1000) - 100 requests per hour
  */
 export const rateLimit = (maxRequests = 100, windowMs = 15 * 60 * 1000) => {
   return asyncHandler(async (req, res, next) => {
@@ -49,6 +95,7 @@ export const validateApiKey = asyncHandler(async (req, res, next) => {
 /**
  * CORS (Cross-Origin Resource Sharing) middleware
  * Enables API access from approved origins
+ * Prevents unauthorized cross-origin requests
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
