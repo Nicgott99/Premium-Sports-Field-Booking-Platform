@@ -5,6 +5,70 @@ import { verifyFirebaseToken } from '../config/firebase.js';
 import logger from '../utils/logger.js';
 
 /**
+ * Authentication and Authorization Middleware Module
+ * Handles JWT and Firebase authentication with role-based access control
+ * 
+ * Authentication Flow:
+ * 1. Client sends request with Authorization: Bearer <token>
+ * 2. Middleware verifies token signature and expiration
+ * 3. Token decoded to retrieve user ID
+ * 4. User fetched from database and attached to req.user
+ * 5. Account status verified (not deactivated/banned)
+ * 6. Authorization middleware checks user role
+ * 7. Route handler processes authenticated, authorized request
+ * 
+ * Dual Authentication Support:
+ * - JWT tokens: Traditional session-based auth (15-min expiry)
+ * - Firebase: Third-party authentication (Google, Facebook, etc.)
+ * 
+ * Token Format:
+ * - JWT: Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ * - Firebase: Authorization: Bearer <firebase-id-token>
+ * 
+ * User Roles and Permissions:
+ * - user: Regular user (book fields, leave reviews, join teams)
+ * - field_owner: Manage own fields and bookings
+ * - manager: Manage fields and bookings (multiple fields)
+ * - admin: Full platform access (users, analytics, system settings)
+ * 
+ * Protected User Fields:
+ * - Password: Excluded via .select('-password')
+ * - Two-Factor Secret: Never exposed
+ * - Recovery Codes: Never exposed
+ * 
+ * Account Status Verification:
+ * - Active: Normal access granted
+ * - Suspended: Temporarily blocked
+ * - Banned: Permanently blocked
+ * - Pending_Verification: Limited access until email verified
+ * 
+ * Security Features:
+ * - Token expiration enforcement
+ * - User database verification
+ * - Account status checks
+ * - Role-based authorization
+ * - Request logging for audit trail
+ * - Error handling without data leakage
+ * 
+ * Middleware Composition:
+ * - protect: JWT authentication
+ * - protectFirebase: Firebase authentication
+ * - admin: Admin role check
+ * - manager: Manager or admin role check
+ * - fieldOwner: Field owner, manager, or admin role check
+ * 
+ * Error Response Examples:
+ * - 401: "Not authorized, no token" (missing token)
+ * - 401: "Not authorized, token failed" (invalid/expired)
+ * - 403: "Not authorized as admin" (insufficient permissions)
+ * 
+ * Usage Examples:
+ * router.delete('/:id', protect, admin, deleteUser)
+ * router.get('/', protect, fieldOwner, getFieldListings)
+ * router.post('/', protect, createBooking)
+ */
+
+/**
  * JWT Authentication Middleware
  * Verifies JWT token from Authorization header and attaches user to request object
  * @async
