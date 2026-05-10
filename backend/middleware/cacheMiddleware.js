@@ -2,6 +2,45 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
+ * Cache Middleware Module
+ * Redis-based request caching for performance optimization
+ * 
+ * Caching Strategy:
+ * - GET requests are cached by default
+ * - Cache key includes HTTP method and full URL
+ * - User-specific data cached with user ID prefix
+ * - Pattern-based cache invalidation on updates
+ * 
+ * Cache Keys Format:
+ * - General: `GET:http://localhost:3000/api/fields`
+ * - User: `user:USER_ID:http://localhost:3000/api/user/profile`
+ * - Field: `field:FIELD_ID:details`
+ * - Booking: `booking:BOOKING_ID:details`
+ * 
+ * Cache Invalidation Triggers:
+ * - POST requests clear related cache patterns
+ * - PUT requests clear entity-specific cache
+ * - DELETE requests clear entity and list cache
+ * 
+ * TTL (Time To Live) Strategy:
+ * - List endpoints: 5 minutes (300s)
+ * - Detail endpoints: 10 minutes (600s)
+ * - User data: 15 minutes (900s)
+ * - Search results: 5 minutes (300s)
+ * 
+ * Redis Integration:
+ * - TODO: Connect to Redis client
+ * - TODO: Implement cache hits/misses
+ * - TODO: Add cache stats monitoring
+ * 
+ * Performance Benefits:
+ * - Reduces database queries
+ * - Faster response times
+ * - Improved scalability
+ * - Reduced server load
+ */
+
+/**
  * General-purpose cache middleware for Redis integration
  * Caches GET requests for specified duration
  * @async
@@ -28,9 +67,14 @@ export const cache = (duration = 300) => {
 
 /**
  * Clear cache entries matching specific pattern
+ * Useful for invalidating related cache entries on data updates
  * @async
  * @param {string|Array} pattern - Redis key pattern(s) to clear
  * @returns {Function} Middleware function
+ * 
+ * Examples:
+ * - clearCache('field:*') - Clear all field caches
+ * - clearCache(['user:123:*', 'booking:*']) - Clear user and booking caches
  */
 export const clearCache = (pattern) => {
   return asyncHandler(async (req, res, next) => {
@@ -44,6 +88,7 @@ export const clearCache = (pattern) => {
 /**
  * Cache user-specific data and queries
  * Includes user ID in cache key for personalized caching
+ * Prevents caching of sensitive user-specific content across users
  * @async
  * @param {number} duration - Cache duration in seconds (default: 300)
  * @returns {Function} Middleware function
@@ -70,6 +115,7 @@ export const cacheUser = (duration = 300) => {
 /**
  * Cache field listing and detail responses
  * Prevents repeated database queries for field data
+ * Invalidates on field updates or new bookings
  * @async
  * @returns {Function} Middleware function
  */
