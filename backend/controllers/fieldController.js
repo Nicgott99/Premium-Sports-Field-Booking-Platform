@@ -2,6 +2,56 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
+ * Field Management Controller
+ * Handles sports facility listings, search, filtering, and management
+ * 
+ * Responsibilities:
+ * - Field listing with advanced search and filters
+ * - Field creation by field owners
+ * - Field updates and property management
+ * - Field deletion and deactivation
+ * - Field availability management
+ * - Image upload for field galleries
+ * - Nearby fields discovery (location-based)
+ * - Featured and top-rated fields
+ * - Field ratings and popularity metrics
+ * - Field amenity management
+ * 
+ * Search & Filter Features:
+ * - By sport type (football, basketball, tennis, etc.)
+ * - By location/city with radius search
+ * - By price range (hourly rate)
+ * - By rating/reviews
+ * - By amenities (parking, lighting, seating, etc.)
+ * - Text search (name, description)
+ * - Sort options (newest, price, rating, popularity)
+ * 
+ * Cache Strategy:
+ * - List endpoints: 5-minute cache
+ * - Detail endpoints: 10-minute cache
+ * - Search results: 5-minute cache
+ * - Featured fields: 15-minute cache
+ * 
+ * Relationships:
+ * - User (owner): Field owner
+ * - Booking: Field reservations
+ * - Review: Field ratings and reviews
+ * - Availability: Time slot management
+ * 
+ * Access Control:
+ * - Public: List, search, details
+ * - Authenticated: Create (with field_owner role)
+ * - Owner: Update, delete own fields
+ * - Admin: Manage all fields
+ * 
+ * Event Emissions:
+ * - field_created
+ * - field_updated
+ * - field_deleted
+ * - availability_changed
+ */
+
+/**
  * Retrieve all fields with advanced filtering, search, and pagination
  * Supports filtering by sport type, location, price range, rating, and search text
  * @async
