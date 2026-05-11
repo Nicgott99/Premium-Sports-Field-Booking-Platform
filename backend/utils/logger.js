@@ -6,6 +6,74 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
+ * Winston Logger Configuration Module
+ * Provides centralized structured logging for application monitoring
+ * 
+ * Log Levels (Priority Order):
+ * - error: Fatal errors requiring immediate attention
+ * - warn: Warning conditions and non-fatal issues
+ * - info: General informational messages
+ * - http: HTTP request logging
+ * - debug: Detailed debugging information (dev only)
+ * 
+ * Log File Configuration:
+ * - error.log: Only error-level logs
+ * - combined.log: All log levels
+ * - Max file size: 5MB
+ * - Rollover files: 5 files kept (25MB total)
+ * - Directory: /logs/
+ * 
+ * Log Format:
+ * - Timestamp: YYYY-MM-DD HH:mm:ss
+ * - Level: error|warn|info|http|debug
+ * - Service: cse471-sports-platform
+ * - Message: Log message
+ * - Stack trace: For errors
+ * - Metadata: Additional context (userId, requestId, etc.)
+ * 
+ * Environment-Specific Behavior:
+ * - Production: File-only, info level, JSON format
+ * - Development: Console + file, debug level, colored output
+ * - Test: Minimal logging, suppress most output
+ * 
+ * Console Output (Development):
+ * - Colorized level indicators
+ * - Simplified format for readability
+ * - Stack traces for errors
+ * - Real-time output
+ * 
+ * Common Log Messages:
+ * - Info: Server start, connection established, operation success
+ * - Warn: Deprecated API use, slow queries, resource limits
+ * - Error: Database errors, auth failures, payment issues
+ * - Debug: Request details, variable values, function flow
+ * 
+ * Performance Tracking:
+ * - Request duration logging
+ * - Slow query identification
+ * - Error rate monitoring
+ * - Cache hit/miss tracking
+ * 
+ * Integration Points:
+ * - Express middleware for HTTP logging
+ * - Database operations logging
+ * - Authentication events
+ * - Payment processing
+ * - Email service operations
+ * 
+ * Monitoring & Analysis:
+ * - Log aggregation (ELK stack)
+ * - Error alerting
+ * - Performance dashboards
+ * - Audit trails
+ * 
+ * Best Practices:
+ * - Use appropriate log levels
+ * - Include relevant context
+ * - Avoid logging sensitive data
+ * - Structured logging format
+ * - Timestamp every log entry
+ * 
  * Winston logger configuration
  * Logs to file (error.log, combined.log) and console (development mode)
  * Log levels: error, warn, info, http, debug (in production: error, warn, info only)
