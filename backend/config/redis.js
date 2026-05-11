@@ -1,6 +1,87 @@
 import { createClient } from 'redis';
 import logger from '../utils/logger.js';
 
+/**
+ * Redis Caching & Session Configuration
+ * Provides high-performance caching and session management
+ * 
+ * Redis Use Cases:
+ * 1. Response Caching:
+ *    - API responses (5-15 min TTL)
+ *    - Database query results
+ *    - Search results caching
+ *    - Computed field analytics
+ * 
+ * 2. Session Storage:
+ *    - User session data
+ *    - JWT refresh tokens
+ *    - Active user tracking
+ *    - Login attempt tracking
+ * 
+ * 3. Rate Limiting:
+ *    - API request counting
+ *    - Login attempt throttling
+ *    - Payment operation limits
+ *    - File upload limits
+ * 
+ * 4. Real-time Data:
+ *    - Online user presence
+ *    - Chat message queuing
+ *    - Notification queue
+ *    - Activity feed updates
+ * 
+ * 5. Pub/Sub Messaging:
+ *    - Event broadcasting
+ *    - System notifications
+ *    - Booking status updates
+ *    - Chat room messages
+ * 
+ * Cache Key Patterns:
+ * - field:{fieldId}:details - Field details (10 min)
+ * - field:list:{page} - Field listings (5 min)
+ * - user:{userId}:profile - User profile (15 min)
+ * - booking:{bookingId} - Booking details (10 min)
+ * - session:{sessionId} - Session data (24 hours)
+ * - rate_limit:{userId} - Request counter (1 hour)
+ * 
+ * Connection Configuration:
+ * - REDIS_URL: Redis server URL (redis://host:port)
+ * - Retry Strategy: Exponential backoff
+ * - Connection pooling
+ * - Auto-reconnection
+ * - Timeout handling
+ * 
+ * Cache Invalidation Strategy:
+ * - TTL-based expiration
+ * - Pattern-based deletion
+ * - Event-triggered invalidation
+ * - Manual cache flush
+ * 
+ * Performance Metrics:
+ * - Cache hit rate tracking
+ * - Response time improvement
+ * - Memory usage monitoring
+ * - Connection pool stats
+ * 
+ * Failover & Recovery:
+ * - Graceful degradation if Redis unavailable
+ * - Fallback to database queries
+ * - Connection retry with exponential backoff
+ * - Error logging and alerts
+ * 
+ * Memory Management:
+ * - Eviction policy: LRU (Least Recently Used)
+ * - Max memory: 512MB (configurable)
+ * - Memory optimization for large datasets
+ * - Key expiration cleanup
+ * 
+ * Security:
+ * - Redis authentication (password)
+ * - SSL/TLS encryption
+ * - Private VPC deployment
+ * - Access control lists
+ */
+
 let redisClient = null;
 
 export const createRedisClient = async () => {

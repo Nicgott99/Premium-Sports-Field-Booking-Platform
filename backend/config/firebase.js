@@ -1,6 +1,79 @@
 import admin from 'firebase-admin';
 import logger from '../utils/logger.js';
 
+/**
+ * Firebase Admin SDK Configuration
+ * Handles Firebase authentication, messaging, and cloud storage integration
+ * 
+ * Firebase Services:
+ * 1. Authentication (Auth):
+ *    - User registration with email/password
+ *    - Google/Facebook OAuth integration
+ *    - Email verification and password reset
+ *    - Multi-factor authentication (2FA)
+ * 
+ * 2. Cloud Messaging (FCM):
+ *    - Push notifications to mobile/web
+ *    - Topic-based messaging
+ *    - Targeted device notifications
+ *    - Notification analytics
+ * 
+ * 3. Cloud Storage:
+ *    - User avatar storage
+ *    - Field image gallery
+ *    - Document storage (invoices, receipts)
+ *    - Media file hosting
+ * 
+ * 4. Firestore (Optional):
+ *    - Real-time chat messages
+ *    - Live booking notifications
+ *    - Activity feeds
+ * 
+ * Authentication Methods Supported:
+ * - Email/Password: Traditional method
+ * - Google OAuth: Federated identity
+ * - Facebook OAuth: Social login
+ * - Phone: SMS-based verification
+ * - Custom: Backend JWT tokens
+ * 
+ * Service Account Configuration:
+ * - FIREBASE_PROJECT_ID: Project identifier
+ * - FIREBASE_PRIVATE_KEY_ID: Key version ID
+ * - FIREBASE_PRIVATE_KEY: RSA private key (PEM format)
+ * - FIREBASE_CLIENT_EMAIL: Service account email
+ * - FIREBASE_CLIENT_ID: Service account client ID
+ * 
+ * Security Rules:
+ * - Firebase Security Rules for Firestore
+ * - Storage rules for file access
+ * - Authentication state management
+ * - Role-based access control
+ * 
+ * Error Handling:
+ * - Graceful failure if Firebase unavailable
+ * - Fallback to JWT-only auth
+ * - Error logging and monitoring
+ * - Retry logic for transient failures
+ * 
+ * Performance:
+ * - Single app instance (cached)
+ * - Connection pooling
+ * - Message batching
+ * - Rate limiting on API calls
+ * 
+ * Integration Points:
+ * - Backend user registration
+ * - Mobile app push notifications
+ * - Real-time chat system
+ * - File storage for user content
+ * 
+ * Monitoring & Debugging:
+ * - Firebase Console for metrics
+ * - Custom event logging
+ * - Error tracking and alerts
+ * - Performance monitoring
+ */
+
 let firebaseApp = null;
 
 export const setupFirebase = async () => {
