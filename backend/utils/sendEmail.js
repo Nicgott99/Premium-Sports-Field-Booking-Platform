@@ -4,6 +4,71 @@ import fs from 'fs';
 import path from 'path';
 
 /**
+ * Email Template & Sending Utility Module
+ * Provides templated email sending with Handlebars support
+ * 
+ * Email Templates:
+ * - emailVerification: Account verification email
+ * - passwordReset: Password recovery email
+ * - bookingConfirmation: Booking receipt email
+ * - paymentReceipt: Payment confirmation email
+ * - paymentReceipt: Invoice and receipt
+ * - cancellationNotice: Booking cancellation
+ * - reminderEmail: Booking reminders
+ * - promotionalEmail: Marketing campaigns
+ * 
+ * Template Variables (Handlebars):
+ * - {{name}}: User full name
+ * - {{email}}: User email address
+ * - {{verificationURL}}: Email verification link
+ * - {{resetURL}}: Password reset link
+ * - {{bookingDetails}}: Booking information
+ * - {{amount}}: Payment amount
+ * - {{transactionId}}: Payment reference
+ * - {{fieldName}}: Field name
+ * - {{bookingDate}}: Date of booking
+ * - {{bookingTime}}: Time of booking
+ * 
+ * Environment Configuration:
+ * - NODE_ENV: production|development
+ * - EMAIL_USER: Sender email address
+ * - EMAIL_PASS: Email password/API key
+ * - EMAIL_HOST: SMTP host (dev)
+ * - EMAIL_PORT: SMTP port (dev)
+ * 
+ * Production vs Development:
+ * - Production: Gmail/SendGrid real sending
+ * - Development: Ethereal Email sandbox (no real sending)
+ * 
+ * Email Delivery:
+ * - Async/await pattern
+ * - Error handling and logging
+ * - Retry logic for failures
+ * - Delivery confirmation
+ * - Unsubscribe links
+ * 
+ * HTML/Text Versions:
+ * - HTML: Formatted with styles
+ * - Plain text: Fallback for text-only clients
+ * - Responsive design
+ * - Brand styling
+ * 
+ * Security:
+ * - No passwords in email
+ * - Sensitive data encrypted in URLs
+ * - Secure token generation
+ * - Link expiration
+ * - DKIM/SPF compliance
+ * 
+ * Monitoring:
+ * - Delivery logs
+ * - Bounce tracking
+ * - Failure alerts
+ * - Performance metrics
+ * - User preferences
+ */
+
+/**
  * Create email transporter based on environment
  * Production: Uses Gmail/SendGrid SMTP service
  * Development: Uses Ethereal Email for testing
