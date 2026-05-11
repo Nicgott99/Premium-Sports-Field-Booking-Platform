@@ -23,6 +23,81 @@ import mongoose from 'mongoose';
  * - nagad/bkash/rocket: Bangladesh mobile wallets
  * - cash: Manual cash handling
  * 
+ * Payment Status:
+ * - pending: Awaiting payment
+ * - processing: Being processed
+ * - completed: Successfully charged
+ * - failed: Payment declined
+ * - cancelled: User cancelled
+ * - refunded: Full refund issued
+ * - partially_refunded: Partial refund
+ * 
+ * Currency Support:
+ * - BDT (Bangladesh Taka) - default
+ * - USD (US Dollar)
+ * - EUR (Euro)
+ * - INR (Indian Rupee)
+ * - GBP (British Pound)
+ * 
+ * Refund Policy:
+ * - Full refunds: Returns entire amount
+ * - Partial refunds: Specified portion
+ * - Refund reason tracking
+ * - Refund timestamps for audit
+ * - Automatic refunds on cancellations
+ * 
+ * Transaction Details:
+ * - Amount: Payment amount
+ * - Currency: Currency code
+ * - Method: Payment method used
+ * - Gateway: Payment processor
+ * - Transaction ID: Unique identifier
+ * - Reference: Booking/subscription reference
+ * 
+ * Metadata:
+ * - Invoice number
+ * - Receipt URL
+ * - Payment proof
+ * - Webhook response
+ * - Retry attempts
+ * 
+ * Related Data:
+ * - User: Payment owner
+ * - Booking: Associated booking
+ * - Subscription: Associated subscription
+ * 
+ * Security:
+ * - PCI DSS compliant
+ * - No card numbers stored
+ * - Tokens used for recurring
+ * - Webhook signature verification
+ * - Encrypted sensitive fields
+ * 
+ * Indexes:
+ * - userId: User lookup
+ * - transactionId: Transaction lookup
+ * - createdAt: Date range queries
+ * - status: Status filtering
+ * 
+ * Payment Lifecycle:
+ * pending → in_progress → completed/failed
+ * completed → refunded (if refund initiated)
+ * 
+ * Payment Methods Supported:
+ * - credit_card: Visa, Mastercard, American Express
+ * - debit_card: Bank debit cards
+ * - mobile_banking: Mobile banking apps
+ * - wallet: Digital wallets
+ * - bank_transfer: Direct bank transfers
+ * - cash: Cash payments (for in-person)
+ * 
+ * Payment Gateways:
+ * - stripe: International payments
+ * - sslcommerz: Bangladesh payments
+ * - paypal: PayPal integration
+ * - nagad/bkash/rocket: Bangladesh mobile wallets
+ * - cash: Manual cash handling
+ * 
  * Currency Support:
  * - BDT (Bangladesh Taka) - default
  * - USD (US Dollar)
