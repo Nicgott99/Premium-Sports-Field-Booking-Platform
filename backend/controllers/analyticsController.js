@@ -2,6 +2,111 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
+ * Analytics & Reporting Controller
+ * Provides platform-wide, booking, user, revenue, and field analytics
+ * 
+ * Responsibilities:
+ * - Platform-wide statistics for admin dashboards
+ * - Booking analytics and trends
+ * - User growth and engagement metrics
+ * - Revenue and financial analytics
+ * - Field performance and utilization
+ * - Dashboard data aggregation
+ * - Data export functionality
+ * 
+ * Analytics Metrics:
+ * 
+ * Platform Level:
+ * - Total users, fields, bookings
+ * - Active users today/week/month
+ * - New user registration trends
+ * - Platform revenue and growth rate
+ * - System health metrics
+ * 
+ * Booking Analytics:
+ * - Total bookings count
+ * - Booking completion rate
+ * - Cancellation rate and trends
+ * - Average booking duration
+ * - Peak booking times
+ * - Occupancy rates by field
+ * - Revenue per booking
+ * 
+ * User Analytics:
+ * - User growth rate
+ * - Active user percentage
+ * - User retention rate
+ * - User segmentation (casual, regular, premium)
+ * - User geographic distribution
+ * - User engagement metrics
+ * - Churn rate tracking
+ * 
+ * Revenue Analytics:
+ * - Total revenue generated
+ * - Revenue by payment method
+ * - Revenue by date range
+ * - Revenue per field
+ * - Revenue per user
+ * - Refund tracking
+ * - Subscription revenue
+ * 
+ * Field Analytics:
+ * - Field utilization rate
+ * - Field popularity ranking
+ * - Field revenue contribution
+ * - Booking frequency per field
+ * - Customer satisfaction per field
+ * - Peak usage times
+ * - Field performance comparison
+ * 
+ * Time Range Filters:
+ * - today: Last 24 hours
+ * - week: Last 7 days
+ * - month: Last 30 days
+ * - quarter: Last 90 days
+ * - year: Last 365 days
+ * - custom: User-specified date range
+ * 
+ * Dashboard Data:
+ * - Summary cards (users, bookings, revenue)
+ * - Trend charts (7-day, 30-day)
+ * - Top fields and users
+ * - Recent activity feed
+ * - Key performance indicators (KPIs)
+ * - Alert notifications
+ * 
+ * Data Export:
+ * - CSV format for spreadsheet analysis
+ * - PDF format for reports
+ * - JSON format for API consumption
+ * - Scheduled exports via email
+ * - Data filtering before export
+ * 
+ * Access Control:
+ * - Admin: Full platform analytics
+ * - Manager: Assigned fields/users only
+ * - Field Owner: Own field analytics only
+ * - User: Own booking analytics only
+ * 
+ * Performance Considerations:
+ * - Caching for frequent queries
+ * - Index on date fields
+ * - Aggregation pipeline optimization
+ * - Background job for heavy computations
+ * 
+ * Related Models:
+ * - User: User statistics
+ * - Booking: Booking trends
+ * - Field: Field performance
+ * - Payment: Revenue metrics
+ * 
+ * Event Emissions:
+ * - analytics_generated
+ * - report_exported
+ * - threshold_alert_triggered
+ */
+
+/**
  * Get platform-wide analytics
  * Returns overall statistics for admin dashboard
  * @async
