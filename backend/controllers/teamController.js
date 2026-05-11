@@ -2,7 +2,84 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
- * Create new sports team
+ * Team Management Controller
+ * Handles team creation, membership, and team operations
+ * 
+ * Responsibilities:
+ * - Team creation by users
+ * - Team member management
+ * - Membership invitations
+ * - Team statistics and analytics
+ * - Team updates and settings
+ * - Team deletion
+ * - Team search and discovery
+ * 
+ * Team Structure:
+ * - Captain: Team creator, full permissions
+ * - Co-captain: Assistant captain, partial permissions
+ * - Player: Regular team member
+ * - Substitute: Reserve player
+ * 
+ * Team Properties:
+ * - Name: Unique team identifier
+ * - Sport: Football, Cricket, Basketball, etc.
+ * - Skill Level: Beginner, Intermediate, Advanced, Professional
+ * - Location: Team home location
+ * - Description: Team bio/description
+ * - Logo: Team image
+ * - Members: Array of team members
+ * - Created Date: Formation date
+ * 
+ * Membership Management:
+ * - Invite new members via email/link
+ * - Accept/decline invitations
+ * - Promote members to co-captain
+ * - Remove members
+ * - Member statistics
+ * - Activity tracking
+ * 
+ * Team Statistics:
+ * - Total members
+ * - Win/loss record
+ * - Tournaments participated
+ * - Recent matches
+ * - Team rating
+ * - Member engagement
+ * 
+ * Team Permissions:
+ * - Captain: All operations
+ * - Co-captain: Member management, team updates
+ * - Player: View team info, join tournaments
+ * - Non-member: View only
+ * 
+ * Team Validation:
+ * - Name: 2-100 characters, unique
+ * - Max members: 50 per team
+ * - Sport types: Predefined list
+ * - Skill levels: Predefined list
+ * 
+ * Integration Points:
+ * - Tournament registration
+ * - Booking teams for fields
+ * - Match scheduling
+ * - Team chat/messaging
+ * - Performance analytics
+ * 
+ * Access Control:
+ * - Authenticated users: Create teams
+ * - Captain: Full team management
+ * - Members: Team view and operations
+ * - Admins: Manage all teams
+ * 
+ * Event Emissions:
+ * - team_created
+ * - member_invited
+ * - member_joined
+ * - member_left
+ * - team_updated
+ * - team_deleted
+ * 
+ * @desc    Create new sports team
  * Allows authenticated user to create and become captain of new team
  * @async
  * @route POST /api/teams
