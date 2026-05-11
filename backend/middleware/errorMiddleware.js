@@ -1,6 +1,90 @@
 import logger from '../utils/logger.js';
 
 /**
+ * Error Handling Middleware Module
+ * Centralized error processing for all API endpoints
+ * 
+ * Error Flow:
+ * 1. Error thrown in route handler
+ * 2. Caught by asyncHandler or try-catch
+ * 3. Passed to errorHandler middleware
+ * 4. Error type identified
+ * 5. Status code and message formatted
+ * 6. Error logged
+ * 7. JSON response sent to client
+ * 
+ * Error Types Handled:
+ * 
+ * Mongoose Errors:
+ * - CastError: Invalid ObjectId (404)
+ * - ValidationError: Schema validation failure (400)
+ * - Duplicate Key (11000): Unique constraint violation (400)
+ * - MongoError: Database connection errors (500)
+ * 
+ * JWT Errors:
+ * - JsonWebTokenError: Token signature invalid (401)
+ * - TokenExpiredError: Token has expired (401)
+ * - NotBeforeError: Token not yet valid (401)
+ * 
+ * Firebase Errors:
+ * - FirebaseAuthError: Auth token invalid (401)
+ * - Authentication failed (401)
+ * 
+ * HTTP Errors:
+ * - 404 Not Found: Resource doesn't exist
+ * - 400 Bad Request: Invalid input
+ * - 401 Unauthorized: Authentication required
+ * - 403 Forbidden: Insufficient permissions
+ * - 422 Unprocessable: Validation failed
+ * - 500 Server Error: Internal error
+ * 
+ * Custom Application Errors:
+ * - AppError: Custom error class with status
+ * - Uses statusCode property
+ * - isOperational flag for handling
+ * 
+ * Error Response Format:
+ * {
+ *   success: false,
+ *   status: 'fail' | 'error',
+ *   statusCode: 400-599,
+ *   message: 'Error description',
+ *   error: 'Error details (dev only)',
+ *   timestamp: '2024-05-12T10:30:00Z'
+ * }
+ * 
+ * Logging:
+ * - Error level logging
+ * - Request details (URL, method, IP)
+ * - Error stack trace
+ * - User ID (if available)
+ * - Request ID for tracing
+ * 
+ * Development vs Production:
+ * - Dev: Full error stack trace in response
+ * - Production: Generic error message only
+ * - Dev: Console logging
+ * - Production: File logging only
+ * 
+ * Security Considerations:
+ * - No sensitive data exposed
+ * - Stack traces hidden in production
+ * - Generic error messages to clients
+ * - Detailed logging for debugging
+ * - Error rate monitoring
+ * 
+ * Special Handling:
+ * - 404 errors auto-created for invalid routes
+ * - Mongoose validation errors detailed
+ * - Duplicate key errors user-friendly
+ * - JWT errors clear messaging
+ * 
+ * Performance:
+ * - Fast error handling
+ * - No database queries in error handler
+ * - Synchronous processing
+ * - Minimal logging overhead
+ * 
  * Middleware to handle 404 Not Found errors
  * Creates error object and passes to error handler
  * @param {Object} req - Express request object
