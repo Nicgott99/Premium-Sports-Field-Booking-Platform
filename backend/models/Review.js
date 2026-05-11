@@ -19,6 +19,84 @@ import mongoose from 'mongoose';
  * - Location: Accessibility, parking, transportation
  * 
  * Review Moderation:
+ * - Flagged reviews hidden until approval
+ * - Prevents spam and inappropriate content
+ * - Admin review queue
+ * - Auto-flagging for low ratings
+ * 
+ * Helpful System:
+ * - Users mark helpful reviews
+ * - Helps rank quality feedback
+ * - Display count of helpful votes
+ * - Influence review sorting
+ * 
+ * Review Content:
+ * - Title: Headline (max 100 chars)
+ * - Content: Detailed feedback (max 2000 chars)
+ * - Rating: 1-5 stars
+ * - Images: Up to 5 photos
+ * - Verified Purchase: Booking confirmation
+ * 
+ * Reviewer Info:
+ * - User: Review author
+ * - Anonymous: Option for anonymous reviews
+ * - Date: Review submission date
+ * - Last Updated: Edit timestamp
+ * 
+ * Review Constraints:
+ * - One review per field per user
+ * - Only verified booking users
+ * - Booking must be completed
+ * - 1-day delay after booking
+ * - Edit window: 30 days
+ * - Delete window: 60 days
+ * 
+ * Moderation Fields:
+ * - Flagged: Flagged by moderators
+ * - Flag Reason: Why flagged
+ * - Approved: Admin approved
+ * - Spam Score: AI spam detection
+ * 
+ * Helpful Tracking:
+ * - Helpful count: User votes
+ * - Reported count: Abuse reports
+ * - Report reasons: Spam, offensive, fake
+ * - Manual removal: Admin action
+ * 
+ * Analytics:
+ * - Average rating per field
+ * - Rating distribution
+ * - Review frequency
+ * - Helpful percentage
+ * - Response rate
+ * 
+ * Relationships:
+ * - Field: Reviews belong to field
+ * - User: Author of review
+ * - Booking: Evidence of participation
+ * 
+ * Indexes:
+ * - fieldId: Field lookup
+ * - userId: User reviews
+ * - rating: Rating filtering
+ * - helpful: Helpful sorting
+ * - createdAt: Date queries
+ * 
+ * Rating System:
+ * 1 star: Poor - Would not recommend
+ * 2 stars: Fair - Below average facility/experience
+ * 3 stars: Good - Average facility/experience
+ * 4 stars: Very Good - Above average facility/experience
+ * 5 stars: Excellent - Would highly recommend
+ * 
+ * Review Categories:
+ * - Facility Quality: Condition, maintenance, equipment
+ * - Cleanliness: Overall cleanliness and hygiene
+ * - Service: Staff behavior, responsiveness
+ * - Value: Price-to-quality ratio
+ * - Location: Accessibility, parking, transportation
+ * 
+ * Review Moderation:
  * Flagged reviews are hidden until admin approval
  * Helps prevent spam and inappropriate content
  * 
