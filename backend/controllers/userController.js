@@ -2,6 +2,42 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
+ * User Management Controller
+ * Handles all user profile, preferences, and account management operations
+ * 
+ * Responsibilities:
+ * - User profile retrieval, updates, deletion
+ * - User statistics and analytics
+ * - Preference management (notifications, privacy, availability)
+ * - Avatar upload and management
+ * - Social features (follow/followers)
+ * - User blocking and reporting
+ * - Subscription management
+ * - User search and discovery
+ * - Account data export and deletion
+ * 
+ * Relationships:
+ * - User model: Direct user data management
+ * - Booking model: User booking history
+ * - Team model: User team memberships
+ * - Review model: User reviews and ratings
+ * - Notification model: User notification preferences
+ * - Subscription model: User subscription tier
+ * 
+ * Access Control:
+ * - Public: Profile viewing (limited data)
+ * - Private: Own profile operations
+ * - Admin: User management and stats
+ * 
+ * Event Emissions:
+ * - user_profile_updated
+ * - user_avatar_changed
+ * - user_followed
+ * - user_subscription_changed
+ * - account_deletion_requested
+ */
+
+/**
  * Get all users with filtering and pagination
  * @async
  * @route GET /api/users
