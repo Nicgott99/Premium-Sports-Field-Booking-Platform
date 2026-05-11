@@ -2,6 +2,61 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
+ * Booking Management Controller
+ * Handles field reservations, scheduling, and booking lifecycle
+ * 
+ * Responsibilities:
+ * - Booking creation with availability verification
+ * - Booking retrieval (user bookings, field calendar)
+ * - Booking updates and cancellations
+ * - Booking status management (pending→confirmed→completed)
+ * - Cancellation policy enforcement
+ * - Refund processing for cancellations
+ * - QR code generation for booking verification
+ * - Booking statistics and analytics
+ * - Booking calendar management
+ * 
+ * Booking Lifecycle:
+ * 1. pending: Initial state, awaiting confirmation
+ * 2. confirmed: Booking verified, payment collected
+ * 3. in-progress: Booking active (at current time)
+ * 4. completed: Booking finished successfully
+ * 5. cancelled: User-initiated cancellation
+ * 6. no-show: User didn't arrive
+ * 
+ * Pricing Rules:
+ * - Hourly rate × duration = base amount
+ * - Discounts apply for multi-hour bookings
+ * - Peak pricing during high-demand hours
+ * - Group discounts for large bookings
+ * 
+ * Cancellation Policy:
+ * - 24+ hours before: 100% refund
+ * - 12-24 hours before: 50% refund
+ * - <12 hours before: No refund
+ * - After start time: No refund
+ * 
+ * Availability Logic:
+ * - Checks existing bookings for time slot
+ * - Respects field operating hours
+ * - Accounts for buffer times between bookings
+ * - Validates participant capacity
+ * 
+ * Access Control:
+ * - Authenticated: Create, view own bookings
+ * - Owner: View field bookings, calendar
+ * - Admin: Manage all bookings
+ * 
+ * Event Emissions:
+ * - booking_created
+ * - booking_confirmed
+ * - booking_cancelled
+ * - booking_completed
+ * - refund_processed
+ * - qr_generated
+ */
+
+/**
  * Create new booking for a field
  * @async
  * @route POST /api/bookings

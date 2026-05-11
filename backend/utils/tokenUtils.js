@@ -2,6 +2,55 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
 /**
+ * Token Utilities Module
+ * Advanced token generation and management functions
+ * 
+ * Token Types:
+ * - Access: 15-minute, for API requests
+ * - Refresh: 7-day, for obtaining new access tokens
+ * - Email Verification: 24-hour, for email confirmation
+ * - Password Reset: 30-minute, for password reset flow
+ * - API Key: No expiration, for programmatic access
+ * 
+ * JWT Options (OpenID Connect Compliant):
+ * - issuer: Platform identifier
+ * - audience: Token recipient identifier
+ * - subject: User identifier
+ * - expiresIn: Expiration time
+ * - notBefore: Token valid from time
+ * - jti: Unique token ID (optional)
+ * 
+ * Token Encoding/Decoding:
+ * - RSA256: For production (public/private key pair)
+ * - HS256: For development (shared secret)
+ * - Base64URL: Token encoding standard
+ * 
+ * Token Verification:
+ * - Signature: Cryptographic verification
+ * - Expiration: Check exp claim
+ * - Audience: Verify aud claim matches
+ * - Issuer: Verify iss claim matches
+ * 
+ * Error Handling:
+ * - JsonWebTokenError: Invalid token
+ * - TokenExpiredError: Token has expired
+ * - NotBeforeError: Token not yet valid
+ * 
+ * Security Best Practices:
+ * - Short-lived access tokens (15 min)
+ * - Long-lived refresh tokens (7 days)
+ * - Store tokens securely
+ * - Rotate tokens regularly
+ * - Invalidate on logout
+ * 
+ * Environment Variables:
+ * - JWT_SECRET: Token signing secret
+ * - JWT_EXPIRE: Default expiration
+ * - JWT_ISSUER: Platform name
+ * - JWT_AUDIENCE: API/app identifier
+ */
+
+/**
  * Generate JWT token with custom payload and options
  * @param {Object} payload - Data to encode in token (usually user ID)
  * @param {Object} options - JWT options (expiresIn, issuer, audience, etc.)

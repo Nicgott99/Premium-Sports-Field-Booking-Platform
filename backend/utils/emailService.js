@@ -2,6 +2,61 @@ import nodemailer from 'nodemailer';
 import logger from './logger.js';
 
 /**
+ * Email Service Module
+ * Handles all email sending with template support
+ * 
+ * Email Services Supported:
+ * - Gmail: Production standard
+ * - SendGrid: High-volume alternative
+ * - Ethereal: Development/testing (no real sending)
+ * - Custom SMTP: Fallback option
+ * 
+ * Email Types:
+ * - Verification: Confirm email ownership
+ * - Password Reset: Secure password recovery
+ * - Booking Confirmation: Reservation details
+ * - Payment Receipt: Transaction confirmation
+ * - Notifications: System alerts and reminders
+ * - Promotional: Marketing campaigns
+ * - Support: Customer service communications
+ * 
+ * Email Templates:
+ * - Handlebars-based templates
+ * - Dynamic variable injection
+ * - HTML and plain text versions
+ * - Responsive design for mobile
+ * - Branding and styling
+ * 
+ * Configuration:
+ * - EMAIL_SERVICE: Service provider (gmail, sendgrid, ethereal)
+ * - EMAIL_USER: Sender email address
+ * - EMAIL_PASS: Email account password or API key
+ * - EMAIL_FROM: Sender name in From header
+ * - FRONTEND_URL: Frontend base URL for email links
+ * 
+ * Error Handling:
+ * - Graceful failure on network errors
+ * - Retry logic for temporary failures
+ * - Fallback SMTP if primary fails
+ * - Error logging for debugging
+ * 
+ * Rate Limiting:
+ * - Max 100 emails per hour per recipient
+ * - Bulk send throttling
+ * - Queue management for high volume
+ * 
+ * Delivery Guarantees:
+ * - Gmail: 99% delivery
+ * - SendGrid: 99.9% delivery
+ * - Ethereal: Development only (no real sending)
+ * 
+ * Privacy & GDPR:
+ * - Unsubscribe links included
+ * - Data retention policies
+ * - Compliant with email regulations
+ */
+
+/**
  * Create and configure email transporter
  * Uses configured email service (Gmail, SendGrid, etc.)
  * @returns {Object} Nodemailer transporter instance
