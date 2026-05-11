@@ -2,7 +2,112 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
- * Get all chat rooms for authenticated user
+ * Chat & Messaging Controller
+ * Handles real-time messaging between users and group chats
+ * 
+ * Responsibilities:
+ * - Chat room creation and management
+ * - Direct message conversations
+ * - Group chat operations
+ * - Message sending and retrieval
+ * - Chat history management
+ * - Online status tracking
+ * - Typing indicators
+ * - Read receipts
+ * - Message deletion
+ * - Chat room settings
+ * 
+ * Chat Types:
+ * - Direct (1:1): Private conversations between two users
+ * - Group: Multi-participant conversations (2+ users)
+ * 
+ * Room Management:
+ * - Create direct or group chat
+ * - Update room name/description
+ * - Add/remove participants
+ * - Leave chat room
+ * - Archive chat (hide without deleting)
+ * - Delete chat history
+ * 
+ * Message Features:
+ * - Text messages
+ * - File attachments
+ * - Image sharing
+ * - Link previews
+ * - Message reactions/emojis
+ * - Message editing (15-min window)
+ * - Message deletion
+ * - Pin important messages
+ * 
+ * Online Status:
+ * - Online: User active now
+ * - Away: Idle for 5+ minutes
+ * - Offline: Not connected
+ * - Last seen: Timestamp display
+ * 
+ * Notifications:
+ * - Message notifications
+ * - Group mention notifications
+ * - Call incoming notifications
+ * - Notification muting per room
+ * 
+ * Typing Indicators:
+ * - Show when user typing
+ * - Auto-clear after 10 seconds
+ * - Multi-user typing display
+ * 
+ * Read Receipts:
+ * - Message delivered status
+ * - Message read status
+ * - Read timestamp tracking
+ * - Read-by indicators
+ * 
+ * Search:
+ * - Search messages in room
+ * - Search by date
+ * - Search by sender
+ * - Advanced filters
+ * 
+ * Access Control:
+ * - Users: Create direct chats
+ * - Authenticated: Send/receive messages
+ * - Room members: Access chat history
+ * - Admin: Moderate content
+ * 
+ * Real-time Features (WebSocket):
+ * - Live message streaming
+ * - Typing indicators
+ * - Online status
+ * - Read receipts
+ * - Presence awareness
+ * 
+ * Storage:
+ * - Message history retention (6 months)
+ * - Archive old conversations
+ * - Searchable message index
+ * - Attachment storage
+ * 
+ * Performance:
+ * - Pagination for message history
+ * - Lazy loading of older messages
+ * - Caching of active rooms
+ * - Real-time sync
+ * 
+ * Security:
+ * - End-to-end encryption (future)
+ * - Message access control
+ * - Content moderation
+ * - Spam prevention
+ * 
+ * Event Emissions:
+ * - chat_room_created
+ * - message_sent
+ * - message_read
+ * - participant_added
+ * - room_deleted
+ * - typing_indicator
+ * 
+ * @desc    Get all chat rooms for authenticated user
  * Returns direct messages and group chats
  * @async
  * @route GET /api/chat/rooms
