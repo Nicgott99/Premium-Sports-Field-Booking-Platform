@@ -1,6 +1,109 @@
 import asyncHandler from 'express-async-handler';
 
-// @desc    Create new tournament
+/**
+ * Tournament Management Controller
+ * Handles tournament creation, registration, bracket management, and results
+ * 
+ * Responsibilities:
+ * - Tournament creation and scheduling
+ * - Team/participant registration
+ * - Bracket generation and management
+ * - Match scheduling and results
+ * - Standings/leaderboard management
+ * - Prize distribution
+ * - Tournament analytics
+ * - Notification management for participants
+ * 
+ * Tournament Formats:
+ * - round_robin: Each team plays all others
+ * - knockout: Elimination bracket
+ * - group_stage: Teams in groups + knockout
+ * - league: Seasonal standings
+ * - custom: Custom format specification
+ * 
+ * Tournament Status Lifecycle:
+ * 1. draft: Initial creation
+ * 2. registration_open: Teams can register
+ * 3. registration_closed: No more registrations
+ * 4. scheduled: Fixtures determined
+ * 5. in_progress: Tournament running
+ * 6. completed: Tournament finished
+ * 7. cancelled: Tournament cancelled
+ * 
+ * Tournament Details:
+ * - Name: Tournament identifier
+ * - Sport: Football, Basketball, etc.
+ * - Format: round_robin, knockout, etc.
+ * - Date: Start and end dates
+ * - Location: Field location
+ * - Max participants: Team limit
+ * - Entry fee: Optional participation fee
+ * - Prize pool: Total prize money
+ * 
+ * Registration Flow:
+ * 1. Tournament created (registration_open)
+ * 2. Teams register via POST /register
+ * 3. Registration deadline passed
+ * 4. Bracket generated
+ * 5. Matches scheduled
+ * 6. Tournament begins
+ * 
+ * Match Management:
+ * - Match scheduling
+ * - Score recording
+ * - Result verification
+ * - Statistics tracking
+ * - Fixture rescheduling
+ * 
+ * Standings/Leaderboard:
+ * - Points calculation (3W-1D-0L)
+ * - Goal/point differential
+ * - Head-to-head tiebreaker
+ * - Real-time updates
+ * - Export functionality
+ * 
+ * Prize Distribution:
+ * - Prize breakdown (1st, 2nd, 3rd place)
+ * - Individual performance awards
+ * - Best player selection
+ * - Prize payment processing
+ * - Prize claim management
+ * 
+ * Notifications:
+ * - Tournament start announcement
+ * - Match schedule updates
+ * - Result notifications
+ * - Standing updates
+ * - Winner announcement
+ * 
+ * Access Control:
+ * - Authenticated: Register teams, view tournaments
+ * - Organizer: Create, manage own tournaments
+ * - Admin: Manage all tournaments
+ * - Public: View tournament info
+ * 
+ * Constraints:
+ * - Min participants: 2 teams
+ * - Max participants: Configurable (32 typical)
+ * - Registration deadline: Before bracket generation
+ * - Min score recording: After match completion
+ * 
+ * Related Models:
+ * - Team: Tournament participants
+ * - Match: Tournament fixtures
+ * - User: Tournament organizer
+ * - Field: Tournament venue
+ * 
+ * Event Emissions:
+ * - tournament_created
+ * - tournament_started
+ * - tournament_completed
+ * - team_registered
+ * - match_scheduled
+ * - result_recorded
+ * - standings_updated
+ * 
+ * @desc    Create new tournament
 // @route   POST /api/tournaments
 // @access  Private/Admin
 export const createTournament = asyncHandler(async (req, res) => {

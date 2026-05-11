@@ -2,6 +2,93 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
+ * Review & Rating Controller
+ * Manages field reviews, user ratings, and review moderation
+ * 
+ * Responsibilities:
+ * - Review creation with validation
+ * - Review retrieval with sorting/filtering
+ * - Review updates (author only)
+ * - Review deletion (author or admin)
+ * - Helpful vote tracking
+ * - Review moderation and flagging
+ * - Rating statistics calculation
+ * - Review analytics
+ * 
+ * Review Types:
+ * - field_reviews: Reviews of sports facilities
+ * - user_reviews: Reviews of user behavior
+ * - booking_reviews: Post-booking feedback
+ * 
+ * Rating System:
+ * - Scale: 1-5 stars
+ * - Decimal precision: 0.5 star increments
+ * - Weight: Recent reviews weighted higher
+ * - Filter: Low ratings require minimum character count
+ * 
+ * Review Structure:
+ * - Rating: 1-5 stars
+ * - Title: Short review headline
+ * - Comment: Detailed feedback (5-500 chars)
+ * - Images: Up to 5 photos
+ * - Helpful count: Votes from other users
+ * - Report count: Moderation tracking
+ * 
+ * Moderation Features:
+ * - Automatic flagging for low ratings
+ * - Manual review approval workflow
+ * - Spam/abuse detection
+ * - Profanity filtering
+ * - Review removal for violations
+ * - Admin override capability
+ * 
+ * Review Analytics:
+ * - Average rating calculation
+ * - Rating distribution (star breakdown)
+ * - Review frequency trends
+ * - Helpfulness tracking
+ * - Response rate tracking
+ * 
+ * Constraints:
+ * - One review per field per user
+ * - Only confirmed booking users can review
+ * - Review after booking completion (1 day delay)
+ * - Edit window: 30 days
+ * - Delete window: 60 days
+ * 
+ * Helpful System:
+ * - Users vote review helpfulness
+ * - Highest-rated reviews display first
+ * - Helpful count affects sorting
+ * - Max 1 vote per user per review
+ * 
+ * Report & Abuse:
+ * - Users can report inappropriate reviews
+ * - Report reasons: spam, offensive, fake, off-topic
+ * - 3+ reports auto-flag for review
+ * - Admin can remove after investigation
+ * 
+ * Related Models:
+ * - Field: Reviews belong to fields
+ * - User: Author of reviews
+ * - Booking: Evidence of participation
+ * 
+ * Access Control:
+ * - Authenticated: Create, read reviews
+ * - Author: Update/delete own reviews
+ * - Admin: Moderate all reviews
+ * - Public: Read reviews anonymously
+ * 
+ * Event Emissions:
+ * - review_created
+ * - review_updated
+ * - review_deleted
+ * - review_flagged
+ * - helpful_vote_added
+ * - review_moderated
+ */
+
+/**
  * Create new review for field or user
  * Allows authenticated users to rate and review sports facilities
  * @async

@@ -2,6 +2,78 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
+ * Notification Management Controller
+ * Handles user notifications, preferences, and alert management
+ * 
+ * Responsibilities:
+ * - Notification retrieval with pagination and filtering
+ * - Mark notifications as read/unread
+ * - Bulk mark all notifications as read
+ * - Delete individual notifications
+ * - Notification preferences management
+ * - Push notification subscription
+ * - Notification settings (email, SMS, in-app, push)
+ * 
+ * Notification Types (14 types):
+ * - booking_confirmed: Booking approved
+ * - booking_cancelled: Booking cancelled
+ * - payment_received: Payment success
+ * - payment_failed: Payment declined
+ * - booking_reminder: 24-hour pre-booking alert
+ * - new_message: Chat/direct message
+ * - team_invitation: Team join invitation
+ * - tournament_registration: Tournament signup confirmation
+ * - tournament_start: Tournament beginning notification
+ * - field_availability: Field became available
+ * - review_posted: Review published on user's field
+ * - follow_user: Someone started following user
+ * - system_alert: Platform maintenance, policy updates
+ * - other: Miscellaneous notifications
+ * 
+ * Notification Channels:
+ * - in_app: Browser notification
+ * - email: Email delivery
+ * - sms: Text message
+ * - push: Mobile push notification
+ * 
+ * Priority Levels:
+ * - low: Non-urgent updates
+ * - normal: Standard notifications
+ * - high: Important events
+ * - urgent: Critical alerts
+ * 
+ * Notification Lifecycle:
+ * 1. Created: Triggered by system event
+ * 2. Sent: Delivered via selected channels
+ * 3. Viewed: Seen by user in app
+ * 4. Read: User clicked/opened notification
+ * 5. Archived: User dismissed or deleted
+ * 
+ * Preferences Management:
+ * - Per-notification-type settings
+ * - Per-channel preferences
+ * - Quiet hours (no notifications)
+ * - Notification batching
+ * - Unsubscribe options
+ * 
+ * Related Models:
+ * - User: Notification recipient
+ * - Booking: Booking-related notifications
+ * - Field: Field-related notifications
+ * - Review: Review notifications
+ * 
+ * Access Control:
+ * - Users: View/manage own notifications
+ * - Admin: View all notifications, manual send
+ * 
+ * Event Emissions:
+ * - notification_created
+ * - notification_read
+ * - notification_deleted
+ * - preferences_updated
+ */
+
+/**
  * Get user notifications with pagination and filtering
  * @async
  * @route GET /api/notifications
