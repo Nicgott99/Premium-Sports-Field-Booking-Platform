@@ -10,6 +10,77 @@ import Tournament from '../models/Tournament.js';
 import Review from '../models/Review.js';
 import logger from '../utils/logger.js';
 
+/**
+ * Database Seeder Module
+ * Populates MongoDB with initial test data for development
+ * 
+ * Seeding Strategy:
+ * 1. Connect to MongoDB
+ * 2. Clear all existing collections
+ * 3. Create seed data in order:
+ *    - Admin/test users
+ *    - Sample field listings
+ *    - Test bookings
+ *    - Teams for testing
+ *    - Tournaments
+ *    - Reviews and ratings
+ * 4. Log completion status
+ * 
+ * Sample Data Includes:
+ * - Admin User: email: admin@sports.com, password: Test@1234
+ * - Regular User: email: user@sports.com, password: Test@1234
+ * - Field Owner: email: owner@sports.com, password: Test@1234
+ * - Sample Fields: Football, Basketball, Tennis
+ * - Sample Bookings: Various dates and times
+ * - Sample Teams: Different sports
+ * - Sample Tournaments: Different formats
+ * 
+ * Usage:
+ * - Development: Run after fresh database setup
+ * - Testing: Seed before test suite
+ * - Demo: Populate with example data
+ * - Command: node backend/config/seeder.js
+ * 
+ * Data Relationships:
+ * - Fields owned by field owners
+ * - Bookings reference fields and users
+ * - Teams contain multiple users
+ * - Tournaments contain teams
+ * - Reviews reference fields
+ * 
+ * Bangladesh-Specific Data:
+ * - Phone numbers: Bangladeshi format
+ * - Locations: Major Bangladeshi cities
+ * - Currency: BDT (Bangladeshi Taka)
+ * - Time zones: UTC+6
+ * - Sports: Football, Cricket, Badminton
+ * 
+ * Password Hashing:
+ * - All passwords hashed with bcryptjs
+ * - Salt rounds: 10
+ * - Test password: Test@1234
+ * 
+ * Entity Counts:
+ * - Users: 5-10 test accounts
+ * - Fields: 10-20 sample facilities
+ * - Bookings: 20-30 test reservations
+ * - Teams: 5-10 test teams
+ * - Tournaments: 3-5 test tournaments
+ * - Reviews: 15-25 test reviews
+ * 
+ * Safety Features:
+ * - Clears data before seeding (no duplicates)
+ * - Transaction-like behavior (all or nothing)
+ * - Error handling and logging
+ * - Validation before insertion
+ * 
+ * Development Only:
+ * - Not run in production
+ * - Test data only, no real information
+ * - Can be run multiple times safely
+ * - Use for development and testing
+ */
+
 dotenv.config();
 
 const seedDatabase = async () => {
