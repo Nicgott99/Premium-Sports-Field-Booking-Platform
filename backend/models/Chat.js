@@ -1,31 +1,71 @@
 import mongoose from 'mongoose';
 
 /**
- * Chat Schema for messaging system
- * Supports both direct messages and group chats
+ * Chat Schema - Real-Time Messaging System
+ * Supports direct (1:1) and group chats with real-time synchronization
  * 
  * Chat Types:
- * - direct: One-to-one private messaging between users
- * - group: Multi-user chat rooms with shared discussions
+ * - direct: Private conversation between exactly 2 users
+ * - group: Multi-user chat room with admin roles
+ * 
+ * Direct Chat Features:
+ * - Auto-created on first message between users
+ * - Symmetric permissions for both users
+ * - Message history preserved indefinitely
+ * - Mute, archive, delete options
  * 
  * Group Chat Features:
- * - Multiple participants with different roles
- * - Group name and description
- * - Chat icon for visual identification
- * - Admin controls for chat management
+ * - Admin/moderator role management
+ * - Custom name, description, icon
+ * - Add/remove members by admin
+ * - Participant roles: admin, moderator, member
+ * - Pinned messages, announcements
  * 
- * Message Management:
- * - Individual message storage
- * - Message timestamps for ordering
- * - Message sender attribution
- * - Support for text, images, files
+ * Participant Status:
+ * - active: Currently participating
+ * - muted: Notifications disabled
+ * - archived: Hidden from list
+ * - left: Member departed
+ * - removed: Kicked by admin
+ * - banned: Permanently excluded
  * 
- * Use Cases:
- * - Direct messages for booking inquiries
- * - Group chats for team coordination
- * - Tournament/league discussions
- * - Field owner and renter communication
- * - Support/help channel communications
+ * Message Content:
+ * - Text: Plain text messages
+ * - Media: Images, files, attachments
+ * - Mentions: @username notifications
+ * - Reactions: Emoji reactions
+ * - Forwarding: Forward to other chats
+ * 
+ * Message Status:
+ * - sent: Transmitted to server
+ * - delivered: Received by recipient(s)
+ * - read: Seen by recipient(s)
+ * - edited: Modified after sending
+ * - deleted: Removed by author/moderator
+ * 
+ * Real-Time Events:
+ * - message_sent, typing_indicator, online_status
+ * - read_receipt, participant_joined, participant_left
+ * - chat_settings_updated, message_reacted
+ * 
+ * Notifications:
+ * - New message alert
+ * - Direct mention notification
+ * - Member joined notification
+ * - Group info change alert
+ * 
+ * Search & History:
+ * - Search messages by content
+ * - Filter by sender, date
+ * - 6-month message retention (default)
+ * - Archive old messages
+ * - Full-text indexing
+ * 
+ * Relationships:
+ * - User: Chat participants
+ * - Message: Individual message records
+ * 
+ * Indexes: participants, chatType, createdAt, lastMessageAt
  */
 const chatSchema = new mongoose.Schema(
   {
