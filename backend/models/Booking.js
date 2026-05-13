@@ -1,32 +1,53 @@
 import mongoose from 'mongoose';
 
 /**
- * Booking Schema for field reservations
- * Manages complete booking lifecycle from creation to completion
+ * Booking Schema - Field Reservation Management
+ * Complete lifecycle of sports field bookings from creation to completion
  * 
- * Booking Statuses:
- * - pending: Awaiting confirmation (30 min timeout)
- * - confirmed: Verified and ready for use
- * - in-progress: Booking time has started
- * - completed: Successfully finished
- * - cancelled: User/admin cancelled booking
- * - no-show: User didn't arrive for booking
+ * Booking Status: pending | confirmed | in-progress | completed | cancelled | no-show
  * 
- * Cancellation Policies:
- * - 24+ hours: Full refund
- * - 12-24 hours: 50% refund
- * - <12 hours: No refund
+ * Status Lifecycle:
+ * - pending: Initial state, 30-min timeout if not confirmed
+ * - confirmed: Payment received, booking locked
+ * - in-progress: Booking time actively occurring
+ * - completed: Booking finished, user can review
+ * - cancelled: User/admin cancelled, refund processed
+ * - no-show: User didn't arrive, no refund
  * 
- * Participants:
- * - primary: User who made the booking
- * - players: Additional players joining the session
- * - max capacity: Field's maximum player count
+ * Cancellation Policy (Bangladesh):
+ * - 24+ hours before: 100% refund
+ * - 12-24 hours before: 50% refund
+ * - <12 hours before: No refund (0%)
+ * - After start: No refund (0%)
  * 
- * Pricing:
- * - base rate: Field hourly rate
- * - discount: Applied promotional discount
- * - total: Final amount after discounts
- * - taxes: VAT/service tax
+ * Pricing Components:
+ * - Base rate: Field hourly rate × duration
+ * - Discount: Promotional, loyalty, or group discount
+ * - Tax/VAT: 15% calculation on subtotal
+ * - Service fee: 5% platform fee
+ * - Total = (base - discounts) × 1.15 + service fee
+ * 
+ * Core Features:
+ * - Participant management (primary + additional players)
+ * - QR code generation for check-in verification
+ * - Real-time availability checking
+ * - Payment integration (Stripe, SSLCommerz, bKash)
+ * - Refund processing with audit trail
+ * - Booking history and analytics
+ * - Field capacity enforcement
+ * - Buffer time management between bookings
+ * 
+ * Relationships:
+ * - User (booker): Who made the booking
+ * - Field: Sports facility being booked
+ * - Payment: Associated payment record
+ * - Review: Post-completion review (optional)
+ * 
+ * Indexes:
+ * - userId: User's booking history
+ * - fieldId: Field's bookings
+ * - status: Status filtering
+ * - startTime: Date range queries
  */
 const bookingSchema = new mongoose.Schema({
   // Basic Information
