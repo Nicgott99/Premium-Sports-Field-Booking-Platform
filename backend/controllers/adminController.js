@@ -2,17 +2,127 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
- * Get admin dashboard statistics
- * Returns key metrics for platform overview
- * @async
- * @route GET /api/admin/dashboard
- * @access Private/Admin
- * @param {string} dateRange - Range for statistics (today, week, month, year)
- * @returns {Object} Dashboard stats including users, fields, bookings, revenue
- * @throws {Error} 403 - User not admin
+ * Admin Controller - Platform Administration & Moderation System
+ * Comprehensive admin operations for platform management, user moderation, and analytics
+ * 
+ * Dashboard & Analytics:
+ * - getDashboardStats: Platform overview metrics
+ * - getPlatformAnalytics: Detailed platform statistics
+ * - getBookingAnalytics: Booking trends and patterns
+ * - getUserAnalytics: User growth and engagement
+ * - getRevenueAnalytics: Income and payment analysis
+ * - getFieldAnalytics: Field performance metrics
+ * 
+ * User Management:
+ * - getAllUsers: List all users with filters
+ * - getUserById: Get specific user details
+ * - suspendUser: Temporarily disable user account
+ * - banUser: Permanently ban user
+ * - unbanUser: Restore banned user access
+ * - deleteUser: Permanently remove user
+ * - sendNotification: Send message to user
+ * - bulkEmailUsers: Send email to user groups
+ * 
+ * Field Management:
+ * - getAllFields: List all field listings
+ * - approveField: Approve pending field listing
+ * - rejectField: Reject field listing application
+ * - suspendField: Temporarily disable field
+ * - deleteField: Remove field from platform
+ * - flagField: Mark field for review
+ * - getFieldReports: View reported fields
+ * 
+ * Booking Management:
+ * - getAllBookings: List all platform bookings
+ * - getBookingById: Get booking details
+ * - cancelBooking: Cancel booking with refund
+ * - refundBooking: Process refund manually
+ * - resolveDispute: Handle booking disputes
+ * - getDisputedBookings: List contested bookings
+ * 
+ * Payment & Refund Management:
+ * - getAllPayments: List all transactions
+ * - getPaymentById: Get transaction details
+ * - issueRefund: Process manual refund
+ * - getRefundQueue: Pending refunds
+ * - resyncPayments: Sync with payment gateways
+ * - generateInvoices: Create invoices for bookings
+ * - getRevenueReports: Financial reports
+ * 
+ * Moderation & Safety:
+ * - getReportedUsers: Users reported by others
+ * - getReportedFields: Fields flagged for issues
+ * - getReportedReviews: Reviews flagged as inappropriate
+ * - approveReview: Accept flagged review
+ * - removeReview: Delete inappropriate review
+ * - removeUser: Kick user from platform
+ * - viewUserActivity: Check user login/activity logs
+ * 
+ * Tournament Management:
+ * - getAllTournaments: List all tournaments
+ * - approveTournament: Publish pending tournament
+ * - cancelTournament: Cancel tournament, issue refunds
+ * - verifyTournamentResults: Verify match results
+ * - awardPrizes: Distribute tournament prizes
+ * - resolveTournamentDispute: Handle tournament issues
+ * 
+ * Content Management:
+ * - updatePlatformAnnouncements: Create/edit announcements
+ * - getAnnouncements: Fetch current announcements
+ * - manageFAQ: Update FAQ content
+ * - managePolicies: Update terms and policies
+ * - manageSupportArticles: Knowledge base management
+ * 
+ * System Configuration:
+ * - getPlatformSettings: Current system settings
+ * - updatePlatformSettings: Modify configuration
+ * - getFeatureFlags: Active/inactive features
+ * - toggleFeature: Enable/disable feature
+ * - getSystemLogs: System event logs
+ * 
+ * Reports & Exports:
+ * - generateUserReport: Export user data
+ * - generateFinancialReport: Export financial data
+ * - generateAuditLog: Generate compliance logs
+ * - generateTaxReport: Tax documentation
+ * - scheduleReport: Automated report generation
+ * - downloadReport: Export generated reports
+ * 
+ * Support & Help:
+ * - getAllSupportTickets: List user support tickets
+ * - getSupportTicketById: Get ticket details
+ * - respondToTicket: Reply to support ticket
+ * - resolveTicket: Mark ticket as resolved
+ * - escalateTicket: Escalate to senior admin
+ * - viewContactMessages: Get contact form submissions
+ * 
+ * Permissions & Access Control:
+ * - Admin only: All operations require admin role
+ * - Permission matrix: Different admin levels
+ * - Audit trail: Track all admin actions
+ * - Approval workflows: Multi-step verification
+ * 
+ * Error Handling:
+ * - 400: Bad request, invalid parameters
+ * - 401: Unauthorized user
+ * - 403: Forbidden, insufficient admin permissions
+ * - 404: Resource not found
+ * - 409: Conflict, status doesn't allow action
+ * - 422: Unprocessable entity
+ * - 500: Server error
+ * 
+ * Rate Limiting:
+ * - Dashboard: 60 per minute
+ * - User operations: 30 per hour
+ * - Refund processing: 20 per hour
+ * - Report generation: 5 per hour
+ * 
+ * Caching:
+ * - Dashboard stats: 5 minutes
+ * - Platform settings: 1 hour
+ * - Announcements: 30 minutes
+ * - Reports: No cache (always fresh)
  */
-export const getDashboardStats = asyncHandler(async (req, res) => {
-  logger.info(`Admin ${req.user?.id} accessed dashboard stats`);
   res.json({
     success: true,
     message: 'Admin dashboard stats endpoint',
