@@ -1,5 +1,148 @@
-import express from 'express';
-import {
+/**
+ * Review Routes - Field Rating & Review API Endpoints
+ * User reviews, ratings, moderation, and helpful voting system
+ * 
+ * Public Routes (No Auth):
+ * GET / - Get field reviews
+ * GET /:id - Get specific review
+ * GET /stats/:fieldId - Field rating statistics
+ * 
+ * Protected Routes (Authentication):
+ * POST / - Submit new review
+ * PUT /:id - Edit review (30-day window)
+ * DELETE /:id - Delete review (60-day window)
+ * POST /:id/helpful - Mark as helpful
+ * POST /:id/unhelpful - Mark as unhelpful
+ * POST /:id/report - Report inappropriate review
+ * POST /:id/response - Owner responds to review
+ * 
+ * Submit Review:
+ * - POST /
+ * - Body: { fieldId, rating: 4.5, title, content, images: [...] }
+ * - Response: { reviewId, status: "pending_approval" }
+ * - Status: 201 Created
+ * - Validation: Verified booking, one per user per field
+ * - Moderation: Admin approval workflow
+ * 
+ * Get Field Reviews:
+ * - GET /?fieldId=X&sort=helpful&filter=rating&page=1
+ * - Response: { reviews: [...], averageRating, distribution, total }
+ * - Status: 200 OK
+ * - Filters: Rating (1-5), verified only, helpful threshold
+ * - Sort: newest, oldest, helpful, rating high/low
+ * - Pagination: page, limit (max 50)
+ * - Cache: 10 minutes
+ * 
+ * Get Review Details:
+ * - GET /:id
+ * - Response: { review: { id, user, rating, content, images, helpful, verified } }
+ * - Status: 200 OK
+ * - Includes: User info (limited), helpful count, responses
+ * 
+ * Update Review:
+ * - PUT /:id
+ * - Body: { rating, title, content, images }
+ * - Response: { review, updated: true }
+ * - Status: 200 OK
+ * - Constraint: Within 30 days of posting
+ * - History: Track changes
+ * - Notification: Owner notified of edit
+ * 
+ * Delete Review:
+ * - DELETE /:id
+ * - Response: { success: true, deleted: true }
+ * - Status: 200 OK
+ * - Constraint: Within 60 days of posting
+ * - After window: Cannot delete (stays visible)
+ * - Soft delete: Preserve edit history
+ * 
+ * Helpful Voting:
+ * - POST /:id/helpful
+ * - Response: { helpful: totalCount, helpful%: percentage }
+ * - Status: 200 OK
+ * - One vote per user per review
+ * - Vote counts tracked
+ * 
+ * Rating System:
+ * - Stars: 1.0 to 5.0 (0.5 increments)
+ * - Categories: quality, cleanliness, service, value, location
+ * - Weighted average: Calculated from all reviews
+ * - Distribution: 5-star breakdown
+ * - Verified badge: Only verified bookers
+ * 
+ * Review Content:
+ * - Title: Max 100 characters
+ * - Body: Max 2000 characters
+ * - Photos: Up to 5 images per review (5MB each)
+ * - Anonymous: Option to hide name
+ * - Edit window: 30 days after posting
+ * - Delete window: 60 days after posting
+ * 
+ * Moderation:
+ * - Flag reviews: Report inappropriate
+ * - Spam detection: Auto-flagging
+ * - Profanity filtering: Content check
+ * - Manual approval: Admin review
+ * - Removal: Delete flagged reviews
+ * 
+ * Report Review:
+ * - POST /:id/report
+ * - Body: { reason: "spam|offensive|irrelevant", details }
+ * - Response: { reported: true, caseId }
+ * - Status: 200 OK
+ * - Notification: Sent to mods
+ * 
+ * Owner Response:
+ * - POST /:id/response
+ * - Body: { content, images: [] }
+ * - Response: { response: {...} }
+ * - Status: 201 Created
+ * - Limit: Max 500 characters
+ * - Edit window: 24 hours
+ * - Visible to reviewers
+ * 
+ * Rating Statistics:
+ * - GET /stats/:fieldId
+ * - Response: { averageRating, total, distribution: {1: count, 2: count, ...}, trend }
+ * - Status: 200 OK
+ * - Time period analysis
+ * - Badge eligibility
+ * 
+ * Response Format:
+ * - Success: { success: true, data: {...}, message: "..." }
+ * - Error: { success: false, error: "...", code: HTTP_CODE }
+ * 
+ * Error Handling:
+ * - 400: Bad request, rating out of range
+ * - 401: Unauthorized user
+ * - 403: Forbidden, not verified booker
+ * - 404: Review/field not found
+ * - 409: Duplicate review, edit window expired
+ * - 422: Unprocessable entity
+ * - 500: Server error
+ * 
+ * Verification:
+ * - Only verified bookers can review
+ * - One review per field per user
+ * - Booking must be completed
+ * - Auto-verification after booking finish
+ * 
+ * Badges:
+ * - Gold: 4.8+ rating, 50+ reviews
+ * - Silver: 4.5+ rating, 20+ reviews
+ * - Bronze: 4.0+ rating, 10+ reviews
+ * 
+ * Rate Limiting:
+ * - Submit review: 10 per day per user
+ * - Helpful votes: 50 per hour
+ * - Reports: 5 per day per user
+ * - Get reviews: 100 per hour
+ * 
+ * Caching:
+ * - Field average rating: 1 hour
+ * - Review list: 10 minutes
+ * - Statistics: 1 hour
+ */
   createReview,
   getFieldReviews,
   getUserReviews,
