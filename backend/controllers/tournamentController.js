@@ -1,13 +1,135 @@
 import asyncHandler from 'express-async-handler';
 
 /**
- * Tournament Management Controller
- * Handles tournament creation, registration, bracket management, and results
+ * Tournament Controller - Sports Tournament Management
+ * Complete tournament operations from creation through results and awards
  * 
- * Responsibilities:
- * - Tournament creation and scheduling
- * - Team/participant registration
- * - Bracket generation and management
+ * Core Tournament Operations:
+ * - createTournament: Create new tournament with settings
+ * - getTournaments: List tournaments with filters
+ * - getTournamentById: Get specific tournament details
+ * - updateTournament: Modify tournament settings/schedule
+ * - deleteTournament: Cancel tournament
+ * - publishTournament: Make tournament visible publicly
+ * 
+ * Tournament Status Management:
+ * - Draft: Initial setup, not public
+ * - Registration Open: Teams can register
+ * - Registration Closed: Cutoff reached
+ * - Scheduled: Bracket generated, ready
+ * - In Progress: Matches underway
+ * - Completed: All matches done, winners determined
+ * - Cancelled: Tournament cancelled, refunds issued
+ * 
+ * Registration Management:
+ * - registerTeam: Team registration in tournament
+ * - unregisterTeam: Team withdrawal
+ * - approveRegistration: Admin approval workflow
+ * - rejectRegistration: Decline team participation
+ * - waitlistTeam: Add to waitlist if full
+ * 
+ * Tournament Formats:
+ * - Round Robin: Each team plays every other team
+ * - Knockout: Single elimination with seeding
+ * - Group Stage: Group play + knockout finals
+ * - League: Points-based seasonal tournament
+ * 
+ * Bracket Generation:
+ * - Create bracket: Generate match schedule
+ * - Seeding: Rank teams for bracket placement
+ * - Byes: Handle uneven participant counts
+ * - Match schedule: Generate match dates/times
+ * - Venue assignment: Allocate fields to matches
+ * 
+ * Match Management:
+ * - scheduleMatch: Create match fixture
+ * - recordResult: Enter final score/winner
+ * - updateScore: Correct score entry
+ * - recordPenalties: Yellow/red cards, etc.
+ * - Verify match: Admin verification
+ * 
+ * Standings & Points System:
+ * - Calculate standings: Based on points
+ * - Points: Win=3, Draw=1, Loss=0
+ * - Tiebreaker Rules:
+ *   * Goal differential
+ *   * Goals for (scored)
+ *   * Head-to-head record
+ *   * Alphabetical order
+ * - Live leaderboard updates
+ * 
+ * Team Management:
+ * - Add team: Register team in tournament
+ * - Manage roster: Add/remove players
+ * - Team substitutions: Player swaps during match
+ * - Team disqualification: Remove for violations
+ * 
+ * Award Management:
+ * - Award championship: First place winner
+ * - Award runner-up: Second place
+ * - Award third place: Third place prize
+ * - Award best offense: Top scorer/most points
+ * - Award best defense: Fewest goals/points
+ * - Award MVP: Most valuable player
+ * 
+ * Prize Distribution:
+ * - Calculate prize pool: Total available prizes
+ * - Distribution rules: % to 1st, 2nd, 3rd
+ * - Manual adjustments: Admin override
+ * - Prize payout: Payment to winning teams
+ * 
+ * Tournament Analytics:
+ * - Participant metrics: Teams, players, total
+ * - Match statistics: Total matches, goals, etc.
+ * - Attendance: Spectator counts
+ * - Revenue metrics: Fees collected
+ * - Engagement: Viewership, voting, participation
+ * 
+ * Notifications:
+ * - Tournament created: Organizer confirmation
+ * - Registration open: Public notification
+ * - Registration closed: Cutoff notice
+ * - Bracket published: Teams notified
+ * - Match scheduled: Team notifications
+ * - Match reminder: Day before match
+ * - Results published: Standings updated
+ * - Tournament complete: Final standings
+ * 
+ * Organizer Controls:
+ * - Manage settings: Dates, locations, fees
+ * - Manage registrations: Approve/reject teams
+ * - Manage matches: Schedule, score entry
+ * - Manage teams: Add/remove participants
+ * - Award prizes: Distribute prize pool
+ * - Send communications: Notifications, messages
+ * - Download reports: Standings, stats, receipts
+ * 
+ * Filtering & Search:
+ * - Filter by sport: Basketball, football, etc.
+ * - Filter by status: Active, completed, draft
+ * - Filter by date: Date range queries
+ * - Filter by location: Geographic filters
+ * - Search by name: Tournament name search
+ * 
+ * Error Handling:
+ * - 400: Invalid input, capacity exceeded
+ * - 401: Unauthorized user
+ * - 403: Forbidden, insufficient permissions
+ * - 404: Tournament/team not found
+ * - 409: Conflict, status doesn't allow action
+ * - 422: Unprocessable entity
+ * - 500: Server error
+ * 
+ * Rate Limiting:
+ * - Create tournament: 10 per day per user
+ * - Score updates: 100 per hour
+ * - Registrations: 50 per hour
+ * 
+ * Caching:
+ * - Tournament list: 5 minutes
+ * - Bracket/standings: 2 minutes
+ * - Tournament details: 10 minutes
+ */
  * - Match scheduling and results
  * - Standings/leaderboard management
  * - Prize distribution
