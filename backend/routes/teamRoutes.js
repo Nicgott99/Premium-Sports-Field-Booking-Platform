@@ -1,5 +1,152 @@
-import express from 'express';
-import {
+/**
+ * Team Routes - Team Organization & Management API
+ * Team creation, membership, statistics, and organizational features
+ * 
+ * Public Routes (No Auth):
+ * GET / - Search teams
+ * GET /:id - Get team details
+ * GET /:id/members - Get team members
+ * GET /:id/stats - Get team statistics
+ * 
+ * Protected Routes (Authentication):
+ * POST / - Create new team
+ * PUT /:id - Update team info (captain/admin)
+ * DELETE /:id - Delete team (captain only)
+ * POST /:id/invite - Invite player
+ * POST /:id/members/:userId/accept - Accept invite
+ * DELETE /:id/members/:userId - Remove member
+ * PUT /:id/members/:userId/role - Update role
+ * 
+ * Create Team:
+ * - POST /
+ * - Body: { name, sport, skillLevel, description, logo, maxSize }
+ * - Response: { teamId, createdAt, captain }
+ * - Status: 201 Created
+ * - Auth: Any user can create
+ * - Creator: Auto-captain
+ * 
+ * Get Teams:
+ * - GET /?sport=football&skill=intermediate&sort=members
+ * - Response: { teams: [...], total, page }
+ * - Status: 200 OK
+ * - Filters: sport, skill level, size, joinable
+ * - Sort: members, rating, activity, created
+ * - Pagination: page, limit
+ * 
+ * Get Team Details:
+ * - GET /:id
+ * - Response: { team: { id, name, sport, members, stats, logo, captain } }
+ * - Status: 200 OK
+ * - Includes: Member list, statistics, upcoming bookings
+ * - Cache: 10 minutes
+ * 
+ * Update Team:
+ * - PUT /:id
+ * - Body: { name, description, logo, maxSize, skillLevel }
+ * - Response: { team: {...} }
+ * - Status: 200 OK
+ * - Auth: Captain or co-captain
+ * 
+ * Delete Team:
+ * - DELETE /:id
+ * - Response: { success: true, deleted }
+ * - Status: 200 OK
+ * - Auth: Captain only
+ * - Notifications: Members notified
+ * 
+ * Member Management:
+ * - POST /:id/invite: Send invitation
+ * - Body: { userId or email, role: "player|substitute" }
+ * - Response: { inviteId, status: "pending" }
+ * - Status: 201 Created
+ * - Notification: Invite email sent
+ * 
+ * Accept Invitation:
+ * - POST /:id/members/:userId/accept
+ * - Response: { member: {...}, joined: true }
+ * - Status: 200 OK
+ * - User added to team
+ * - Notification: Captain notified
+ * 
+ * Remove Member:
+ * - DELETE /:id/members/:userId
+ * - Response: { removed: true, reason }
+ * - Status: 200 OK
+ * - Auth: Captain or user themselves
+ * - Notification: Member notified
+ * 
+ * Update Member Role:
+ * - PUT /:id/members/:userId/role
+ * - Body: { role: "captain|co-captain|player|substitute" }
+ * - Response: { member: {...}, roleUpdated }
+ * - Status: 200 OK
+ * - Auth: Captain only
+ * 
+ * Team Roles:
+ * - Captain: Full permissions, team owner
+ * - Co-captain: Admin permissions
+ * - Player: Regular member
+ * - Substitute: Backup player
+ * 
+ * Team Statistics:
+ * - GET /:id/stats
+ * - Response: { wins, losses, draws, points, ranking, memberCount }
+ * - Status: 200 OK
+ * - Performance metrics
+ * - Engagement scores
+ * 
+ * Team Features:
+ * - Membership levels: Free, premium membership
+ * - Skill levels: Beginner, intermediate, advanced, professional
+ * - Size: Small (5-10), medium (11-20), large (21+)
+ * - Privacy: Public, private, hidden
+ * - Joinable: Open to requests, invite only
+ * 
+ * Team Activities:
+ * - Field bookings: Practice and match reservations
+ * - Tournament participation: Enrollment and results
+ * - Team chat: Communication and coordination
+ * - Match scheduling: Calendar management
+ * - Member profiles: Player information
+ * 
+ * Team Governance:
+ * - Rules: Code of conduct
+ * - Fees: Membership dues
+ * - Discipline: Warnings, suspensions
+ * - Disputes: Conflict resolution
+ * 
+ * Response Format:
+ * - Success: { success: true, data: {...}, message: "..." }
+ * - Error: { success: false, error: "...", code: HTTP_CODE }
+ * 
+ * Error Handling:
+ * - 400: Bad request, team already exists
+ * - 401: Unauthorized user
+ * - 403: Forbidden, not captain
+ * - 404: Team/member not found
+ * - 409: Conflict, duplicate member
+ * - 422: Unprocessable entity
+ * - 500: Server error
+ * 
+ * Member Statuses:
+ * - invited: Pending response
+ * - active: Current member
+ * - inactive: Inactive status
+ * - left: Member departed
+ * - removed: Kicked
+ * - banned: Permanently excluded
+ * 
+ * Rate Limiting:
+ * - Create team: 5 per day per user
+ * - Invite member: 20 per hour
+ * - Search teams: 100 per hour
+ * - Updates: 50 per day
+ * 
+ * Caching:
+ * - Team details: 10 minutes
+ * - Member list: 5 minutes
+ * - Statistics: 15 minutes
+ */
   createTeam,
   getUserTeams,
   getTeamById,
