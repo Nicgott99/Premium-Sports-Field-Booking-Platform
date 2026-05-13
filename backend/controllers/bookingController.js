@@ -2,22 +2,102 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
- * Booking Management Controller
- * Handles field reservations, scheduling, and booking lifecycle
+ * Booking Controller - Field Reservation Management
+ * Comprehensive booking operations including creation, updates, cancellations, and analytics
  * 
- * Responsibilities:
- * - Booking creation with availability verification
- * - Booking retrieval (user bookings, field calendar)
- * - Booking updates and cancellations
- * - Booking status management (pending→confirmed→completed)
- * - Cancellation policy enforcement
- * - Refund processing for cancellations
- * - QR code generation for booking verification
- * - Booking statistics and analytics
- * - Booking calendar management
+ * Core Booking Operations:
+ * - createBooking: New field reservation with payment processing
+ * - getBookings: List user's bookings with filters/pagination
+ * - getBookingById: Fetch specific booking details
+ * - updateBooking: Modify booking dates/times/participants
+ * - cancelBooking: Cancel with refund based on policy
+ * - confirmBooking: Admin/owner confirmation after payment
  * 
  * Booking Lifecycle:
- * 1. pending: Initial state, awaiting confirmation
+ * - pending: Created, waiting for payment (30 min timeout)
+ * - confirmed: Payment verified, booking secured
+ * - in-progress: Booking time is active
+ * - completed: Finished, user can review
+ * - cancelled: User/admin cancelled, refund processed
+ * - no-show: No cancellation, no refund
+ * 
+ * Payment Integration:
+ * - Stripe: International credit/debit cards
+ * - SSLCommerz: Bangladesh e-commerce
+ * - Mobile payments: bKash, Nagad, Rocket
+ * - Currency support: BDT, USD, EUR, INR, GBP
+ * 
+ * Cancellation Policy:
+ * - 24+ hours: 100% refund (full refund to original method)
+ * - 12-24 hours: 50% refund (half to user, half retained)
+ * - <12 hours: 0% refund (no refund, platform keeps)
+ * - After start: 0% refund (non-refundable)
+ * 
+ * Pricing Calculation:
+ * - Base: hourlyRate × duration
+ * - Discount: Applied coupon/loyalty/volume discount
+ * - Subtotal: (base - discount)
+ * - Tax: Subtotal × 15% (VAT)
+ * - Service Fee: Subtotal × 5%
+ * - Total: Subtotal + Tax + Service Fee
+ * 
+ * Participant Management:
+ * - Primary booker: User making reservation
+ * - Additional players: Other participants in booking
+ * - Capacity check: Cannot exceed field max
+ * - Check-in: QR code verification on arrival
+ * 
+ * Real-Time Availability:
+ * - Check field availability in time slot
+ * - Lock time slot during booking (transaction)
+ * - Verify no conflicts with other bookings
+ * - Honor buffer time (15-30 min between bookings)
+ * - Check blackout dates and maintenance windows
+ * 
+ * Notifications:
+ * - booking_confirmed: Confirmation email/SMS
+ * - booking_reminder: 24 hours before booking
+ * - booking_cancelled: Cancellation notice
+ * - payment_received: Payment confirmation
+ * - payment_failed: Payment declined alert
+ * 
+ * QR Code Check-In:
+ * - Generate unique QR code per booking
+ * - Mobile app scan for check-in
+ * - Timestamp check-in time
+ * - Release field if not checked-in by start time
+ * 
+ * Refund Processing:
+ * - Automatic refund to original payment method
+ * - Manual refund for special cases
+ * - Audit trail for all refund transactions
+ * - Refund status tracking (pending/completed/failed)
+ * 
+ * Analytics:
+ * - Booking history per user
+ * - Field utilization metrics
+ * - Revenue analytics
+ * - Peak booking times
+ * - Cancellation rate tracking
+ * 
+ * Error Handling:
+ * - 400: Invalid input, conflicting times, capacity exceeded
+ * - 401: Unauthorized user
+ * - 404: Booking/field not found
+ * - 409: Time slot unavailable
+ * - 422: Unprocessable entity (validation failed)
+ * - 500: Server error
+ * 
+ * Rate Limiting:
+ * - 30 bookings per hour per user
+ * - 100 cancellations per day per user
+ * - 10 refund requests per hour
+ * 
+ * Caching:
+ * - Availability: 1 minute cache
+ * - User bookings: 5 minutes cache
+ * - Field details: 10 minutes cache
+ */
  * 2. confirmed: Booking verified, payment collected
  * 3. in-progress: Booking active (at current time)
  * 4. completed: Booking finished successfully
