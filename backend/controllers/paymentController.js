@@ -2,12 +2,129 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
- * Payment Processing Controller
- * Handles payment transactions, refunds, and subscription management
+ * Payment Controller - Transaction and Subscription Management
+ * Comprehensive payment processing with multiple gateways and methods
  * 
- * Responsibilities:
- * - Payment processing and intent creation
- * - Payment provider webhook handling
+ * Payment Processing Operations:
+ * - createPaymentIntent: Initialize payment with provider
+ * - processPayment: Execute payment transaction
+ * - getPaymentHistory: Fetch user transactions
+ * - getPaymentById: Get specific payment details
+ * - initiateRefund: Start refund process
+ * - confirmRefund: Complete refund transaction
+ * 
+ * Payment Methods Supported:
+ * - Credit/Debit Cards: Visa, Mastercard, AmEx
+ * - Mobile Banking: bKash, Nagad, Rocket (Bangladesh)
+ * - Bank Transfer: Direct bank account transfer
+ * - Digital Wallets: Google Pay, Apple Pay
+ * - Crypto: Bitcoin, Ethereum (optional)
+ * 
+ * Payment Gateways:
+ * - Stripe: International cards, SCA/3D Secure
+ * - SSLCommerz: Bangladesh e-commerce processing
+ * - PayPal: Alternative payment processor
+ * - Local gateways: bKash, Nagad, Rocket APIs
+ * 
+ * Supported Currencies:
+ * - BDT: Bangladeshi Taka (default)
+ * - USD: US Dollar
+ * - EUR: Euro
+ * - INR: Indian Rupee
+ * - GBP: British Pound
+ * - Conversion: Real-time exchange rates
+ * 
+ * Payment Lifecycle:
+ * - pending: Payment initiated, awaiting confirmation
+ * - processing: Gateway processing transaction
+ * - completed: Payment successful, confirmed
+ * - failed: Payment declined, error occurred
+ * - refunded: Full refund issued
+ * - partially_refunded: Partial refund issued
+ * - disputed: Chargeback/dispute raised
+ * 
+ * Payment Pricing Components:
+ * - Booking amount: Field rate × duration
+ * - Taxes: VAT/GST (15% standard)
+ * - Service fee: Platform commission (5%)
+ * - Gateway fee: Payment processor charge (2-3%)
+ * - Discount: Coupon/promotion applied
+ * - Total: Sum of all components
+ * 
+ * Refund Policy:
+ * - 24+ hours before: 100% refund to original method
+ * - 12-24 hours before: 50% refund (platform keeps 50%)
+ * - <12 hours before: 0% refund (no refund issued)
+ * - After booking: 0% refund (non-refundable)
+ * - Exceptional cases: Manual review by admin
+ * 
+ * Refund Processing:
+ * - Automatic refunds: Processed within 5-7 business days
+ * - Manual refunds: Admin-initiated refunds
+ * - Audit trail: Track all refund transactions
+ * - Refund verification: Check receipt/proof
+ * - Refund communication: Notify user of status
+ * 
+ * Subscription Management:
+ * - getPlan: Fetch available subscription plans
+ * - subscribePlan: Subscribe to premium plan
+ * - updateSubscription: Change subscription tier
+ * - cancelSubscription: End subscription
+ * - getSubscriptionStatus: Check current status
+ * 
+ * Subscription Plans:
+ * - Free: Basic features, limited bookings
+ * - Premium: Enhanced features, priority support
+ * - Enterprise: Full access, dedicated support
+ * - Custom: Tailored plans for large users
+ * 
+ * Security Features:
+ * - PCI DSS compliance level 3/4
+ * - No card storage (tokenization only)
+ * - SSL/TLS encryption for all transactions
+ * - Webhook signature verification
+ * - Fraud detection: Velocity checks
+ * - 3D Secure/SCA for card payments
+ * 
+ * Webhook Handling:
+ * - Stripe webhook: payment_intent.succeeded, etc.
+ * - SSLCommerz webhook: Transaction validation
+ * - Payment notification: Async confirmation
+ * - Idempotency: Prevent duplicate processing
+ * - Retry logic: Webhook retry handling
+ * 
+ * Invoicing:
+ * - Generate invoice PDF
+ * - Email invoice to user
+ * - Invoice history retrieval
+ * - Download invoice option
+ * 
+ * Analytics:
+ * - Transaction volume: Daily/monthly stats
+ * - Revenue metrics: Total, average, trend
+ * - Failure rate: Transaction success percentage
+ * - Refund rate: Refund percentage tracking
+ * - Payment method popularity: Usage distribution
+ * 
+ * Error Handling:
+ * - 400: Bad request, invalid parameters
+ * - 401: Unauthorized user
+ * - 402: Payment required, insufficient funds
+ * - 404: Payment/subscription not found
+ * - 409: Conflict, duplicate transaction
+ * - 422: Unprocessable entity
+ * - 500: Server error, gateway error
+ * 
+ * Rate Limiting:
+ * - 10 payment attempts per hour
+ * - 5 refund requests per day
+ * - 20 subscription changes per month
+ * 
+ * Caching:
+ * - Subscription plans: 1 day cache
+ * - Payment history: 10 minutes cache
+ * - Exchange rates: 1 hour cache
+ */
  * - Refund processing (full and partial)
  * - Subscription management
  * - Payment history and receipts
