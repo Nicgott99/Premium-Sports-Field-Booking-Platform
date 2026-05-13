@@ -1,3 +1,21 @@
+/**
+ * Authentication Controller Module
+ * Manages user registration, login, token refresh, and password reset workflows
+ * Supports traditional email/password and Firebase OAuth authentication
+ * Features: JWT token generation, email verification, password reset, 2FA
+ * 
+ * Key Workflows:
+ * - Registration: Email, password, profile creation, verification
+ * - Login: Credential verification, JWT token generation, session creation
+ * - Token Refresh: Renew access token using refresh token
+ * - Password Reset: Email link, token validation, password update
+ * - Firebase OAuth: Third-party auth (Google, Facebook, Apple)
+ * 
+ * Security: bcryptjs hashing, JWT signing, httpOnly cookies, rate limiting
+ * Validation: Email format, password strength, phone format, GDPR compliance
+ * Integration: Email service, token utilities, Firebase config, user model
+ */
+
 import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
