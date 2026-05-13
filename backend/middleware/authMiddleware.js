@@ -5,24 +5,88 @@ import { verifyFirebaseToken } from '../config/firebase.js';
 import logger from '../utils/logger.js';
 
 /**
- * Authentication and Authorization Middleware Module
- * Handles JWT and Firebase authentication with role-based access control
+ * Authentication & Authorization Middleware
+ * Complete request authentication and role-based access control system
+ * 
+ * Authentication Methods:
+ * - JWT Bearer Token: Authorization: Bearer <token>
+ * - Firebase ID Token: For OAuth2 (Google, Facebook, Apple)
+ * - Refresh Token: Session renewal mechanism
  * 
  * Authentication Flow:
- * 1. Client sends request with Authorization: Bearer <token>
- * 2. Middleware verifies token signature and expiration
- * 3. Token decoded to retrieve user ID
- * 4. User fetched from database and attached to req.user
- * 5. Account status verified (not deactivated/banned)
- * 6. Authorization middleware checks user role
- * 7. Route handler processes authenticated, authorized request
+ * 1. Extract token from Authorization header (Bearer scheme)
+ * 2. Verify JWT signature (HMAC-SHA256)
+ * 3. Check token expiration (iat + exp)
+ * 4. Decode payload to get user ID (sub claim)
+ * 5. Fetch user from MongoDB by ID
+ * 6. Verify account status (active/suspended/banned)
+ * 7. Exclude sensitive fields (password, tokens)
+ * 8. Attach user to req.user for route handlers
  * 
- * Dual Authentication Support:
- * - JWT tokens: Traditional session-based auth (15-min expiry)
- * - Firebase: Third-party authentication (Google, Facebook, etc.)
+ * User Roles & Permissions:
+ * - user: Regular field booker, can book fields
+ * - field_owner: Field lister, can create/manage fields
+ * - manager: Team/tournament organizer
+ * - admin: Platform administrator, full access
  * 
- * Token Format:
- * - JWT: Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ * Token Verification:
+ * - Signature: HMAC-SHA256 with JWT_SECRET
+ * - Expiration: Check exp claim against current time
+ * - User existence: Verify user still exists in database
+ * - Account status: Ensure not suspended/banned/inactive
+ * - Issuer: Verify iss claim matches JWT_ISSUER
+ * - Audience: Verify aud claim matches JWT_AUDIENCE
+ * 
+ * JWT Token Structure:
+ * - Header: { alg: "HS256", typ: "JWT" }
+ * - Payload: { sub: userId, iss: "premium-sports", aud: "web-app", iat, exp }
+ * - Signature: HMAC-SHA256(header.payload, secret)
+ * 
+ * Firebase Authentication:
+ * - Support for Google OAuth2
+ * - Support for Facebook OAuth2
+ * - Support for Apple OAuth2
+ * - Token verification with Firebase SDK
+ * - Custom token generation for compatibility
+ * 
+ * Error Handling:
+ * - 401 Unauthorized: Missing token
+ * - 401 Unauthorized: Invalid/malformed token
+ * - 401 Unauthorized: Expired token
+ * - 401 Unauthorized: User not found
+ * - 403 Forbidden: Account suspended
+ * - 403 Forbidden: Insufficient role permissions
+ * - 500 Internal: Token verification error
+ * 
+ * Middleware Functions:
+ * - protect: Verify authentication
+ * - requireRole: Check specific role(s)
+ * - optionalAuth: Auth optional (public access)
+ * 
+ * Security Features:
+ * - Short-lived tokens (15 minutes access)
+ * - Refresh tokens for session renewal (7 days)
+ * - No sensitive data in JWT payload
+ * - Token signature validation
+ * - User status verification on each request
+ * - Role-based access enforcement
+ * - HTTPS-only transmission (via infrastructure)
+ * 
+ * Performance Optimization:
+ * - User caching (in-request only)
+ * - Minimal database queries
+ * - Token verification overhead minimized
+ * - Role lookup from user object (no extra query)
+ * 
+ * Supported Claims:
+ * - sub (subject): User ID
+ * - iss (issuer): Token issuer
+ * - aud (audience): Target service
+ * - iat (issued at): Token creation time
+ * - exp (expiration): Token expiration time
+ * - role: User role for quick checks
+ * - email: User email address
+ */
  * - Firebase: Authorization: Bearer <firebase-id-token>
  * 
  * User Roles and Permissions:
