@@ -1,10 +1,64 @@
 import mongoose from 'mongoose';
 
 /**
- * Team Schema
- * Represents a sports team with members, roles, and organizational information
- * Supports multiple sports and skill levels
- * Maintains team statistics and achievements
+ * Team Schema - Sports Team Organization & Management
+ * Complete team management with member roles, statistics, and organizational features
+ * 
+ * Team Structure:
+ * - Captain: Founder with full permissions
+ * - Co-captain: Assistants with limited permissions
+ * - Player: Regular team members
+ * - Substitute: Reserve players
+ * 
+ * Team Information:
+ * - Name: Unique team identifier
+ * - Sport: Single sport per team
+ * - Skill Level: beginner | intermediate | advanced | professional
+ * - Description: Team bio/about section
+ * - Logo: Team badge/image
+ * - Founded: Team creation date
+ * - Status: active | inactive | disbanded
+ * 
+ * Member Management:
+ * - Invitation system: Email-based or link-based
+ * - Approval workflow: Accept/decline invitations
+ * - Role assignments: Captain, co-captain, player, substitute
+ * - Member removal: Captain removes members
+ * - Participation tracking: Attendance, statistics
+ * 
+ * Team Statistics:
+ * - Match record: Wins, losses, draws
+ * - Tournament performance: Participations, placements
+ * - Member metrics: Total, active, average tenure
+ * - Team rating: User-based team reviews (1-5 stars)
+ * - Engagement score: Activity level calculation
+ * 
+ * Team Activities:
+ * - Field bookings: Practice and match reservations
+ * - Tournament registration: Enrollment and results
+ * - Team chat: Communication and coordination
+ * - Match scheduling: Calendar management
+ * - Performance analytics: Stats and trends
+ * 
+ * Governance:
+ * - Team rules: Code of conduct
+ * - Entry requirements: Skill, fees, etc.
+ * - Discipline: Warnings, suspensions, appeals
+ * - Finances: Dues, prize distribution, expenses
+ * 
+ * Privacy & Visibility:
+ * - Public: Visible to all users
+ * - Private: Members only
+ * - Hidden: Unlisted/invitation only
+ * - Joinable: Allow member requests
+ * - Closed: Admin invitation only
+ * 
+ * Relationships:
+ * - Bookings: Field reservations
+ * - Tournaments: Tournament participations
+ * - Matches: Match schedules and results
+ * 
+ * Indexes: captain, name, sport, createdAt
  */
 const teamSchema = new mongoose.Schema(
   {
