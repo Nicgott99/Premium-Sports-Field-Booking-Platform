@@ -2,22 +2,100 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
- * User Management Controller
- * Handles all user profile, preferences, and account management operations
+ * User Management Controller - Comprehensive User Account Operations
+ * Handles profile, preferences, social features, subscriptions, and account management
  * 
- * Responsibilities:
- * - User profile retrieval, updates, deletion
- * - User statistics and analytics
- * - Preference management (notifications, privacy, availability)
- * - Avatar upload and management
- * - Social features (follow/followers)
- * - User blocking and reporting
- * - Subscription management
- * - User search and discovery
- * - Account data export and deletion
+ * Core User Operations:
+ * - getProfile: Fetch user profile details
+ * - updateProfile: Modify name, bio, location, preferences
+ * - deleteAccount: Permanently remove user account
+ * - getStats: User statistics (bookings, teams, followers, reviews)
+ * - getAnalytics: User engagement and activity analytics
  * 
- * Relationships:
- * - User model: Direct user data management
+ * Avatar Management:
+ * - uploadAvatar: Upload profile picture (jpg, png, max 5MB)
+ * - deleteAvatar: Remove avatar, revert to default
+ * - getAvatar: Fetch user's current avatar
+ * 
+ * Social Features:
+ * - followUser: Follow another user for updates
+ * - unfollowUser: Stop following user
+ * - getFollowers: List user's followers with pagination
+ * - getFollowing: List users this user follows
+ * - searchUsers: Search by name, location, interests
+ * - getNearbyUsers: Find users within distance radius
+ * - blockUser: Block user (hide from search, messages)
+ * - unblockUser: Unblock previously blocked user
+ * - getBlockedUsers: List blocked users
+ * 
+ * Preferences & Settings:
+ * - getPreferences: User notification and display settings
+ * - updatePreferences: Modify email, push, SMS preferences
+ * - updatePrivacy: Control profile visibility
+ * - updateLocation: Update location for discovery
+ * - setQuietHours: Notification quiet hours (9pm-8am)
+ * - setDoNotDisturb: Temporarily silence all notifications
+ * 
+ * Subscription Management:
+ * - getCurrentSubscription: Get active subscription plan
+ * - getSubscriptionPlans: Available subscription tiers
+ * - upgradeSubscription: Change to higher tier
+ * - downgradeSubscription: Change to lower tier
+ * - cancelSubscription: End subscription
+ * - getInvoices: Download subscription invoices
+ * 
+ * Account Safety:
+ * - reportUser: Report user for violation/abuse
+ * - getReports: List user reports submitted
+ * - changePassword: Update account password
+ * - enableTwoFactor: Enable TOTP 2FA
+ * - disableTwoFactor: Disable 2FA
+ * - getTrustedDevices: List login devices
+ * - revokeTrustedDevice: Remove device access
+ * 
+ * Data Management:
+ * - exportData: Export user data as JSON/CSV
+ * - requestDeletion: Request GDPR account deletion
+ * - getExportStatus: Check export preparation
+ * - downloadExport: Download exported data
+ * 
+ * Filtering & Sorting:
+ * - Search with filters: Name, location, sports interest
+ * - Sort options: Followers, rating, activity, joined date
+ * - Pagination: Limit, offset for list operations
+ * 
+ * Response Format:
+ * - Success: { success: true, data: {...}, message: "..." }
+ * - Error: { success: false, error: "...", code: HTTP_CODE }
+ * 
+ * Error Handling:
+ * - 400: Bad request, validation error
+ * - 401: Unauthorized, token invalid
+ * - 403: Forbidden, insufficient permissions
+ * - 404: User not found
+ * - 409: Conflict (duplicate email, account exists)
+ * - 422: Unprocessable entity
+ * - 500: Server error
+ * 
+ * Rate Limiting:
+ * - Avatar upload: 5 per hour
+ * - Block/unblock: 20 per hour
+ * - Profile updates: 50 per hour
+ * - Search: 100 per hour
+ * - Data export: 1 per day
+ * - Account delete: One per lifetime
+ * 
+ * Authentication:
+ * - All routes protected with authMiddleware
+ * - Social features use JWT verification
+ * - GDPR operations require password confirmation
+ * 
+ * Caching:
+ * - Profile cache: 5 minutes
+ * - Followers/following: 10 minutes
+ * - Stats: 15 minutes
+ * - Preferences: 5 minutes
+ */
  * - Booking model: User booking history
  * - Team model: User team memberships
  * - Review model: User reviews and ratings
