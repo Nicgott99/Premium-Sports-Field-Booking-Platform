@@ -1,5 +1,168 @@
-import express from 'express';
-import {
+/**
+ * Tournament Routes - Sports Tournament Management API
+ * Tournament creation, registration, bracket generation, and results management
+ * 
+ * Public Routes (No Auth):
+ * GET / - Search tournaments
+ * GET /:id - Get tournament details
+ * GET /:id/bracket - Get tournament bracket
+ * GET /:id/standings - Get current standings
+ * 
+ * Protected Routes (Authentication):
+ * POST / - Create tournament (organizer)
+ * PUT /:id - Update tournament (organizer)
+ * DELETE /:id - Cancel tournament (organizer)
+ * POST /:id/teams - Register team
+ * DELETE /:id/teams/:teamId - Unregister team
+ * POST /:id/bracket - Generate bracket (organizer)
+ * POST /:id/matches/:matchId/result - Record result (organizer)
+ * 
+ * Create Tournament:
+ * - POST /
+ * - Body: { name, sport, format, startDate, endDate, location, entryFee, maxTeams }
+ * - Response: { tournamentId, status: "draft" }
+ * - Status: 201 Created
+ * - Auth: Any user (becomes organizer)
+ * 
+ * Get Tournaments:
+ * - GET /?sport=football&status=active&sort=startDate&page=1
+ * - Response: { tournaments: [...], total, page, limit }
+ * - Status: 200 OK
+ * - Filters: sport, status, date range, location
+ * - Sort: startDate, endDate, participants, popularity
+ * - Pagination: page, limit (max 50)
+ * - Cache: 5 minutes
+ * 
+ * Get Tournament Details:
+ * - GET /:id
+ * - Response: { tournament: { id, name, sport, format, dates, location, teams, matches } }
+ * - Status: 200 OK
+ * - Includes: Registered teams, bracket, standings
+ * - Cache: 10 minutes
+ * 
+ * Update Tournament:
+ * - PUT /:id
+ * - Body: { name, description, startDate, endDate, entryFee }
+ * - Response: { tournament: {...} }
+ * - Status: 200 OK
+ * - Auth: Organizer only
+ * - Constraints: Cannot modify after registration starts
+ * 
+ * Delete/Cancel Tournament:
+ * - DELETE /:id
+ * - Response: { canceled: true, refunds: {...} }
+ * - Status: 200 OK
+ * - Auth: Organizer or admin
+ * - Refund: Full refund to all teams
+ * 
+ * Register Team:
+ * - POST /:id/teams
+ * - Body: { teamId, roster: [{userId, name, position}, ...] }
+ * - Response: { registered: true, confirmationId }
+ * - Status: 201 Created
+ * - Validation: Team size check, fee payment
+ * - Notification: Registration confirmation
+ * 
+ * Unregister Team:
+ * - DELETE /:id/teams/:teamId
+ * - Response: { unregistered: true, refund }
+ * - Status: 200 OK
+ * - Constraints: Before bracket generation
+ * - Refund: Depends on policy
+ * 
+ * Tournament Formats:
+ * - Round Robin: Each team plays every other team
+ * - Knockout: Single elimination with seeding
+ * - Group Stage: Groups + knockout finals
+ * - League: Points-based seasonal tournament
+ * 
+ * Generate Bracket:
+ * - POST /:id/bracket
+ * - Body: { seeding: [teamId, ...] }
+ * - Response: { bracket: {...}, matches: [...] }
+ * - Status: 201 Created
+ * - Auth: Organizer only
+ * - Constraints: After registration closes
+ * 
+ * Get Bracket:
+ * - GET /:id/bracket
+ * - Response: { bracket: {...}, matches: [...], byeTeams: [...] }
+ * - Status: 200 OK
+ * - Visual representation of bracket
+ * - Match schedule
+ * 
+ * Record Match Result:
+ * - POST /:id/matches/:matchId/result
+ * - Body: { team1Score, team2Score, winner, penalties }
+ * - Response: { match: {...}, standings: [...] }
+ * - Status: 200 OK
+ * - Auth: Organizer only
+ * - Updates: Standings, points, rankings
+ * 
+ * Get Standings:
+ * - GET /:id/standings?sort=points
+ * - Response: { standings: [{rank, team, points, wins, losses, gd}, ...] }
+ * - Status: 200 OK
+ * - Points: Win=3, Draw=1, Loss=0
+ * - Tiebreaker rules applied
+ * - Live updates
+ * 
+ * Tournament Status Lifecycle:
+ * - draft: Initial setup
+ * - registration_open: Teams registering
+ * - registration_closed: Cutoff reached
+ * - scheduled: Bracket ready
+ * - in_progress: Matches underway
+ * - completed: All done
+ * - cancelled: Tournament cancelled
+ * 
+ * Tournament Details:
+ * - Name, description, rules
+ * - Sport type, format
+ * - Dates: Start, end, registration deadline
+ * - Location: City, venue
+ * - Entry fee, prize pool
+ * - Max/min teams, team size
+ * 
+ * Match Management:
+ * - Schedule matches with date/time
+ * - Assign venue/field
+ * - Record scores
+ * - Handle penalties
+ * - Update standings
+ * 
+ * Awards & Prizes:
+ * - Championship: 1st place
+ * - Runner-up: 2nd place
+ * - Third place: 3rd place
+ * - Best offense, defense, MVP
+ * - Prize distribution: % to places
+ * 
+ * Response Format:
+ * - Success: { success: true, data: {...}, message: "..." }
+ * - Error: { success: false, error: "...", code: HTTP_CODE }
+ * 
+ * Error Handling:
+ * - 400: Bad request, invalid format
+ * - 401: Unauthorized user
+ * - 403: Forbidden, not organizer
+ * - 404: Tournament/team not found
+ * - 409: Conflict, tournament full, already registered
+ * - 422: Unprocessable entity
+ * - 500: Server error
+ * 
+ * Rate Limiting:
+ * - Create tournament: 10 per day per user
+ * - Register team: 50 per hour
+ * - Record results: 100 per hour
+ * - Get tournaments: 100 per hour
+ * 
+ * Caching:
+ * - Tournament list: 5 minutes
+ * - Bracket/standings: 2 minutes
+ * - Tournament details: 10 minutes
+ * - Match schedule: 10 minutes
+ */
   getTournaments,
   getTournamentById,
   createTournament,
