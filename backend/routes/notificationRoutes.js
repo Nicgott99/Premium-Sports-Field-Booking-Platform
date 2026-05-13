@@ -1,5 +1,142 @@
-import express from 'express';
-import {
+/**
+ * Notification Routes - Alert & Message Management API
+ * User notifications, preferences, delivery channels, and message handling
+ * 
+ * Notification Management:
+ * GET / - Get user notifications
+ * GET /:id - Get specific notification
+ * PUT /:id/read - Mark as read
+ * PUT /:id/unread - Mark as unread
+ * DELETE /:id - Delete notification
+ * POST /clear-all - Clear all notifications
+ * 
+ * Preference Management:
+ * GET /preferences - Get notification preferences
+ * PUT /preferences - Update preferences
+ * PUT /preferences/quiet-hours - Set quiet hours
+ * PUT /preferences/channels - Configure delivery channels
+ * 
+ * Subscribe/Unsubscribe:
+ * POST /subscribe - Subscribe to notifications
+ * DELETE /subscribe/:type - Unsubscribe from type
+ * 
+ * Get Notifications:
+ * - GET /?type=booking&status=unread&sort=newest
+ * - Response: { notifications: [...], total, unread, page }
+ * - Status: 200 OK
+ * - Filters: type, status, priority, date range
+ * - Sort: newest, oldest, priority
+ * - Pagination: page, limit (default 20)
+ * - Cache: 1 minute
+ * 
+ * Notification Types:
+ * - booking_confirmed: Booking success
+ * - booking_cancelled: Cancellation notice
+ * - payment_received: Payment confirmation
+ * - payment_failed: Payment error
+ * - booking_reminder: 24-hour pre-booking
+ * - new_message: Direct message
+ * - team_invitation: Team invite
+ * - tournament_registration: Registration confirmed
+ * - tournament_start: Tournament begins
+ * - field_availability: Field available
+ * - review_posted: New review
+ * - follow_user: User followed you
+ * - system_alert: Platform alerts
+ * 
+ * Mark Notifications:
+ * - PUT /:id/read
+ * - Response: { success: true, marked: "read" }
+ * - Status: 200 OK
+ * - Batch operation: POST /mark-read-batch: { ids: [...] }
+ * 
+ * Get Preferences:
+ * - GET /preferences
+ * - Response: { preferences: { perType: {...}, channels: {...}, quietHours: {...} } }
+ * - Status: 200 OK
+ * - Cache: 5 minutes
+ * 
+ * Update Preferences:
+ * - PUT /preferences
+ * - Body: { notificationTypes: {...}, deliveryChannels: {...}, frequency: "immediate" }
+ * - Response: { preferences: {...} }
+ * - Status: 200 OK
+ * 
+ * Notification Channels:
+ * - in_app: Browser/app display (always on)
+ * - email: Email delivery
+ * - sms: Text message (optional)
+ * - push: Mobile push notification
+ * 
+ * Priority Levels:
+ * - low: Informational only
+ * - normal: Standard
+ * - high: Important
+ * - urgent: Critical (all channels)
+ * 
+ * Preferences Per Type:
+ * - Enable/disable for each notification type
+ * - Channel selection: email, push, SMS
+ * - Frequency: immediate, daily, weekly
+ * - Time window: When to send
+ * 
+ * Quiet Hours:
+ * - Set: POST /preferences/quiet-hours
+ * - Body: { startTime: "21:00", endTime: "08:00", enabled: true }
+ * - Response: { quietHours: {...} }
+ * - Status: 200 OK
+ * - No notifications during quiet hours
+ * - Do not disturb override
+ * 
+ * Notification Filtering:
+ * - By Type: Specific notification type
+ * - By Status: Read, unread, dismissed
+ * - By Priority: Low, normal, high, urgent
+ * - By Date: Date range
+ * - By Channel: Delivered via which channel
+ * 
+ * Response Format:
+ * - Success: { success: true, data: {...}, message: "..." }
+ * - Error: { success: false, error: "...", code: HTTP_CODE }
+ * 
+ * Error Handling:
+ * - 400: Bad request, invalid parameters
+ * - 401: Unauthorized user
+ * - 404: Notification not found
+ * - 422: Unprocessable entity
+ * - 500: Server error
+ * 
+ * Notification States:
+ * - created: Generated
+ * - sent: Dispatched to channels
+ * - delivered: Successfully delivered
+ * - viewed: User opened
+ * - read: User interacted
+ * - dismissed: User closed
+ * 
+ * Real-Time Features:
+ * - WebSocket push for new notifications
+ * - Live typing indicators
+ * - Online status updates
+ * - Read receipts
+ * 
+ * Rate Limiting:
+ * - Get notifications: 60 per minute
+ * - Mark operations: 100 per minute
+ * - Update preferences: 20 per hour
+ * - Subscribe/unsubscribe: 30 per hour
+ * 
+ * Caching:
+ * - Unread count: 1 minute
+ * - Notification list: 2 minutes
+ * - Preferences: 5 minutes
+ * 
+ * Retention:
+ * - Standard: 30 days
+ * - Important/system: Permanent
+ * - Dismissed: 7 days
+ * - Auto-delete: After read (configurable)
+ */
   getUserNotifications,
   markAsRead,
   markAllAsRead,
