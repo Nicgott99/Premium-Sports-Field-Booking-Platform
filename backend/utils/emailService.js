@@ -2,12 +2,166 @@ import nodemailer from 'nodemailer';
 import logger from './logger.js';
 
 /**
- * Email Service Module
- * Handles all email sending with template support
+ * Email Service - Nodemailer Configuration & Email Sending
+ * Comprehensive email management system for transactional and notification emails
+ * 
+ * Purpose:
+ * - Send transactional emails (verification, password reset)
+ * - Send booking confirmation emails
+ * - Send payment receipts
+ * - Send notification emails
+ * - Handle email templates
+ * - Manage email queue
  * 
  * Email Services Supported:
  * - Gmail: Production standard
  * - SendGrid: High-volume alternative
+ * - SMTP: Generic SMTP server
+ * - Ethereal: Testing/development
+ * 
+ * Gmail Configuration:
+ * - Provider: gmail
+ * - Requires: App-specific password
+ * - 2FA: Must be enabled
+ * - Rate: 300 emails/day
+ * - Security: OAuth2 recommended
+ * 
+ * SendGrid Configuration:
+ * - Provider: sendgrid
+ * - Auth: API key authentication
+ * - Rate: Based on plan (100,000+/month)
+ * - Reliability: 99.99% uptime
+ * - Features: Templates, webhooks, tracking
+ * 
+ * Email Templates:
+ * - Email Verification: Verify account creation
+ * - Password Reset: Reset forgotten passwords
+ * - Booking Confirmation: Booking details
+ * - Payment Receipt: Transaction confirmation
+ * - Notification Alert: System notifications
+ * - Invoice: Detailed billing document
+ * 
+ * Verification Email:
+ * - Contains: Verification link with token
+ * - Validity: 24 hours
+ * - Action: Click link to verify
+ * - Next: Gain full account access
+ * 
+ * Password Reset Email:
+ * - Contains: Reset link with token
+ * - Validity: 30 minutes
+ * - Action: Click to set new password
+ * - Security: Token expires after use
+ * 
+ * Booking Confirmation Email:
+ * - Contains: Booking details, dates
+ * - Includes: Payment confirmation
+ * - Provides: Cancellation instructions
+ * - Reminder: Automated day-before
+ * 
+ * Payment Receipt Email:
+ * - Contains: Transaction ID, amount
+ * - Method: Card last 4 digits
+ * - Invoice: Formatted receipt
+ * - Refund policy: Terms included
+ * 
+ * Template Variables:
+ * - {userName}: User's name
+ * - {userEmail}: User email address
+ * - {verificationLink}: Verification URL
+ * - {resetLink}: Password reset URL
+ * - {bookingDetails}: Booking info
+ * - {amount}: Payment amount
+ * - {transactionId}: Tx reference
+ * 
+ * Handlebars Templating:
+ * - Syntax: {{variable}}
+ * - Conditions: {{#if condition}}
+ * - Loops: {{#each array}}
+ * - Helpers: Custom functions
+ * - Partials: Reusable sections
+ * 
+ * Send Email Function:
+ * Parameters: recipient, subject, template, variables
+ * Process: Render template, send via SMTP
+ * Retry: Automatic retry on failure
+ * Logging: Track delivery status
+ * Response: Delivery confirmation
+ * 
+ * Email Queue:
+ * - Implementation: Redis or database
+ * - Retry logic: Exponential backoff
+ * - Rate limiting: Respect provider limits
+ * - Persistence: Store unsent emails
+ * - Priority: Process priority emails first
+ * 
+ * Error Handling:
+ * - Invalid email: Validation error
+ * - Send failure: Retry with backoff
+ * - Provider error: Fallback option
+ * - Template error: Generic message
+ * - Authentication: Check credentials
+ * 
+ * Rate Limiting:
+ * - Gmail: 300 emails/day
+ * - SendGrid: Plan-based
+ * - Custom SMTP: Provider-specific
+ * - Throttling: Queue-based limiting
+ * 
+ * Security Features:
+ * - SSL/TLS: Encrypted transmission
+ * - Auth: Credentials stored securely
+ * - No logs: Never log passwords
+ * - DKIM: Email authentication
+ * - SPF: Sender policy framework
+ * - DMARC: Domain reputation
+ * 
+ * Template Management:
+ * - Location: /templates/ directory
+ * - Format: .hbs (Handlebars)
+ * - Versions: Multi-language
+ * - Styling: Inline CSS
+ * - Testing: Preview URLs
+ * 
+ * Development Testing:
+ * - Ethereal: Safe testing environment
+ * - Preview: Email preview URL
+ * - No delivery: Not sent to real inbox
+ * - Sandbox: Isolated testing
+ * 
+ * Production:
+ * - Provider: SendGrid or Gmail
+ * - SSL/TLS: Always encrypted
+ * - Monitoring: Delivery tracking
+ * - Analytics: Open and click tracking
+ * - Webhooks: Real-time updates
+ * 
+ * Webhook Events:
+ * - bounce: Email bounced
+ * - complaint: Marked as spam
+ * - delivery: Successfully delivered
+ * - open: Email opened
+ * - click: Link clicked
+ * 
+ * Performance:
+ * - Send time: ~1-2 seconds
+ * - Queue: Background processing
+ * - Template: <500ms rendering
+ * - Async: Non-blocking
+ * 
+ * Compliance:
+ * - GDPR: Data privacy
+ * - CAN-SPAM: US email rules
+ * - CASL: Canadian email rules
+ * - PIPEDA: Canadian data protection
+ * 
+ * Monitoring:
+ * - Delivery rate: % successful
+ * - Bounce rate: Invalid addresses
+ * - Open rate: Email opens
+ * - Click rate: Link clicks
+ * - Complaint rate: Spam reports
+ */
  * - Ethereal: Development/testing (no real sending)
  * - Custom SMTP: Fallback option
  * 
