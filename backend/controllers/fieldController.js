@@ -2,12 +2,141 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
- * Field Management Controller
- * Handles sports facility listings, search, filtering, and management
+ * Field Controller - Sports Facility Listing & Management
+ * Complete field operations including creation, search, discovery, and analytics
  * 
- * Responsibilities:
- * - Field listing with advanced search and filters
- * - Field creation by field owners
+ * Core Field Operations:
+ * - createField: Register new sports facility
+ * - getFields: List all fields with filters/search
+ * - getFieldById: Get specific field details
+ * - updateField: Modify field settings/information
+ * - deleteField: Remove field listing
+ * - deactivateField: Temporarily disable field
+ * 
+ * Field Types:
+ * - indoor: Climate controlled, roofed (weather-independent)
+ * - outdoor: Open air (weather-dependent)
+ * - covered: Covered but open-sided (partial weather protection)
+ * 
+ * Surface Types:
+ * - grass: Natural grass (football, cricket)
+ * - artificial-turf: Synthetic grass (durable, low maintenance)
+ * - concrete: Hard surface (basketball, tennis)
+ * - wood: Wood courts (badminton, volleyball)
+ * - rubber: Rubberized surface (athletics, gymnastics)
+ * - clay: Clay courts (tennis only)
+ * - synthetic: Synthetic track (athletics)
+ * 
+ * Supported Sports:
+ * - football: Soccer fields
+ * - cricket: Cricket pitches
+ * - basketball: Basketball courts
+ * - tennis: Tennis courts
+ * - badminton: Badminton courts
+ * - volleyball: Volleyball courts
+ * - table-tennis: Ping pong tables
+ * - squash: Squash courts
+ * - swimming: Swimming pools
+ * - golf: Golf ranges/courses
+ * - multi-sport: Multiple sport facilities
+ * 
+ * Amenities Management:
+ * - parking: Vehicle parking availability
+ * - changing_rooms: Locker and shower facilities
+ * - lighting: Night game capability (LED/traditional)
+ * - equipment: Provided sports equipment
+ * - refreshments: Food/beverage services
+ * - seating: Spectator viewing areas
+ * - wifi: Internet connectivity
+ * 
+ * Pricing Management:
+ * - hourlyRate: Base price per hour
+ * - peakHours: Premium pricing times (7-9am, 5-8pm)
+ * - offPeak: Discounted rate (10am-4pm)
+ * - nightSurcharge: Additional lighting fee
+ * - weekendPremium: Higher rate on weekends
+ * - dynamicPricing: Surge pricing, early bird, last-minute discounts
+ * 
+ * Availability Management:
+ * - weeklySchedule: Operating hours per day (9am-11pm)
+ * - bookingSlots: Minimum 1-hour, maximum 4-hour slots
+ * - bufferTime: 15-30 min gap between bookings
+ * - blackoutDates: Maintenance, private events
+ * - maxCapacity: Maximum concurrent participants
+ * 
+ * Media Management:
+ * - uploadImages: Field photos (5-10 photos max)
+ * - upload360Tour: Virtual tour/panorama
+ * - uploadFloorPlan: Layout/floor plan
+ * - uploadVideos: Demonstration videos
+ * - deleteMedia: Remove old media
+ * 
+ * Search & Discovery:
+ * - fullTextSearch: Search by name/description
+ * - geospatialSearch: Nearby fields by coordinates
+ * - filterByDistance: Search radius (1-50 km)
+ * - filterBySport: Sport type filtering
+ * - filterByPrice: Price range filtering
+ * - filterByAmenities: Multi-amenity filtering
+ * - filterByRating: Minimum rating threshold
+ * - sortByDistance: Distance-based sorting
+ * - sortByPrice: Price sorting (low-high)
+ * - sortByRating: Rating sorting (high-low)
+ * - sortByPopularity: Booking frequency
+ * 
+ * Availability Checking:
+ * - checkAvailability: Real-time slot availability
+ * - getCalendar: Monthly/weekly calendar view
+ * - getBookings: Field's booking history
+ * - getSlots: Available time slots
+ * 
+ * Ratings & Reviews:
+ * - getAverageRating: Overall field rating (1-5)
+ * - getRatingDistribution: Star breakdown
+ * - getReviews: Sorted/filtered reviews
+ * - respondToReview: Owner replies to reviews
+ * 
+ * Analytics:
+ * - getBookingStats: Usage metrics
+ * - getRevenueStats: Income analytics
+ * - getPopularSlots: Peak booking times
+ * - getGuestStats: Visitor demographics
+ * - getUtilizationRate: Field occupancy %
+ * 
+ * Notifications:
+ * - fieldCreated: Listing confirmation
+ * - bookingReceived: New booking notification
+ * - reviewPosted: New review alert
+ * - bookingCancelled: Cancellation notice
+ * - fieldAvailability: Capacity update
+ * 
+ * Filters Applied:
+ * - Status: Active, inactive, delisted
+ * - Visibility: Public, private, featured
+ * - Verification: Verified, pending, rejected
+ * - Featured: Paid promotion option
+ * 
+ * Error Handling:
+ * - 400: Bad request, invalid field type
+ * - 401: Unauthorized user
+ * - 403: Forbidden, not field owner
+ * - 404: Field not found
+ * - 409: Conflict, duplicate field
+ * - 422: Unprocessable entity
+ * - 500: Server error
+ * 
+ * Rate Limiting:
+ * - Create field: 5 per day per owner
+ * - Update field: 100 per day
+ * - Image upload: 50 MB per day
+ * - Search queries: 300 per hour
+ * 
+ * Caching:
+ * - Field details: 15 minutes
+ * - Availability: 1 minute
+ * - Search results: 5 minutes
+ * - Reviews: 10 minutes
+ */
  * - Field updates and property management
  * - Field deletion and deactivation
  * - Field availability management
