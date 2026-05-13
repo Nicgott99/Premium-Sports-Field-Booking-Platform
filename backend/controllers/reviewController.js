@@ -2,12 +2,109 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
 /**
- * Review & Rating Controller
- * Manages field reviews, user ratings, and review moderation
+ * Review Controller - Field Rating and Review Management
+ * Comprehensive review operations with ratings, moderation, and analytics
  * 
- * Responsibilities:
- * - Review creation with validation
- * - Review retrieval with sorting/filtering
+ * Core Review Operations:
+ * - createReview: Submit new review with rating
+ * - getReviews: Fetch field reviews with filters
+ * - getReviewById: Get specific review details
+ * - updateReview: Modify review within edit window
+ * - deleteReview: Remove review within delete window
+ * - respondToReview: Owner response to review
+ * 
+ * Rating System:
+ * - Stars: 1.0 to 5.0 (0.5 increments allowed)
+ * - Categories: Facility quality, cleanliness, service, value, location
+ * - Weighted average: Calculated from all ratings
+ * - Distribution: Track how many 1, 2, 3, 4, 5 star ratings
+ * 
+ * Review Content:
+ * - Title: Max 100 characters, descriptive
+ * - Body: Max 2000 characters, detailed review
+ * - Photos: Up to 5 images per review
+ * - Video: Optional short video clip
+ * - Anonymous: Option to hide reviewer name
+ * 
+ * Verification:
+ * - Verified purchase: Only verified bookers can review
+ * - Booking history: Must have completed booking
+ * - One review per field per user: Prevent duplicate reviews
+ * - Review completion: User must have visited field
+ * 
+ * Moderation:
+ * - Flag reviews: Report inappropriate content
+ * - Spam detection: Automated spam score
+ * - Profanity filtering: Auto-detect bad language
+ * - Manual approval: Admin review flag workflow
+ * - Removal: Delete flagged/inappropriate reviews
+ * 
+ * Helpful System:
+ * - Helpful votes: Other users mark reviews helpful
+ * - Unhelpful votes: Mark as not useful
+ * - Controversial score: Tracking disagreement
+ * - Helpful percentage: % finding review useful
+ * 
+ * Edit & Delete Window:
+ * - Edit window: 30 days after posting
+ * - Delete window: 60 days after posting
+ * - After window: Reviews cannot be modified/deleted
+ * - Edit history: Track changes made to review
+ * 
+ * Review Analytics:
+ * - Average rating: Overall field rating
+ * - Rating distribution: Visual breakdown
+ * - Review frequency: Rate of new reviews
+ * - Helpful rate: % marked as helpful
+ * - Response rate: Owner response percentage
+ * 
+ * Filtering & Sorting:
+ * - Filter by rating: Show specific stars
+ * - Filter by date: Date range queries
+ * - Filter by verified: Verified bookings only
+ * - Sort by: Newest, oldest, highest helpful
+ * - Sort by: Rating (high to low, low to high)
+ * 
+ * Search:
+ * - Search review content
+ * - Search by reviewer name
+ * - Search by booking reference
+ * 
+ * Pagination:
+ * - Limit: Items per page (default 10, max 50)
+ * - Offset: Starting position
+ * - Cursors: For efficient pagination
+ * 
+ * Owner Response:
+ * - Reply to reviews: Owner can respond
+ * - Response limit: Max 500 characters
+ * - Edit response: Up to 24 hours
+ * - Response email: Notify reviewer of response
+ * 
+ * Reputation Impact:
+ * - Field rating: Affects search/ranking
+ * - Trust score: Calculated from reviews
+ * - Badge system: Gold, silver, bronze based on rating
+ * 
+ * Error Handling:
+ * - 400: Invalid input, rating out of range
+ * - 401: Unauthorized user
+ * - 403: Forbidden (not verified booker, duplicate)
+ * - 404: Review/field not found
+ * - 409: Conflict (edit/delete window expired)
+ * - 422: Unprocessable entity
+ * - 500: Server error
+ * 
+ * Rate Limiting:
+ * - 10 reviews per day per user
+ * - 50 helpful votes per hour
+ * - 5 flags per day per user
+ * 
+ * Caching:
+ * - Field average rating: 1 hour
+ * - Review list: 10 minutes
+ * - User review history: 5 minutes
+ */
  * - Review updates (author only)
  * - Review deletion (author or admin)
  * - Helpful vote tracking
