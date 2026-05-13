@@ -1,36 +1,70 @@
 import mongoose from 'mongoose';
 
 /**
- * Notification Schema for user alerts and messages
- * Tracks all platform notifications with delivery status
+ * Notification Schema - Alert & Message Management System
+ * Comprehensive notification system with multiple delivery channels and priorities
  * 
- * Notification Types:
- * - booking_confirmed: Booking successfully created/confirmed
- * - booking_cancelled: Booking was cancelled
+ * Notification Types (14 types):
+ * - booking_confirmed: Booking successfully approved
+ * - booking_cancelled: Booking cancellation notification
  * - payment_received: Payment processed successfully
- * - payment_failed: Payment processing failed
- * - booking_reminder: Upcoming booking reminder (24h before)
- * - new_message: New message received in chat
- * - team_invitation: User invited to team
- * - tournament_registration: Tournament registration updated
- * - tournament_start: Tournament is starting
- * - field_availability: Subscribed field becomes available
+ * - payment_failed: Payment declined notification
+ * - booking_reminder: 24-hour pre-booking reminder
+ * - new_message: New direct message received
+ * - team_invitation: Team join invitation
+ * - tournament_registration: Tournament signup confirmed
+ * - tournament_start: Tournament begins notification
+ * - field_availability: Subscribed field became available
  * - review_posted: Someone reviewed your field
  * - follow_user: User started following you
- * - system_alert: System-wide alerts and maintenance
+ * - system_alert: Platform maintenance/policy updates
  * - other: Miscellaneous notifications
  * 
  * Priority Levels:
- * - low: Informational notifications
- * - normal: Standard notifications (default)
- * - high: Important notifications requiring attention
- * - urgent: Critical notifications
+ * - low: Informational only (in-app)
+ * - normal: Standard (in-app + email)
+ * - high: Important (in-app + email + push)
+ * - urgent: Critical (in-app + email + SMS + push)
  * 
  * Delivery Channels:
- * - in_app: Display in app notifications
- * - email: Send via email
- * - sms: Send via SMS (if available)
- * - push: Send push notification
+ * - in_app: Browser/app notification
+ * - email: Email delivery with template
+ * - sms: Text message (urgent only)
+ * - push: Mobile push notification
+ * 
+ * Notification Status:
+ * - created: Just created
+ * - sent: Dispatched to channels
+ * - delivered: Successfully delivered
+ * - viewed: User opened notification
+ * - read: User consumed notification
+ * - dismissed: User ignored/closed
+ * 
+ * User Preferences:
+ * - Per-notification-type control
+ * - Channel selection (email, push, SMS)
+ * - Quiet hours (9pm-8am)
+ * - Do not disturb mode
+ * - Email frequency (immediate, daily, weekly)
+ * 
+ * Analytics:
+ * - Delivery rate per channel
+ * - Open/click rate tracking
+ * - Engagement metrics
+ * - Dismissal patterns
+ * 
+ * Content:
+ * - Title, message, description
+ * - Image/icon, action URL
+ * - Variable interpolation {{name}}, {{field}}
+ * - Localization support
+ * 
+ * Relationships:
+ * - Recipient: User receiving notification
+ * - Sender: User triggering notification
+ * - Related entity: Booking, field, team, etc.
+ * 
+ * Indexes: recipient, type, createdAt, status
  */
 const notificationSchema = new mongoose.Schema(
   {
