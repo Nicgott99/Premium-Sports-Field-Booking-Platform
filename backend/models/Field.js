@@ -1,38 +1,66 @@
 import mongoose from 'mongoose';
 
 /**
- * Field Schema for sports facility listings
- * Comprehensive model for managing sports fields
+ * Field Schema - Sports Facility Listing & Management
+ * Comprehensive schema for managing sports field properties, availability, pricing
  * 
  * Field Types:
- * - indoor: Climate controlled, roofed facilities
- * - outdoor: Open air fields (weather dependent)
- * - covered: Covered but open-sided facilities
+ * - indoor: Climate controlled, roofed (weather-independent)
+ * - outdoor: Open air (weather-dependent)
+ * - covered: Covered but open-sided (partial weather protection)
  * 
  * Surface Types:
- * - grass: Natural grass for football, cricket
- * - artificial-turf: Synthetic grass (football, field hockey)
+ * - grass: Natural grass (football, cricket)
+ * - artificial-turf: Synthetic grass (durable, low maintenance)
  * - concrete: Hard surface (basketball, tennis)
  * - wood: Wood courts (badminton, volleyball)
- * - rubber: Rubberized surface (athletics)
- * - clay: Clay courts (tennis)
- * - synthetic: Synthetic track surface
+ * - rubber: Rubberized surface (athletics, gymnastics)
+ * - clay: Clay courts (tennis only)
+ * - synthetic: Synthetic track (athletics)
  * 
- * Supported Sports:
- * football, cricket, basketball, tennis, badminton, 
- * volleyball, table-tennis, squash, swimming, golf, multi-sport
+ * Amenities (Optional):
+ * - parking: Vehicle parking availability
+ * - changing_rooms: Locker and shower facilities
+ * - lighting: Night game capability (LED/traditional)
+ * - equipment: Provided sports equipment
+ * - refreshments: Food/beverage services
+ * - seating: Spectator viewing areas
+ * - wifi: Internet connectivity
  * 
- * Amenities:
- * - Parking: On-site vehicle parking
- * - Changing rooms: Locker facilities
- * - Lighting: Night game capabilities
- * - Equipment: Available field equipment
- * - Refreshments: Food/water services
+ * Pricing Strategy:
+ * - Hourly rate: Base price per hour
+ * - Peak hours: Premium pricing (7-9am, 5-8pm)
+ * - Off-peak: Discounted rate (10am-4pm)
+ * - Night surcharge: Additional lighting fee
+ * - Weekend premium: Higher rate on weekends
+ * - Dynamic pricing: Surge pricing, early bird, last-minute discounts
  * 
- * Availability:
- * - Weekly schedule-based slots
- * - Booking buffer times (e.g., 30 min between bookings)
- * - Blackout dates for maintenance
+ * Availability Management:
+ * - Weekly schedule: Operating hours per day
+ * - Booking slots: Minimum/maximum duration
+ * - Buffer time: Gap between bookings (15-30 min)
+ * - Blackout dates: Maintenance, private events
+ * - Capacity: Max concurrent participants
+ * 
+ * Gallery & Media:
+ * - Multiple images (5-10 photos)
+ * - 360° virtual tour
+ * - Floor plan/layout
+ * - Video demonstrations
+ * 
+ * Ratings & Reviews:
+ * - Average rating (1-5 stars)
+ * - Review system with verification
+ * - Response mechanism for owners
+ * - Detailed analytics per category
+ * 
+ * Search & Discovery:
+ * - Full-text search on name/description
+ * - Geospatial search by coordinates
+ * - Filter by sport, price, amenities, rating
+ * - Sort by distance, price, popularity, rating
+ * 
+ * Indexes: name, ownerId, sport, hourlyRate, averageRating, coordinates
  */
 const fieldSchema = new mongoose.Schema({
   // Basic Information
