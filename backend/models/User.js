@@ -3,35 +3,40 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 /**
- * User Schema for platform account management
- * Supports both standard and Firebase authentication
+ * User Schema - Complete Account Management System
+ * MongoDB document schema for user profiles, authentication, preferences, and social features
  * 
- * User Roles:
- * - user: Regular platform user
- * - field_owner: Can list and manage fields
- * - manager: Manages field and bookings
- * - admin: Full platform administrative access
+ * User Roles: user | field_owner | manager | admin
+ * Account Status: active | pending_verification | suspended | banned | inactive
+ * Subscription Tiers: free | premium | enterprise
  * 
- * Subscription Plans:
- * - free: Basic booking functionality
- * - premium: Enhanced features, analytics
- * - enterprise: Full access, priority support
+ * Core Features:
+ * - Email/password authentication (bcryptjs hashing)
+ * - Firebase OAuth integration (Google, Facebook, Apple)
+ * - Email verification workflow with token
+ * - Password reset functionality with secure tokens
+ * - Two-factor authentication (TOTP)
+ * - Profile management (avatar, bio, preferences)
+ * - Social features (followers, following, blocking)
+ * - Location and sports interest tracking
+ * - Account security (login attempts, lockout mechanism)
+ * - Data export and deletion (GDPR compliance)
  * 
- * Account Status:
- * - active: Normal user account
- * - banned: User account permanently suspended
- * - suspended: Temporary account suspension
- * - pending_verification: Email not yet verified
+ * Authentication Methods:
+ * - Standard: email + password (hashed with bcryptjs)
+ * - Firebase: OAuth tokens (Google, Facebook, Apple)
+ * - Dual: Account linking between methods
  * 
- * Authentication:
- * - Standard: Email/password (hashed with bcrypt)
- * - Firebase: Using Firebase Authentication
+ * Permissions by Role:
+ * - user: Book fields, review, message, basic platform access
+ * - field_owner: user + create/manage fields, set pricing
+ * - manager: field_owner + tournament/team management
+ * - admin: All permissions + user/system management
  * 
- * Profile Data:
- * - Avatar: User profile picture
- * - Preferences: User settings and preferences
- * - Location: Primary location for field recommendations
- * - Social: Followers/following system
+ * Indexes for performance:
+ * - email (unique), phone (unique), firebaseUID (unique)
+ * - createdAt (join date), lastLogin (activity tracking)
+ * - coordinates (geospatial for nearby searches)
  */
 const userSchema = new mongoose.Schema({
   // Basic Information
