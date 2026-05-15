@@ -82,6 +82,23 @@ export const setupFirebase = async () => {
       return firebaseApp;
     }
 
+    // Validate required environment variables
+    const requiredEnvVars = [
+      'FIREBASE_PROJECT_ID',
+      'FIREBASE_PRIVATE_KEY_ID',
+      'FIREBASE_PRIVATE_KEY',
+      'FIREBASE_CLIENT_EMAIL',
+      'FIREBASE_CLIENT_ID'
+    ];
+
+    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+    
+    if (missingVars.length > 0) {
+      logger.warn(`⚠️ Firebase environment variables missing: ${missingVars.join(', ')}`);
+      logger.warn('Firebase will be disabled - some features may not work');
+      return null;
+    }
+
     // Initialize Firebase Admin SDK
     const serviceAccount = {
       type: "service_account",
