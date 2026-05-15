@@ -170,6 +170,33 @@ const errorHandler = (err, req, res, next) => {
     message = 'Invalid Firebase token';
   }
 
+  // Stripe payment errors
+  if (err.type === 'StripeCardError') {
+    statusCode = 402;
+    message = `Payment declined: ${err.message}`;
+  }
+
+  if (err.type === 'StripeRateLimitError') {
+    statusCode = 429;
+    message = 'Too many payment requests, please try again later';
+  }
+
+  if (err.type === 'StripeAPIError') {
+    statusCode = 500;
+    message = 'Payment service error, please try again';
+  }
+
+  if (err.type === 'StripeInvalidRequestError') {
+    statusCode = 400;
+    message = `Invalid payment request: ${err.message}`;
+  }
+
+  // Stripe connection errors
+  if (err.code === 'ERR_STRIPE_NETWORK') {
+    statusCode = 503;
+    message = 'Payment service temporarily unavailable';
+  }
+
   res.status(statusCode).json({
     success: false,
     message: message,
