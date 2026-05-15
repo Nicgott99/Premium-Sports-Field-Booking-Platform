@@ -129,3 +129,46 @@ export const validatePasswordChange = [
   
   handleValidationErrors
 ];
+
+// Booking validation
+export const validateCreateBooking = [
+  body('fieldId')
+    .notEmpty()
+    .withMessage('Field ID is required'),
+  
+  body('date')
+    .notEmpty()
+    .withMessage('Booking date is required')
+    .isISO8601()
+    .withMessage('Invalid date format'),
+  
+  body('timeSlot')
+    .notEmpty()
+    .withMessage('Time slot is required')
+    .matches(/^\d{2}:\d{2}-\d{2}:\d{2}$/)
+    .withMessage('Time slot must be in HH:MM-HH:MM format'),
+  
+  body('duration')
+    .notEmpty()
+    .withMessage('Duration is required')
+    .isInt({ min: 1, max: 12 })
+    .withMessage('Duration must be between 1 and 12 hours'),
+  
+  body('participants')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Participants must be at least 1'),
+  
+  handleValidationErrors
+];
+
+// Booking status validation
+export const validateBookingStatusUpdate = [
+  body('status')
+    .notEmpty()
+    .withMessage('Status is required')
+    .isIn(['pending', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show'])
+    .withMessage('Invalid booking status. Valid values: pending, confirmed, in-progress, completed, cancelled, no-show'),
+  
+  handleValidationErrors
+];
