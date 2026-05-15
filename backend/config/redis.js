@@ -88,20 +88,20 @@ export const createRedisClient = async () => {
   try {
     redisClient = createClient({
       url: process.env.REDIS_URL || 'redis://localhost:6379',
-      retry_strategy: (options) => {
-        if (options.error && options.error.code === 'ECONNREFUSED') {
-          logger.error('Redis server connection refused');
-          return new Error('Redis server connection refused');
-        }
-        if (options.total_retry_time > 1000 * 60 * 60) {
-          logger.error('Redis retry time exhausted');
-          return new Error('Redis retry time exhausted');
-        }
-        if (options.attempt > 10) {
-          logger.error('Too many Redis retry attempts');
-          return undefined;
-        }
-        return Math.min(options.attempt * 100, 3000);
+      socket: {
+        reconnectStrategy: (retries, cause) => {
+          if (cause && cause.code === 'ECONNREFUSED') {
+            logger.error('Redis server connection refused');
+            return new Error('Redis server connection refused');
+          }
+          if (retries > 10) {
+            logger.error('Too many Redis reconnection attempts');
+            return new Error('Max reconnection attempts exceeded');
+          }
+          return Math.min(retries * 100, 3000);
+        },
+        connectTimeout: 5000,
+        noDelay: true
       }
     });
 
@@ -159,7 +159,17 @@ export const getCache = async (key) => {
     }
     
     const value = await redisClient.get(key);
-    return value ? JSON.parse(value) : null;
+    if (!value) {
+      return null;
+    }
+    
+    try {
+      return JSON.parse(value);
+    } catch (parseError) {
+      logger.error(`Redis cache JSON parse error for key ${key}: ${parseError.message}`);
+      // Try to return raw value if JSON parsing fails
+      return value;
+    }
   } catch (error) {
     logger.error(`Redis getCache error: ${error.message}`);
     return null;
