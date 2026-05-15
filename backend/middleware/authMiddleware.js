@@ -171,6 +171,31 @@ export const protect = asyncHandler(async (req, res, next) => {
         throw new Error('Account is deactivated');
       }
 
+      // TOKEN ROTATION IMPLEMENTATION
+      // Check if token is nearing expiration (< 5 minutes left)
+      const now = Math.floor(Date.now() / 1000);
+      const timeUntilExpiry = decoded.exp - now;
+      
+      if (timeUntilExpiry < 300) { // Less than 5 minutes remaining
+        try {
+          // Generate new token
+          const newToken = jwt.sign(
+            { id: req.user._id, email: req.user.email, role: req.user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRE || '15m' }
+          );
+          
+          // Include new token in response headers for client to update
+          res.set('X-New-Auth-Token', newToken);
+          res.set('X-Token-Rotated', 'true');
+          
+          logger.info(`Token rotated for user ${req.user._id}`);
+        } catch (rotationError) {
+          logger.error(`Token rotation error: ${rotationError.message}`);
+          // Continue without rotation, it's not critical
+        }
+      }
+
       // Continue to next middleware with authenticated user
       next();
     } catch (error) {
