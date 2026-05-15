@@ -11,6 +11,7 @@ import connectDB from './config/database.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 import { setupFirebase } from './config/firebase.js';
 import { createRedisClient } from './config/redis.js';
+import { responseMiddleware } from './utils/responseFormatter.js';
 import logger from './utils/logger.js';
 
 // Import Routes
@@ -34,13 +35,66 @@ dotenv.config();
 const app = express();
 const server = createServer(app);
 
-// Initialize Socket.IO
+// Initialize Socket.IO with namespaces
 const io = new Server(server, {
   cors: {
     origin: process.env.CLIENT_URL || "http://localhost:3000",
     methods: ["GET", "POST"],
     credentials: true
-  }
+  },
+  transports: ['websocket', 'polling'],
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  reconnectionAttempts: 5
+});
+
+// Chat namespace
+const chatNamespace = io.of('/chat');
+chatNamespace.on('connection', (socket) => {
+  logger.info(`Chat user connected: ${socket.id}`);
+  socket.on('joinChat', (chatId) => {
+    socket.join(`chat_${chatId}`);
+    logger.info(`User ${socket.userId} joined chat ${chatId}`);
+  });
+  socket.on('sendMessage', async (data) => {
+    try {
+      chatNamespace.to(`chat_${data.chatId}`).emit('newMessage', data);
+    } catch (error) {
+      logger.error(`Chat error: ${error.message}`);
+      socket.emit('error', { message: 'Failed to send message' });
+    }
+  });
+});
+
+// Booking namespace
+const bookingNamespace = io.of('/bookings');
+bookingNamespace.on('connection', (socket) => {
+  logger.info(`Booking user connected: ${socket.id}`);
+  socket.on('joinUserRoom', (userId) => {
+    socket.join(userId);
+    socket.userId = userId;
+    logger.info(`User ${userId} joined booking room`);
+  });
+  socket.on('bookingUpdate', (data) => {
+    bookingNamespace.to(data.userId).emit('bookingStatusChanged', data);
+  });
+  socket.on('fieldAvailabilityUpdate', (data) => {
+    bookingNamespace.emit('fieldAvailabilityChanged', data);
+  });
+});
+
+// Notifications namespace
+const notificationNamespace = io.of('/notifications');
+notificationNamespace.on('connection', (socket) => {
+  logger.info(`Notification user connected: ${socket.id}`);
+  socket.on('joinUserNotifications', (userId) => {
+    socket.join(`user_${userId}`);
+    socket.userId = userId;
+    logger.info(`User ${userId} joined notifications room`);
+  });
+  socket.on('disconnect', () => {
+    logger.info(`Notification user disconnected: ${socket.id}`);
+  });
 });
 
 // Connect to MongoDB
@@ -71,17 +125,22 @@ app.use(helmet({
 // Compression middleware
 app.use(compression());
 
-// CORS Configuration
+// CORS Configuration - Dynamic origin handling
+const corsOrigins = [
+  process.env.CLIENT_URL || "http://localhost:3000",
+  "http://localhost:3000",
+  "https://cse471-sports.vercel.app"
+];
+
 app.use(cors({
-  origin: [
-    process.env.CLIENT_URL || "http://localhost:3000",
-    "http://localhost:3000",
-    "https://cse471-sports.vercel.app"
-  ],
+  origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
 }));
+
+// Response formatter middleware - Makes res.success(), res.error() available
+app.use(responseMiddleware);
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -93,6 +152,10 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req, res) => {
+    // Skip rate limiting for health check and other admin endpoints
+    return req.path === '/api/health' || req.path.startsWith('/api/admin') || req.path.startsWith('/api/auth/login');
+  }
 });
 
 app.use('/api', limiter);
@@ -115,11 +178,26 @@ app.get('/api/health', (req, res) => {
     message: 'CSE471 Premium Sports Platform API is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    version: '1.0.0'
+    version: '1.0.0',
+    apiVersion: 'v1'
   });
 });
 
-// API Routes
+// API v1 Routes with version prefix
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/fields', fieldRoutes);
+app.use('/api/v1/bookings', bookingRoutes);
+app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/chat', chatRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/reviews', reviewRoutes);
+app.use('/api/v1/tournaments', tournamentRoutes);
+app.use('/api/v1/teams', teamRoutes);
+
+// Backward compatibility - keep old routes without version prefix
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/fields', fieldRoutes);
@@ -133,51 +211,11 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/teams', teamRoutes);
 
-// Socket.IO Connection Handler
-io.on('connection', (socket) => {
-  logger.info(`User connected: ${socket.id}`);
-
-  // Join user to their room
-  socket.on('join', (userId) => {
-    socket.join(userId);
-    socket.userId = userId;
-    logger.info(`User ${userId} joined their room`);
-  });
-
-  // Join chat room
-  socket.on('joinChat', (chatId) => {
-    socket.join(`chat_${chatId}`);
-    logger.info(`User ${socket.userId} joined chat ${chatId}`);
-  });
-
-  // Handle real-time messages
-  socket.on('sendMessage', async (data) => {
-    try {
-      // Save message to database and emit to chat room
-      io.to(`chat_${data.chatId}`).emit('newMessage', data);
-    } catch (error) {
-      socket.emit('error', { message: 'Failed to send message' });
-    }
-  });
-
-  // Handle real-time booking updates
-  socket.on('bookingUpdate', (data) => {
-    io.to(data.userId).emit('bookingStatusChanged', data);
-  });
-
-  // Handle field availability updates
-  socket.on('fieldAvailabilityUpdate', (data) => {
-    io.emit('fieldAvailabilityChanged', data);
-  });
-
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    logger.info(`User disconnected: ${socket.id}`);
-  });
-});
-
 // Make io accessible in routes
 app.set('io', io);
+app.set('chatNamespace', chatNamespace);
+app.set('bookingNamespace', bookingNamespace);
+app.set('notificationNamespace', notificationNamespace);
 
 // Error Handling Middleware
 app.use(notFound);
