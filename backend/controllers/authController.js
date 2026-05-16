@@ -517,7 +517,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
     // Get user
     const user = await User.findById(decoded.id);
     
-    if (!user || !user.isActive) {
+    if (!user?.isActive) {
       res.status(401);
       throw new Error('Invalid refresh token');
     }
@@ -532,6 +532,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
+    logger.error(`Refresh token error: ${error.message}`);
     res.status(401);
     throw new Error('Invalid refresh token');
   }
