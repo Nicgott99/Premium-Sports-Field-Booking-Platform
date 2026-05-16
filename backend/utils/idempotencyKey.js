@@ -110,7 +110,7 @@ export const getIdempotencyKeyResult = async (key, redisClient) => {
     const redisKey = `idempotency:${key}`;
 
     // Try Redis first (if available)
-    if (redisClient && redisClient.isOpen) {
+    if (redisClient?.isOpen) {
       const cached = await redisClient.get(redisKey);
       if (cached) {
         logger.info(`Idempotency key cache hit: ${key}`);
@@ -159,7 +159,7 @@ export const storeIdempotencyKeyResult = async (key, response, redisClient, ttl 
     };
 
     // Try Redis first (if available)
-    if (redisClient && redisClient.isOpen) {
+    if (redisClient?.isOpen) {
       await redisClient.setEx(redisKey, ttl, JSON.stringify(storageData));
       logger.info(`Idempotency key stored in Redis: ${key}`);
     } else {
