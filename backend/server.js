@@ -127,17 +127,17 @@ app.use(helmet({
 app.use(compression());
 
 // CORS Configuration - Dynamic origin handling
-const corsOrigins = [
+const corsOrigins = new Set([
   ...(process.env.CLIENT_URL
     ? process.env.CLIENT_URL.split(',').map(origin => origin.trim()).filter(Boolean)
     : []),
   'http://localhost:3000',
   'https://cse471-sports.vercel.app'
-];
+]);
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || corsOrigins.includes(origin)) {
+    if (!origin || corsOrigins.has(origin)) {
       return callback(null, true);
     }
     return callback(new Error('Not allowed by CORS'));
