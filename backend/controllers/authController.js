@@ -17,13 +17,11 @@
  */
 
 import asyncHandler from 'express-async-handler';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import User from '../models/User.js';
-import { verifyFirebaseToken, createCustomToken } from '../config/firebase.js';
+import { verifyFirebaseToken } from '../config/firebase.js';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/emailService.js';
-import { generateToken, verifyToken, generateEmailVerificationToken, generatePasswordResetToken } from '../utils/tokenUtils.js';
 import logger from '../utils/logger.js';
 
 // @desc    Register a new user
