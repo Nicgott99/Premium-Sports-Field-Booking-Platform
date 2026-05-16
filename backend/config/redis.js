@@ -90,13 +90,13 @@ export const createRedisClient = async () => {
       url: process.env.REDIS_URL || 'redis://localhost:6379',
       socket: {
         reconnectStrategy: (retries, cause) => {
-          if (cause && cause.code === 'ECONNREFUSED') {
+          if (cause?.code === 'ECONNREFUSED') {
             logger.error('Redis server connection refused');
-            return new Error('Redis server connection refused');
+            return 3000;
           }
           if (retries > 10) {
             logger.error('Too many Redis reconnection attempts');
-            return new Error('Max reconnection attempts exceeded');
+            return false;
           }
           return Math.min(retries * 100, 3000);
         },
