@@ -98,16 +98,10 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   // Send verification email
   try {
-    const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
-    await sendEmail({
-      to: user.email,
-      subject: 'Welcome to CSE471 Sports Platform - Verify Your Email',
-      template: 'emailVerification',
-      data: {
-        name: user.fullName,
-        verificationUrl
-      }
-    });
+    const emailResult = await sendVerificationEmail(user.email, verificationToken);
+    if (!emailResult.success) {
+      throw new Error(emailResult.error || 'Failed to send verification email');
+    }
   } catch (error) {
     logger.error(`Email sending failed: ${error.message}`);
   }
@@ -381,16 +375,10 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   // Send reset email
   try {
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-    await sendEmail({
-      to: user.email,
-      subject: 'Password Reset Request - CSE471 Sports Platform',
-      template: 'passwordReset',
-      data: {
-        name: user.fullName,
-        resetUrl
-      }
-    });
+    const emailResult = await sendPasswordResetEmail(user.email, resetToken);
+    if (!emailResult.success) {
+      throw new Error(emailResult.error || 'Failed to send password reset email');
+    }
 
     res.json({
       success: true,
@@ -497,16 +485,10 @@ export const resendVerification = asyncHandler(async (req, res) => {
 
   // Send verification email
   try {
-    const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
-    await sendEmail({
-      to: user.email,
-      subject: 'Email Verification - CSE471 Sports Platform',
-      template: 'emailVerification',
-      data: {
-        name: user.fullName,
-        verificationUrl
-      }
-    });
+    const emailResult = await sendVerificationEmail(user.email, verificationToken);
+    if (!emailResult.success) {
+      throw new Error(emailResult.error || 'Failed to resend verification email');
+    }
 
     res.json({
       success: true,
