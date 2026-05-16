@@ -105,7 +105,7 @@ export const setupFirebase = async () => {
       project_id: process.env.FIREBASE_PROJECT_ID,
       private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
       private_key: process.env.FIREBASE_PRIVATE_KEY
-        ? String.raw`${process.env.FIREBASE_PRIVATE_KEY}`.replaceAll('\\n', '\n')
+        ? String.raw`${process.env.FIREBASE_PRIVATE_KEY}`.replaceAll(String.raw`\n`, '\n')
         : undefined,
       client_email: process.env.FIREBASE_CLIENT_EMAIL,
       client_id: process.env.FIREBASE_CLIENT_ID,
