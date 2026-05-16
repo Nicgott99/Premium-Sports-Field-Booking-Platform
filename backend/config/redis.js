@@ -138,7 +138,7 @@ export const getRedisClient = () => {
 // Cache helper functions
 export const setCache = async (key, value, expiration = 3600) => {
   try {
-    if (!redisClient || !redisClient.isOpen) {
+    if (!redisClient?.isOpen) {
       logger.warn('Redis client not available for setCache');
       return false;
     }
@@ -153,7 +153,7 @@ export const setCache = async (key, value, expiration = 3600) => {
 
 export const getCache = async (key) => {
   try {
-    if (!redisClient || !redisClient.isOpen) {
+    if (!redisClient?.isOpen) {
       logger.warn('Redis client not available for getCache');
       return null;
     }
@@ -178,7 +178,7 @@ export const getCache = async (key) => {
 
 export const deleteCache = async (key) => {
   try {
-    if (!redisClient || !redisClient.isOpen) {
+    if (!redisClient?.isOpen) {
       logger.warn('Redis client not available for deleteCache');
       return false;
     }
@@ -193,7 +193,7 @@ export const deleteCache = async (key) => {
 
 export const clearCache = async (pattern = '*') => {
   try {
-    if (!redisClient || !redisClient.isOpen) {
+    if (!redisClient?.isOpen) {
       logger.warn('Redis client not available for clearCache');
       return false;
     }
