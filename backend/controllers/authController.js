@@ -204,7 +204,10 @@ export const loginWithFirebase = asyncHandler(async (req, res) => {
     // Find or create user
     let user = await User.findOne({ firebaseUid: decodedToken.uid });
     
-    if (!user) {
+    if (user) {
+      // Update last login
+      await user.updateLastLogin();
+    } else {
       // Create new user from Firebase data
       user = await User.create({
         firstName: userData.firstName || decodedToken.name?.split(' ')[0] || 'User',
@@ -217,9 +220,6 @@ export const loginWithFirebase = asyncHandler(async (req, res) => {
           url: decodedToken.picture || userData.photoURL || ''
         }
       });
-    } else {
-      // Update last login
-      await user.updateLastLogin();
     }
 
     // Generate JWT token
