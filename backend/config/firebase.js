@@ -177,7 +177,7 @@ export const sendPushNotification = async (tokens, payload) => {
       tokens: Array.isArray(tokens) ? tokens : [tokens]
     };
 
-    const response = await admin.messaging().sendMulticast(message);
+    const response = await admin.messaging().sendEachForMulticast(message);
     logger.info(`Push notification sent successfully: ${response.successCount} successful, ${response.failureCount} failed`);
     
     return response;
