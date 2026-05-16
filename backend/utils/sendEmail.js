@@ -1,7 +1,5 @@
 import nodemailer from 'nodemailer';
 import handlebars from 'handlebars';
-import fs from 'node:fs';
-import path from 'node:path';
 
 /**
  * Email Template & Sending Utility Module
