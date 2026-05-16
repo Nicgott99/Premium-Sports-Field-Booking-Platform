@@ -628,7 +628,7 @@ fieldSchema.virtual('isOpen').get(function() {
   const currentTime = now.toTimeString().slice(0, 5);
   
   const todaySchedule = this.availability.schedule[currentDay];
-  if (!todaySchedule || !todaySchedule.isOpen) return false;
+  if (!todaySchedule?.isOpen) return false;
   
   return currentTime >= todaySchedule.openTime && currentTime <= todaySchedule.closeTime;
 });
@@ -697,7 +697,7 @@ fieldSchema.methods.isAvailableAt = function(dateTime, duration = 1) {
   const time = dateTime.toTimeString().slice(0, 5);
   
   const schedule = this.availability.schedule[day];
-  if (!schedule || !schedule.isOpen) return false;
+  if (!schedule?.isOpen) return false;
   
   // Check if time is within operating hours
   if (time < schedule.openTime || time > schedule.closeTime) return false;
