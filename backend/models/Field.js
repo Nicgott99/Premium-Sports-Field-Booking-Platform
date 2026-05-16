@@ -215,8 +215,8 @@ const fieldSchema = new mongoose.Schema({
       multiplier: {
         type: Number,
         min: 0.1,
-        max: 5.0,
-        default: 1.0
+        max: 5,
+        default: 1
       }
     }],
     // Group discounts
