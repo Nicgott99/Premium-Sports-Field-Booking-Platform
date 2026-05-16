@@ -220,7 +220,7 @@ const seedDatabase = async () => {
           city: 'Dhaka',
           state: 'Dhaka Division',
           country: 'Bangladesh',
-          coordinates: [90.4200, 23.8200]
+          coordinates: [90.42, 23.82]
         },
         capacity: {
           min: 11,
@@ -250,7 +250,7 @@ const seedDatabase = async () => {
           city: 'Dhaka',
           state: 'Dhaka Division',
           country: 'Bangladesh',
-          coordinates: [90.4300, 23.8300]
+          coordinates: [90.43, 23.83]
         },
         capacity: {
           min: 12,
