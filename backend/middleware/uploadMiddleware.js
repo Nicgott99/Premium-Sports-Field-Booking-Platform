@@ -1,5 +1,5 @@
 import multer from 'multer';
-import path from 'path';
+import path from 'node:path';
 
 /**
  * Upload Middleware - File Upload Handling with Multer
