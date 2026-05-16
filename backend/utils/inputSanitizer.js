@@ -4,6 +4,8 @@
  * Sanitizes user inputs before storing or displaying
  */
 
+import logger from './logger.js';
+
 /**
  * Sanitize string input to prevent XSS attacks
  * Removes or escapes HTML/JavaScript code
@@ -34,7 +36,7 @@ export const sanitizeStringInput = (input) => {
     '/': '&#x2F;'
   };
   
-  sanitized = sanitized.replace(/[&<>"'\/]/g, char => htmlEscapes[char]);
+  sanitized = sanitized.replace(/[&<>"']/g, char => htmlEscapes[char]).replace(/\//g, htmlEscapes['/']);
   
   return sanitized.trim();
 };
@@ -169,6 +171,7 @@ export const sanitizeUrl = (url, allowedHosts = []) => {
     result.sanitized = parsedUrl.toString();
     
   } catch (error) {
+    logger?.warn?.(`Invalid URL format: ${error.message}`);
     result.error = 'Invalid URL format';
   }
   
@@ -228,7 +231,7 @@ export const sanitizeNumericInput = (value, min = -Infinity, max = Infinity) => 
   // Try to convert to number
   const num = Number(value);
   
-  if (isNaN(num)) {
+  if (Number.isNaN(num)) {
     result.error = 'Value must be a valid number';
     return result;
   }
