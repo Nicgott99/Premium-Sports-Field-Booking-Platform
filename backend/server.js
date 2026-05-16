@@ -104,7 +104,8 @@ await connectDB();
 await setupFirebase();
 
 // Setup Redis
-await createRedisClient();
+const redisClient = await createRedisClient();
+app.set('redisClient', redisClient);
 
 // Trust proxy
 app.set('trust proxy', 1);
