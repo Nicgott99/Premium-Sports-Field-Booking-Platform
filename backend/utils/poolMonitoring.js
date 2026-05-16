@@ -70,13 +70,13 @@ export const getPoolStats = () => {
   try {
     const client = mongoose.connection;
     
-    if (!client || !client.getClient()) {
+    if (!client?.getClient()) {
       return poolStats;
     }
 
-    const poolStats = client.getClient().topology?.s?.pool;
+    const topologyPool = client.getClient().topology?.s?.pool;
     
-    if (!poolStats) {
+    if (!topologyPool) {
       return {
         status: 'unavailable',
         message: 'Pool statistics not available',
@@ -85,14 +85,14 @@ export const getPoolStats = () => {
     }
 
     return {
-      activeConnections: poolStats.connectionCount,
-      maxPoolSize: poolStats.options?.maxPoolSize || 10,
-      minPoolSize: poolStats.options?.minPoolSize || 5,
-      queueSize: poolStats.waitQueueSize || 0,
-      totalConnections: poolStats.totalConnectionCount || 0,
-      idleConnections: (poolStats.totalConnectionCount || 0) - (poolStats.connectionCount || 0),
-      utilization: Math.round(((poolStats.connectionCount || 0) / (poolStats.options?.maxPoolSize || 10)) * 100),
-      status: poolStats.status || 'unknown',
+      activeConnections: topologyPool.connectionCount,
+      maxPoolSize: topologyPool.options?.maxPoolSize || 10,
+      minPoolSize: topologyPool.options?.minPoolSize || 5,
+      queueSize: topologyPool.waitQueueSize || 0,
+      totalConnections: topologyPool.totalConnectionCount || 0,
+      idleConnections: (topologyPool.totalConnectionCount || 0) - (topologyPool.connectionCount || 0),
+      utilization: Math.round(((topologyPool.connectionCount || 0) / (topologyPool.options?.maxPoolSize || 10)) * 100),
+      status: topologyPool.status || 'unknown',
       timestamp: new Date().toISOString()
     };
   } catch (error) {
