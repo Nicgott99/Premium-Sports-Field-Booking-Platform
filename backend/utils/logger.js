@@ -1,6 +1,7 @@
 import winston from 'winston';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -120,7 +121,8 @@ if (process.env.NODE_ENV !== 'production') {
         winston.format.colorize(),
         winston.format.simple(),
         winston.format.printf(({ level, message, timestamp, stack }) => {
-          return `${timestamp} [${level}]: ${stack || message}`;
+          const output = stack || (typeof message === 'string' ? message : JSON.stringify(message));
+          return `${String(timestamp)} [${level}]: ${output}`;
         })
       ),
     })
@@ -128,7 +130,6 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Create logs directory if it doesn't exist
-import fs from 'fs';
 const logsDir = path.join(__dirname, '../logs');
 if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true });
