@@ -121,8 +121,10 @@ if (process.env.NODE_ENV !== 'production') {
         winston.format.colorize(),
         winston.format.simple(),
         winston.format.printf(({ level, message, timestamp, stack }) => {
-          const output = stack || (typeof message === 'string' ? message : JSON.stringify(message));
-          return `${String(timestamp)} [${level}]: ${output}`;
+          const renderedTimestamp = timestamp instanceof Date ? timestamp.toISOString() : String(timestamp);
+          const renderedMessage = typeof message === 'string' ? message : JSON.stringify(message);
+          const renderedStack = typeof stack === 'string' ? stack : JSON.stringify(stack);
+          return `${renderedTimestamp} [${level}]: ${renderedStack || renderedMessage}`;
         })
       ),
     })
