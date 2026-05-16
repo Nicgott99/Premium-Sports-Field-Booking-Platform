@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import {
   generateIdempotencyKey,
   isValidIdempotencyKey,
@@ -117,7 +118,9 @@ export const idempotencyMiddleware = async (req, res, next) => {
           requestHash
         },
         redisClient
-      );
+      ).catch((storeError) => {
+        logger.error(`Failed to persist idempotency response: ${storeError.message}`);
+      });
 
       // Set idempotency headers
       res.set('X-Idempotency-Key', idempotencyKey);
@@ -142,7 +145,6 @@ export const idempotencyMiddleware = async (req, res, next) => {
  */
 function generateRequestHash(body) {
   try {
-    const crypto = require('crypto');
     const bodyString = JSON.stringify(body);
     return crypto
       .createHash('sha256')
