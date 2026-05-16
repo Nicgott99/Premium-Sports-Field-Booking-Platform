@@ -96,10 +96,9 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   // Send verification email
   try {
-    const emailResult = await sendVerificationEmail(user.email, verificationToken);
-    if (!emailResult.success) {
-      throw new Error(emailResult.error || 'Failed to send verification email');
-    }
+    void sendVerificationEmail(user.email, verificationToken).catch((emailError) => {
+      logger.error(`Email sending failed: ${emailError.message}`);
+    });
   } catch (error) {
     logger.error(`Email sending failed: ${error.message}`);
   }
@@ -139,56 +138,57 @@ export const loginUser = asyncHandler(async (req, res) => {
   // Find user by email
   const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 
-  if (!user) {
-    res.status(401);
-    throw new Error('Invalid email or password');
-  }
-
-  // Check if account is locked
-  if (user.isAccountLocked) {
-    res.status(423);
-    throw new Error('Account is temporarily locked due to too many failed login attempts. Please try again later or contact support.');
-  }
-
-  // Check if account is active
-  if (!user.isActive) {
-    res.status(403);
-    throw new Error('Account is deactivated. Please contact support for assistance.');
-  }
-
-  // Check password
-  const isPasswordValid = await user.matchPassword(password);
-
-  if (!isPasswordValid) {
-    await user.incrementLoginAttempts();
-    res.status(401);
-    throw new Error('Invalid email or password');
-  }
-
-  // Reset login attempts on successful login
-  await user.resetLoginAttempts();
-  await user.updateLastLogin();
-
-  // Generate JWT token
-  const tokenExpiry = rememberMe ? '30d' : '24h';
-  const token = jwt.sign(
-    { 
-      id: user._id,
-      email: user.email,
-      role: user.role 
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: tokenExpiry }
-  );
-
-  res.json({
-    success: true,
-    message: 'Login successful',
-    data: {
-      user: user.toProfileJSON(),
-      token
+  if (user) {
+    // Check if account is locked
+    if (user.isAccountLocked) {
+      res.status(423);
+      throw new Error('Account is temporarily locked due to too many failed login attempts. Please try again later or contact support.');
     }
-  });
+
+    // Check if account is active
+    if (!user.isActive) {
+      res.status(403);
+      throw new Error('Account is deactivated. Please contact support for assistance.');
+    }
+
+    // Check password
+    const isPasswordValid = await user.matchPassword(password);
+
+    if (!isPasswordValid) {
+      await user.incrementLoginAttempts();
+      res.status(401);
+      throw new Error('Invalid email or password');
+    }
+
+    // Reset login attempts on successful login
+    await user.resetLoginAttempts();
+    await user.updateLastLogin();
+
+    // Generate JWT token
+    const tokenExpiry = rememberMe ? '30d' : '24h';
+    const token = jwt.sign(
+      { 
+        id: user._id,
+        email: user.email,
+        role: user.role 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: tokenExpiry }
+    );
+
+    res.json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        user: user.toProfileJSON(),
+        token
+      }
+    });
+    return;
+  }
+
+  res.status(401);
+  throw new Error('Invalid email or password');
 });
 
 // @desc    Login with Firebase
@@ -483,10 +483,9 @@ export const resendVerification = asyncHandler(async (req, res) => {
 
   // Send verification email
   try {
-    const emailResult = await sendVerificationEmail(user.email, verificationToken);
-    if (!emailResult.success) {
-      throw new Error(emailResult.error || 'Failed to resend verification email');
-    }
+    void sendVerificationEmail(user.email, verificationToken).catch((emailError) => {
+      logger.error(`Verification email failed: ${emailError.message}`);
+    });
 
     res.json({
       success: true,
