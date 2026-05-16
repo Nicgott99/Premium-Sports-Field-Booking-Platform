@@ -128,13 +128,20 @@ app.use(compression());
 
 // CORS Configuration - Dynamic origin handling
 const corsOrigins = [
-  process.env.CLIENT_URL || "http://localhost:3000",
-  "http://localhost:3000",
-  "https://cse471-sports.vercel.app"
+  ...(process.env.CLIENT_URL
+    ? process.env.CLIENT_URL.split(',').map(origin => origin.trim()).filter(Boolean)
+    : []),
+  'http://localhost:3000',
+  'https://cse471-sports.vercel.app'
 ];
 
 app.use(cors({
-  origin: corsOrigins,
+  origin: (origin, callback) => {
+    if (!origin || corsOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
