@@ -96,7 +96,7 @@ export const createRedisClient = async () => {
           }
           if (retries > 10) {
             logger.error('Too many Redis reconnection attempts');
-            return false;
+            return 3000;
           }
           return Math.min(retries * 100, 3000);
         },
