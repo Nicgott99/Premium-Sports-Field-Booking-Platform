@@ -68,14 +68,14 @@ export const checkUserRateLimit = async (userId, operation, customConfig = null)
     const redisClient = getRedisClient();
     
     // If Redis not available, allow request (fail open)
-    if (!redisClient || !redisClient.isOpen) {
+    if (!redisClient?.isOpen) {
       logger.warn(`Redis unavailable for rate limiting, allowing request for ${userId}:${operation}`);
       return { allowed: true, remaining: -1, resetTime: null };
     }
     
     // Get current attempt count
     const attempts = await getCache(redisKey);
-    const currentAttempts = parseInt(attempts || 0);
+    const currentAttempts = Number.parseInt(attempts || '0', 10);
     
     if (currentAttempts >= config.maxAttempts) {
       // Rate limit exceeded
@@ -149,13 +149,13 @@ export const incrementUserRateLimit = async (userId, operation, incrementBy = 1)
   try {
     const redisClient = getRedisClient();
     
-    if (!redisClient || !redisClient.isOpen) {
+    if (!redisClient?.isOpen) {
       logger.warn(`Redis unavailable for rate limiting`);
       return 0;
     }
     
     const attempts = await getCache(redisKey);
-    const currentAttempts = parseInt(attempts || 0);
+    const currentAttempts = Number.parseInt(attempts || '0', 10);
     const newAttempts = currentAttempts + incrementBy;
     
     await setCache(redisKey, newAttempts.toString(), config.windowMs / 1000);
@@ -188,12 +188,12 @@ export const getUserRateLimitStatus = async (userId, operation) => {
   try {
     const redisClient = getRedisClient();
     
-    if (!redisClient || !redisClient.isOpen) {
+    if (!redisClient?.isOpen) {
       return { attempts: 0, remaining: -1, maxAttempts: config.maxAttempts, resetTime: null };
     }
     
     const attempts = await getCache(redisKey);
-    const currentAttempts = parseInt(attempts || 0);
+    const currentAttempts = Number.parseInt(attempts || '0', 10);
     const ttl = await redisClient.ttl(redisKey);
     
     return {
@@ -201,7 +201,7 @@ export const getUserRateLimitStatus = async (userId, operation) => {
       remaining: Math.max(0, config.maxAttempts - currentAttempts),
       maxAttempts: config.maxAttempts,
       resetTime: ttl > 0 ? new Date(Date.now() + ttl * 1000) : null,
-      resetSeconds: ttl > 0 ? ttl : 0
+      resetSeconds: Math.max(0, ttl)
     };
     
   } catch (error) {
