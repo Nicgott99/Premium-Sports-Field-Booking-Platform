@@ -154,8 +154,8 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req, res) => {
-    // Skip rate limiting for health check and other admin endpoints
-    return req.path === '/api/health' || req.path.startsWith('/api/admin') || req.path.startsWith('/api/auth/login');
+    // Because limiter is mounted on /api, req.path is /health, /admin/*, /auth/login, etc.
+    return req.path === '/health' || req.path.startsWith('/admin') || req.path.startsWith('/auth/login');
   }
 });
 
