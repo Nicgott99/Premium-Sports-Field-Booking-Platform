@@ -95,7 +95,7 @@ export const sanitizeLogsForSensitiveData = (data) => {
     'resetToken'
   ];
   
-  const sanitized = JSON.parse(JSON.stringify(data));
+  const sanitized = structuredClone(data);
   
   const maskValue = (obj) => {
     for (const key in obj) {
