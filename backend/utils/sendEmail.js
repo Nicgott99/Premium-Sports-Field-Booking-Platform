@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import handlebars from 'handlebars';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * Email Template & Sending Utility Module
@@ -99,7 +99,7 @@ const createTransporter = () => {
     });
   } else {
     // Development - use Ethereal Email
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       host: process.env.EMAIL_HOST || 'smtp.ethereal.email',
       port: process.env.EMAIL_PORT || 587,
       auth: {
@@ -310,7 +310,7 @@ export const sendEmail = async (options) => {
     });
 
     // Log preview URL in development
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
       console.log('📧 Preview URL:', nodemailer.getTestMessageUrl(info));
     }
 
