@@ -312,10 +312,12 @@ export const sendEmail = async (options) => {
       console.log('📧 Preview URL:', nodemailer.getTestMessageUrl(info));
     }
 
+    const previewUrl = process.env.NODE_ENV === 'production' ? null : nodemailer.getTestMessageUrl(info);
+
     return {
       success: true,
       messageId: info.messageId,
-      previewUrl: process.env.NODE_ENV !== 'production' ? nodemailer.getTestMessageUrl(info) : null
+      previewUrl
     };
 
   } catch (error) {
