@@ -32,56 +32,57 @@ export const PASSWORD_STRENGTH = {
  * @returns {Object} Validation result with strength level and feedback
  */
 export const validatePassword = (password, email = '', username = '') => {
-  const result = {
-    isValid: false,
-    strength: PASSWORD_STRENGTH.WEAK,
-    feedback: [],
-    score: 0
-  };
-  
+  const result = createValidationResult();
+
   if (!password) {
     result.feedback.push('Password is required');
     return result;
   }
-  
-  // Length check (10+ chars recommended)
+
+  evaluateLength(password, result);
+  evaluateCharacterClasses(password, result);
+  evaluatePatternRules(password, email, username, result);
+  evaluateStrength(result);
+  result.isValid = result.feedback.length === 0;
+
+  return result;
+};
+
+const createValidationResult = () => ({
+  isValid: false,
+  strength: PASSWORD_STRENGTH.WEAK,
+  feedback: [],
+  score: 0
+});
+
+const evaluateLength = (password, result) => {
   if (password.length < 10) {
     result.feedback.push('Password must be at least 10 characters long');
-  } else if (password.length < 12) {
-    result.score += 1;
-  } else {
-    result.score += 2;
+    return;
   }
-  
-  // Uppercase letter check
-  if (!/[A-Z]/.test(password)) {
-    result.feedback.push('Password must contain at least one uppercase letter');
-  } else {
-    result.score += 1;
+
+  result.score += password.length < 12 ? 1 : 2;
+};
+
+const evaluateCharacterClasses = (password, result) => {
+  const checks = [
+    { passed: /[A-Z]/.test(password), message: 'Password must contain at least one uppercase letter' },
+    { passed: /[a-z]/.test(password), message: 'Password must contain at least one lowercase letter' },
+    { passed: /\d/.test(password), message: 'Password must contain at least one number' },
+    { passed: /[^\w\s]/.test(password), message: 'Password must contain at least one special character (!@#$%^&* etc.)' }
+  ];
+
+  for (const check of checks) {
+    if (check.passed) {
+      result.score += 1;
+    } else {
+      result.feedback.push(check.message);
+    }
   }
-  
-  // Lowercase letter check
-  if (!/[a-z]/.test(password)) {
-    result.feedback.push('Password must contain at least one lowercase letter');
-  } else {
-    result.score += 1;
-  }
-  
-  // Number check
-  if (!/[0-9]/.test(password)) {
-    result.feedback.push('Password must contain at least one number');
-  } else {
-    result.score += 1;
-  }
-  
-  // Special character check
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-    result.feedback.push('Password must contain at least one special character (!@#$%^&* etc.)');
-  } else {
-    result.score += 1;
-  }
-  
-  // Check for common patterns
+};
+
+const evaluatePatternRules = (password, email, username, result) => {
+  const lowerPassword = password.toLowerCase();
   const commonPatterns = [
     'password',
     '12345678',
@@ -98,48 +99,53 @@ export const validatePassword = (password, email = '', username = '') => {
     'master',
     'sunshine'
   ];
-  
-  if (commonPatterns.some(pattern => password.toLowerCase().includes(pattern))) {
+
+  const hasCommonPattern = commonPatterns.some(pattern => lowerPassword.includes(pattern));
+  const emailLocal = email ? email.split('@')[0].toLowerCase() : '';
+  const includesEmail = emailLocal ? lowerPassword.includes(emailLocal) : false;
+  const includesUsername = username ? lowerPassword.includes(username.toLowerCase()) : false;
+  const hasSequence = hasSequentialCharacters(password);
+
+  if (hasCommonPattern) {
     result.feedback.push('Password contains common patterns that are easily guessable');
   } else {
     result.score += 1;
   }
-  
-  // Check similarity to email
-  if (email) {
-    const emailLocal = email.split('@')[0].toLowerCase();
-    if (password.toLowerCase().includes(emailLocal)) {
-      result.feedback.push('Password should not contain your email address');
-    }
+
+  if (includesEmail) {
+    result.feedback.push('Password should not contain your email address');
   }
-  
-  // Check similarity to username
-  if (username && password.toLowerCase().includes(username.toLowerCase())) {
+
+  if (includesUsername) {
     result.feedback.push('Password should not contain your username');
   }
-  
-  // Check for sequential characters
-  if (hasSequentialCharacters(password)) {
+
+  if (hasSequence) {
     result.feedback.push('Password contains sequential characters (abc, 123) that should be avoided');
   } else {
     result.score += 1;
   }
-  
-  // Determine strength level
+};
+
+const evaluateStrength = (result) => {
   if (result.score >= 8) {
     result.strength = PASSWORD_STRENGTH.VERY_STRONG;
-  } else if (result.score >= 6) {
+    return;
+  }
+
+  if (result.score >= 6) {
     result.strength = PASSWORD_STRENGTH.STRONG;
-  } else if (result.score >= 4) {
+    return;
+  }
+
+  if (result.score >= 4) {
     result.strength = PASSWORD_STRENGTH.GOOD;
-  } else if (result.score >= 2) {
+    return;
+  }
+
+  if (result.score >= 2) {
     result.strength = PASSWORD_STRENGTH.FAIR;
   }
-  
-  // Password is valid if it has no feedback (all checks passed)
-  result.isValid = result.feedback.length === 0;
-  
-  return result;
 };
 
 /**
