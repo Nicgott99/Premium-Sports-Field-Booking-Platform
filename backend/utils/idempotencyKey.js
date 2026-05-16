@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import logger from './logger.js';
 
 /**
@@ -114,7 +114,8 @@ export const getIdempotencyKeyResult = async (key, redisClient) => {
       const cached = await redisClient.get(redisKey);
       if (cached) {
         logger.info(`Idempotency key cache hit: ${key}`);
-        return JSON.parse(cached);
+        const parsed = JSON.parse(cached);
+        return parsed?.response || parsed;
       }
     }
 
