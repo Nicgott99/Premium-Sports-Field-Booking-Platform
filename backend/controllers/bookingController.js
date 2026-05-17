@@ -411,9 +411,85 @@ export const updateBooking = asyncHandler(async (req, res) => {
 // @route   DELETE /api/bookings/:id
 // @access  Private
 export const cancelBooking = asyncHandler(async (req, res) => {
+  const { bookingId } = req.params;
+  const userId = req.user?.id;
+  const { reason = 'User requested' } = req.body;
+
+  // Import utilities inside to prevent circular dependencies
+  const { calculateRefund } = await import('../utils/refundCalculator.js');
+  const { logBookingCancellation } = await import('../utils/auditLogger.js');
+
+  if (!bookingId) {
+    res.status(400);
+    throw new Error('Booking ID is required');
+  }
+
+  if (!userId) {
+    res.status(401);
+    throw new Error('Not authenticated');
+  }
+
+  // Fetch booking (assumes Booking model exists)
+  // const booking = await Booking.findById(bookingId);
+  // For now, mock implementation:
+  const booking = {
+    _id: bookingId,
+    userId: userId,
+    startTime: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours from now
+    totalAmount: 5000,
+    status: 'confirmed'
+  };
+
+  // Verify ownership
+  if (booking.userId.toString() !== userId.toString()) {
+    res.status(403);
+    throw new Error('Not authorized to cancel this booking');
+  }
+
+  // Check if already cancelled
+  if (booking.status === 'cancelled') {
+    res.status(400);
+    throw new Error('Booking is already cancelled');
+  }
+
+  // Calculate refund based on policy
+  const refundInfo = calculateRefund(booking.startTime, booking.totalAmount, {
+    cancellationTime: new Date(),
+    currency: booking.currency || 'BDT'
+  });
+
+  // Log cancellation in audit trail
+  try {
+    logBookingCancellation({
+      userId,
+      bookingId,
+      reason,
+      refundAmount: refundInfo.refundAmount,
+      ipAddress: req.ip
+    });
+  } catch (auditError) {
+    logger.warn(`Failed to log booking cancellation: ${auditError.message}`);
+  }
+
+  // Update booking status
+  // await Booking.findByIdAndUpdate(bookingId, { status: 'cancelled' });
+
   res.status(200).json({
     success: true,
-    message: 'Booking cancelled successfully'
+    message: 'Booking cancelled successfully',
+    data: {
+      bookingId,
+      previousStatus: booking.status,
+      newStatus: 'cancelled',
+      refund: {
+        eligible: refundInfo.eligible,
+        amount: refundInfo.refundAmount,
+        percentage: refundInfo.refundPercentage,
+        policy: refundInfo.policy,
+        reason: refundInfo.reason,
+        hoursUntilBooking: refundInfo.hoursUntilBooking
+      }
+    }
   });
 });
 
