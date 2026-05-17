@@ -53,11 +53,24 @@ const chatNamespace = io.of('/chat');
 chatNamespace.on('connection', (socket) => {
   logger.info(`Chat user connected: ${socket.id}`);
   socket.on('joinChat', (chatId) => {
-    socket.join(`chat_${chatId}`);
-    logger.info(`User ${socket.userId} joined chat ${chatId}`);
+    try {
+      if (!chatId) {
+        socket.emit('error', { message: 'Chat ID is required' });
+        return;
+      }
+      socket.join(`chat_${chatId}`);
+      logger.info(`User ${socket.userId} joined chat ${chatId}`);
+    } catch (error) {
+      logger.error(`Join chat error: ${error.message}`);
+      socket.emit('error', { message: 'Failed to join chat' });
+    }
   });
   socket.on('sendMessage', async (data) => {
     try {
+      if (!data?.chatId || !data?.message) {
+        socket.emit('error', { message: 'Chat ID and message are required' });
+        return;
+      }
       chatNamespace.to(`chat_${data.chatId}`).emit('newMessage', data);
     } catch (error) {
       logger.error(`Chat error: ${error.message}`);
@@ -71,15 +84,42 @@ const bookingNamespace = io.of('/bookings');
 bookingNamespace.on('connection', (socket) => {
   logger.info(`Booking user connected: ${socket.id}`);
   socket.on('joinUserRoom', (userId) => {
-    socket.join(userId);
-    socket.userId = userId;
-    logger.info(`User ${userId} joined booking room`);
+    try {
+      if (!userId) {
+        socket.emit('error', { message: 'User ID is required' });
+        return;
+      }
+      socket.join(userId);
+      socket.userId = userId;
+      logger.info(`User ${userId} joined booking room`);
+    } catch (error) {
+      logger.error(`Join booking room error: ${error.message}`);
+      socket.emit('error', { message: 'Failed to join booking room' });
+    }
   });
   socket.on('bookingUpdate', (data) => {
-    bookingNamespace.to(data.userId).emit('bookingStatusChanged', data);
+    try {
+      if (!data?.userId) {
+        socket.emit('error', { message: 'User ID is required' });
+        return;
+      }
+      bookingNamespace.to(data.userId).emit('bookingStatusChanged', data);
+    } catch (error) {
+      logger.error(`Booking update error: ${error.message}`);
+      socket.emit('error', { message: 'Failed to emit booking update' });
+    }
   });
   socket.on('fieldAvailabilityUpdate', (data) => {
-    bookingNamespace.emit('fieldAvailabilityChanged', data);
+    try {
+      if (!data?.fieldId) {
+        socket.emit('error', { message: 'Field ID is required' });
+        return;
+      }
+      bookingNamespace.emit('fieldAvailabilityChanged', data);
+    } catch (error) {
+      logger.error(`Field availability update error: ${error.message}`);
+      socket.emit('error', { message: 'Failed to emit availability update' });
+    }
   });
 });
 
@@ -88,9 +128,18 @@ const notificationNamespace = io.of('/notifications');
 notificationNamespace.on('connection', (socket) => {
   logger.info(`Notification user connected: ${socket.id}`);
   socket.on('joinUserNotifications', (userId) => {
-    socket.join(`user_${userId}`);
-    socket.userId = userId;
-    logger.info(`User ${userId} joined notifications room`);
+    try {
+      if (!userId) {
+        socket.emit('error', { message: 'User ID is required' });
+        return;
+      }
+      socket.join(`user_${userId}`);
+      socket.userId = userId;
+      logger.info(`User ${userId} joined notifications room`);
+    } catch (error) {
+      logger.error(`Join notifications error: ${error.message}`);
+      socket.emit('error', { message: 'Failed to join notifications' });
+    }
   });
   socket.on('disconnect', () => {
     logger.info(`Notification user disconnected: ${socket.id}`);
