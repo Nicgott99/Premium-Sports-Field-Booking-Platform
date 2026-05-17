@@ -245,8 +245,16 @@ export const validateApiKey = asyncHandler(async (req, res, next) => {
  * @param {Function} next - Express next middleware function
  */
 export const corsMiddleware = (req, res, next) => {
-  // Set CORS headers
-  res.header('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGINS || '*');
+  // Parse allowed origins from environment (comma-separated) and check request origin
+  const raw = process.env.ALLOWED_ORIGINS || '*';
+  const allowedOrigins = raw === '*' ? ['*'] : raw.split(',').map(s => s.trim()).filter(Boolean);
+  const requestOrigin = req.headers.origin;
+
+  const allowOrigin = allowedOrigins.includes('*') || (requestOrigin && allowedOrigins.includes(requestOrigin))
+    ? (requestOrigin || '*')
+    : allowedOrigins[0] || '*';
+
+  res.header('Access-Control-Allow-Origin', allowOrigin);
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-API-Key');
   res.header('Access-Control-Allow-Credentials', 'true');

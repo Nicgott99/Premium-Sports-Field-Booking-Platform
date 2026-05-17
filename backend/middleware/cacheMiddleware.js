@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
+import { getCache, setCache, deleteCache, clearCache as clearRedisCache } from '../config/redis.js';
 
 /**
  * Cache Middleware - Redis Response Caching System
@@ -171,11 +172,36 @@ export const cache = (duration = 300) => {
 
     // Generate cache key from method and URL
     const cacheKey = `${req.method}:${req.originalUrl}`;
-    
-    // Placeholder cache implementation
-    // TODO: Integrate with Redis client to check cache
-    logger.debug(`Cache key: ${cacheKey}, duration: ${duration}s`);
-    
+    // Do not cache authenticated requests or requests with sensitive headers
+    if (req.headers?.authorization) {
+      logger.debug('Skipping cache for authenticated request');
+      return next();
+    }
+
+    try {
+      const cached = await getCache(cacheKey);
+      if (cached) {
+        logger.debug(`Cache hit for ${cacheKey}`);
+        return res.json(cached);
+      }
+    } catch (err) {
+      logger.debug(`Cache read failed for ${cacheKey}: ${err?.message}`);
+    }
+
+    // Intercept res.json to store successful responses in cache
+    const originalJson = res.json.bind(res);
+    res.json = (body) => {
+      try {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          // Store in Redis asynchronously
+          setCache(cacheKey, body, duration).catch(e => logger.debug(`Failed to set cache ${cacheKey}: ${e.message}`));
+        }
+      } catch (e) {
+        logger.debug(`Cache set error for ${cacheKey}: ${e?.message}`);
+      }
+      return originalJson(body);
+    };
+
     next();
   });
 };
@@ -193,9 +219,16 @@ export const cache = (duration = 300) => {
  */
 export const clearCache = (pattern) => {
   return asyncHandler(async (req, res, next) => {
-    // Placeholder cache clearing implementation
-    // TODO: Integrate with Redis client to delete matching keys
     logger.debug(`Clearing cache pattern(s): ${Array.isArray(pattern) ? pattern.join(', ') : pattern}`);
+    try {
+      if (Array.isArray(pattern)) {
+        await Promise.all(pattern.map(p => clearRedisCache(p)));
+      } else {
+        await clearRedisCache(pattern);
+      }
+    } catch (err) {
+      logger.error(`Failed to clear cache pattern ${pattern}: ${err?.message}`);
+    }
     next();
   });
 };
@@ -219,10 +252,33 @@ export const cacheUser = (duration = 300) => {
     const userId = req.user.id;
     const cacheKey = `user:${userId}:${req.originalUrl}`;
     
-    // Placeholder user cache implementation
-    // TODO: Integrate with Redis to store/retrieve user data
-    logger.debug(`User cache key: ${cacheKey}`);
-    
+    if (req.headers?.authorization) {
+      logger.debug('Skipping user cache for authenticated request with authorization header');
+      return next();
+    }
+
+    try {
+      const cached = await getCache(cacheKey);
+      if (cached) {
+        logger.debug(`User cache hit for ${cacheKey}`);
+        return res.json(cached);
+      }
+    } catch (err) {
+      logger.debug(`User cache read failed for ${cacheKey}: ${err?.message}`);
+    }
+
+    const originalJson = res.json.bind(res);
+    res.json = (body) => {
+      try {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          setCache(cacheKey, body, duration).catch(e => logger.debug(`Failed to set user cache ${cacheKey}: ${e.message}`));
+        }
+      } catch (e) {
+        logger.debug(`User cache set error for ${cacheKey}: ${e?.message}`);
+      }
+      return originalJson(body);
+    };
+
     next();
   });
 };
