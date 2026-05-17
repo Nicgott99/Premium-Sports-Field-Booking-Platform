@@ -214,11 +214,13 @@ export const createBooking = asyncHandler(async (req, res) => {
 export const getUserBookings = asyncHandler(async (req, res) => {
   try {
     const {
-      page = 1,
-      limit = 10,
       status,
       upcoming = false
     } = req.query;
+
+    // Parse and validate pagination parameters safely
+    const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
 
     // Sample bookings data
     const sampleBookings = [
