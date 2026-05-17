@@ -281,10 +281,55 @@ export const updateNotificationSettings = asyncHandler(async (req, res) => {
 // @route   POST /api/notifications/push
 // @access  Private/Admin
 export const sendPushNotification = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Push notification sent successfully'
-  });
+  const { userId, type, relatedEntityId, title, message } = req.body;
+
+  // Import deduplication utilities
+  const { checkAndMarkNotification } = await import('../utils/notificationDeduplicator.js');
+
+  if (!userId || !type) {
+    res.status(400);
+    throw new Error('userId and type are required');
+  }
+
+  try {
+    // Check for duplicates and mark if sending
+    const dedupResult = await checkAndMarkNotification(userId, type, relatedEntityId, {
+      dedupWindowMs: 5 * 60 * 1000, // 5-minute window
+      useRedis: true
+    });
+
+    if (dedupResult.isDuplicate) {
+      res.status(200).json({
+        success: true,
+        message: 'Notification duplicate detected - skipped',
+        isDuplicate: true,
+        data: { userId, type, relatedEntityId }
+      });
+      return;
+    }
+
+    // Send notification (would call Firebase Admin SDK or similar)
+    // For now, just simulate successful send
+    logger.info(`Push notification sent to user ${userId}: ${type}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Push notification sent successfully',
+      isDuplicate: false,
+      data: {
+        userId,
+        type,
+        relatedEntityId,
+        title,
+        message,
+        sentAt: new Date()
+      }
+    });
+  } catch (error) {
+    logger.error(`Error sending push notification: ${error.message}`);
+    res.status(500);
+    throw error;
+  }
 });
 
 // @desc    Subscribe to push notifications
