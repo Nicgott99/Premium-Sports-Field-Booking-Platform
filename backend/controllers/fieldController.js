@@ -583,7 +583,50 @@ export const getFieldReviews = asyncHandler(async (req, res) => {
 });
 
 export const updateFieldAvailability = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Update field availability endpoint' });
+  const { fieldId } = req.params;
+  const { startTime, endTime } = req.body;
+
+  // Import field availability checker
+  const { validateFieldAvailability } = await import('../utils/fieldAvailability.js');
+
+  if (!fieldId) {
+    res.status(400);
+    throw new Error('Field ID is required');
+  }
+
+  if (!startTime || !endTime) {
+    res.status(400);
+    throw new Error('Start and end times are required');
+  }
+
+  // Mock field fetch (would be real database query)
+  const field = {
+    _id: fieldId,
+    bookings: []
+  };
+
+  // Check availability
+  const availability = validateFieldAvailability(field, {
+    startTime: new Date(startTime),
+    endTime: new Date(endTime)
+  });
+
+  if (!availability.available) {
+    res.status(409);
+    throw new Error(availability.recommendation);
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Field availability checked',
+    data: {
+      fieldId,
+      available: availability.available,
+      timeSlot: { startTime, endTime },
+      recommendation: availability.recommendation,
+      checkedAt: new Date()
+    }
+  });
 });
 
 export const searchFields = asyncHandler(async (req, res) => {
