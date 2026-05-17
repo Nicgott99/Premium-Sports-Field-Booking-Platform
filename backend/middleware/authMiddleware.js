@@ -276,13 +276,68 @@ export const protectFirebase = asyncHandler(async (req, res, next) => {
  * @param {Function} next - Express next middleware function
  * @throws {Error} 403 - If user is not admin
  */
-export const admin = asyncHandler(async (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+/**
+ * Generic Role-Based Access Control Middleware
+ * Verifies user has one of the allowed roles
+ * Must be used after protect or protectFirebase middleware
+ * @param {Array|string} allowedRoles - Role(s) to check (e.g., ['admin', 'manager'])
+ * @param {Object} options - Additional options
+ * @returns {Function} Express middleware
+ */
+export const requireRole = (allowedRoles, options = {}) => {
+  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  const { throwError = true } = options;
+
+  return asyncHandler(async (req, res, next) => {
+    if (!req.user) {
+      if (throwError) {
+        res.status(401);
+        throw new Error('Not authenticated');
+      }
+      return;
+    }
+
+    const userRole = req.user.role;
+    const hasRole = roles.includes(userRole);
+
+    if (!hasRole) {
+      if (throwError) {
+        logger.warn(`Access denied: User ${req.user.id} with role '${userRole}' attempted to access '${roles.join(', ')}'`);
+        res.status(403);
+        throw new Error(`Insufficient permissions. Required roles: ${roles.join(', ')}`);
+      }
+      return;
+    }
+
+    logger.debug(`Access granted: User ${req.user.id} with role '${userRole}' verified`);
     next();
-  } else {
+  });
+};
+
+/**
+ * Admin Authorization Middleware
+ * Verifies that authenticated user has admin role
+ * Must be used after protect or protectFirebase middleware
+ * @async
+ * @param {Object} req - Express request object with req.user (from protect middleware)
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @throws {Error} 403 - If user is not admin
+ */
+export const admin = asyncHandler(async (req, res, next) => {
+  if (!req.user) {
+    res.status(401);
+    throw new Error('Not authenticated');
+  }
+
+  if (req.user.role !== 'admin') {
+    logger.warn(`Admin access denied: User ${req.user.id} with role '${req.user.role}' attempted access`);
     res.status(403);
     throw new Error('Not authorized as admin');
   }
+
+  logger.debug(`Admin access granted for user ${req.user.id}`);
+  next();
 });
 
 /**
