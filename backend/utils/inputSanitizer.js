@@ -36,7 +36,7 @@ export const sanitizeStringInput = (input) => {
     '/': '&#x2F;'
   };
   
-  sanitized = sanitized.replace(/[&<>"']/g, char => htmlEscapes[char]).replace(/\//g, htmlEscapes['/']);
+  sanitized = sanitized.replace(/[&<>"']/g, char => htmlEscapes[char]).replaceAll('/', htmlEscapes['/']);
   
   return sanitized.trim();
 };
