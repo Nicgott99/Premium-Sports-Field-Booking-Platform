@@ -96,7 +96,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   // Send verification email
   try {
-    void sendVerificationEmail(user.email, verificationToken).catch((emailError) => {
+    sendVerificationEmail(user.email, verificationToken).catch((emailError) => {
       logger.error(`Email sending failed: ${emailError.message}`);
     });
   } catch (error) {
@@ -483,7 +483,7 @@ export const resendVerification = asyncHandler(async (req, res) => {
 
   // Send verification email
   try {
-    void sendVerificationEmail(user.email, verificationToken).catch((emailError) => {
+    sendVerificationEmail(user.email, verificationToken).catch((emailError) => {
       logger.error(`Verification email failed: ${emailError.message}`);
     });
 
