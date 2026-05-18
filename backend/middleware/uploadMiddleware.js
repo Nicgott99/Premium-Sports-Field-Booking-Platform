@@ -159,6 +159,25 @@ import path from 'node:path';
  */
 
 /**
+ * Memory storage configuration for file uploads
+ * Files are kept in memory and cleaned up after request
+ * Suitable for API responses and cloud storage integration
+ */
+const storage = multer.memoryStorage();
+
+/**
+ * Upload size and field limits
+ * Prevents abuse and DoS attacks
+ */
+const uploadLimits = {
+  fileSize: Number.parseInt(process.env.MAX_FILE_SIZE, 10) || 10 * 1024 * 1024, // 10MB per file
+  files: Number.parseInt(process.env.MAX_FILES, 10) || 10, // Max 10 files per request
+  fields: Number.parseInt(process.env.MAX_FIELDS, 10) || 50, // Max 50 form fields
+  fieldNameSize: 100, // Max field name size
+  fieldSize: 1024 * 1024 // 1MB per form field value
+};
+
+/**
  * Filter files by type and extension
  * Validates MIME type and file extension
  * @param {Object} req - Express request object
@@ -213,9 +232,7 @@ const fileFilter = (req, file, cb) => {
  */
 export const upload = multer({
   storage,
-  limits: {
-    fileSize: Number.parseInt(process.env.MAX_FILE_SIZE, 10) || 10 * 1024 * 1024, // 10MB
-  },
+  limits: uploadLimits,
   fileFilter
 });
 
