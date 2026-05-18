@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import handlebars from 'handlebars';
+import { sendEmailWithRetry, handleEmailError } from './emailErrorHandler.js';
 
 /**
  * Email Template & Sending Utility Module
@@ -269,7 +270,7 @@ const compileTemplate = (templateName, data) => {
   };
 };
 
-// Send email function
+// Send email function with retry logic
 export const sendEmail = async (options) => {
   try {
     const transporter = createTransporter();
@@ -299,7 +300,16 @@ export const sendEmail = async (options) => {
       mailOptions.attachments = options.attachments;
     }
 
-    const info = await transporter.sendMail(mailOptions);
+    // Use retry logic with exponential backoff
+    const info = await sendEmailWithRetry(
+      async () => transporter.sendMail(mailOptions),
+      {
+        maxAttempts: 3,
+        initialDelayMs: 1000,
+        backoffMultiplier: 2,
+        jitterMs: 500
+      }
+    );
 
     console.log('📧 Email sent successfully:', {
       to: options.to,
@@ -308,10 +318,6 @@ export const sendEmail = async (options) => {
     });
 
     // Log preview URL in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('📧 Preview URL:', nodemailer.getTestMessageUrl(info));
-    }
-
     const previewUrl = process.env.NODE_ENV === 'production' ? null : nodemailer.getTestMessageUrl(info);
 
     return {
@@ -321,8 +327,21 @@ export const sendEmail = async (options) => {
     };
 
   } catch (error) {
-    console.error('❌ Email sending failed:', error);
-    throw new Error(`Failed to send email: ${error.message}`);
+    // Handle email error with graceful fallback
+    const errorInfo = handleEmailError(error);
+    console.error('❌ Email sending failed:', errorInfo);
+    
+    // Don't throw - allow email to be queued for retry
+    if (errorInfo.shouldQueue) {
+      console.warn('⚠️ Email queued for later delivery');
+      return {
+        success: false,
+        queued: true,
+        error: errorInfo.message
+      };
+    }
+    
+    throw new Error(`Failed to send email: ${errorInfo.message}`);
   }
 };
 
