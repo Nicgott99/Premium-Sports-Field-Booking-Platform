@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
+import { createInvitation, getInvitation, markInvitationAccepted, isInvitationExpired, cleanupExpiredInvitations } from '../utils/invitationManager.js';
 
 /**
  * Team Management Controller
@@ -207,9 +208,24 @@ export const leaveTeam = asyncHandler(async (req, res) => {
 // @route   POST /api/teams/:id/invite
 // @access  Private
 export const inviteToTeam = asyncHandler(async (req, res) => {
+  const { teamId, userId, email } = req.body;
+  const invitedBy = req.user?.id;
+
+  logger.info(`Creating team invitation for ${email || userId} to team ${teamId}`);
+
+  // Create invitation with 7-day expiry
+  const invitationId = await createInvitation({
+    type: 'team',
+    teamId,
+    userId: userId || email,
+    invitedBy,
+    expiresIn: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+  });
+
   res.status(200).json({
     success: true,
-    message: 'Invitation sent successfully'
+    message: 'Invitation sent successfully',
+    data: { invitationId }
   });
 });
 
@@ -217,9 +233,37 @@ export const inviteToTeam = asyncHandler(async (req, res) => {
 // @route   POST /api/teams/invites/:inviteId/accept
 // @access  Private
 export const acceptTeamInvite = asyncHandler(async (req, res) => {
+  const { inviteId } = req.params;
+  const userId = req.user?.id;
+
+  logger.info(`User ${userId} accepting team invitation ${inviteId}`);
+
+  // Get invitation
+  const invitation = await getInvitation(inviteId);
+
+  if (!invitation) {
+    return res.status(404).json({
+      success: false,
+      message: 'Invitation not found'
+    });
+  }
+
+  // Check if expired
+  if (isInvitationExpired(invitation)) {
+    logger.warn(`Expired invitation ${inviteId} attempted to be accepted`);
+    return res.status(410).json({
+      success: false,
+      message: 'Invitation has expired'
+    });
+  }
+
+  // Mark as accepted
+  await markInvitationAccepted(inviteId, userId);
+
   res.status(200).json({
     success: true,
-    message: 'Team invite accepted successfully'
+    message: 'Team invite accepted successfully',
+    data: { teamId: invitation.teamId }
   });
 });
 
