@@ -5,6 +5,7 @@ import { isWebhookProcessed, markWebhookProcessed } from '../utils/webhookIdempo
 import { withTimeout, TIMEOUT_PRESETS } from '../utils/requestTimeout.js';
 import { logPaymentEvent, logAdminAction } from '../utils/auditLogger.js';
 import { scheduleWebhookRetry, getRetryAttempts } from '../utils/webhookRetry.js';
+import { processRefundRequest, verifyRefundEligibility } from '../utils/refundManagement.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15' });
 
@@ -605,4 +606,116 @@ export const cancelSubscription = asyncHandler(async (req, res) => {
     success: true,
     message: 'Subscription cancelled successfully'
   });
+});
+
+/**
+ * Check refund eligibility for a booking
+ * @async
+ * @route POST /api/payments/refund-eligibility
+ * @access Private
+ * @param {string} bookingId - Booking ID
+ * @returns {Object} Refund eligibility information
+ */
+export const checkRefundEligibility = asyncHandler(async (req, res) => {
+  const { bookingId } = req.params;
+  const userId = req.user?.id;
+
+  logger.info(`Checking refund eligibility for booking ${bookingId}`);
+
+  if (!bookingId) {
+    res.status(400);
+    throw new Error('Booking ID is required');
+  }
+
+  // Mock booking data (in production, fetch from database)
+  const booking = {
+    _id: bookingId,
+    userId,
+    startTime: new Date(Date.now() + 48 * 60 * 60 * 1000),
+    totalAmount: 5000,
+    currency: 'BDT'
+  };
+
+  // Check eligibility
+  const eligibilityInfo = verifyRefundEligibility(booking);
+
+  res.status(200).json({
+    success: true,
+    message: 'Refund eligibility checked',
+    data: eligibilityInfo
+  });
+});
+
+/**
+ * Process refund for a booking
+ * @async
+ * @route POST /api/payments/refund
+ * @access Private
+ * @param {string} bookingId - Booking ID
+ * @param {string} reason - Refund reason
+ * @returns {Object} Refund details
+ */
+export const processBookingRefund = asyncHandler(async (req, res) => {
+  const { bookingId } = req.params;
+  const { reason = 'Customer requested' } = req.body;
+  const userId = req.user?.id;
+
+  logger.info(`Processing refund for booking ${bookingId} by user ${userId}`);
+
+  if (!bookingId) {
+    res.status(400);
+    throw new Error('Booking ID is required');
+  }
+
+  // Mock booking data (in production, fetch from database)
+  const booking = {
+    _id: bookingId,
+    userId,
+    startTime: new Date(Date.now() + 48 * 60 * 60 * 1000),
+    totalAmount: 5000,
+    currency: 'BDT',
+    paymentId: `pay_${Date.now()}`
+  };
+
+  try {
+    // Process refund using utility
+    const refundResult = await processRefundRequest(booking, {
+      reason,
+      cancellationTime: new Date(),
+      adminId: null
+    });
+
+    // Log refund
+    try {
+      logPaymentEvent({
+        type: 'refund_processed',
+        userId,
+        paymentId: booking.paymentId,
+        amount: refundResult.refundAmount,
+        status: 'pending',
+        details: { bookingId, reason },
+        ipAddress: req.ip
+      });
+    } catch (logErr) {
+      logger.warn(`Failed to log refund event: ${logErr.message}`);
+    }
+
+    if (!refundResult.eligible) {
+      return res.status(400).json({
+        success: false,
+        message: 'Refund not eligible',
+        data: refundResult
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Refund processed successfully',
+      data: refundResult
+    });
+  } catch (error) {
+    logger.error(`Refund processing error: ${error.message}`);
+    res.status(500);
+    throw error;
+  }
 });
