@@ -83,6 +83,8 @@ import logger from '../utils/logger.js';
  */
 
 let redisClient = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 15;
 
 export const createRedisClient = async () => {
   try {
@@ -90,38 +92,62 @@ export const createRedisClient = async () => {
       url: process.env.REDIS_URL || 'redis://localhost:6379',
       socket: {
         reconnectStrategy: (retries, cause) => {
+          reconnectAttempts = retries;
+          
+          // Connection refused - likely server down
           if (cause?.code === 'ECONNREFUSED') {
-            logger.error('Redis server connection refused');
-            return 3000;
+            logger.error('Redis: Server connection refused (may be down or wrong host)');
           }
-          if (retries > 10) {
-            logger.error('Too many Redis reconnection attempts');
-            return 3000;
+          
+          // ENOTFOUND means DNS resolution failed
+          if (cause?.code === 'ENOTFOUND') {
+            logger.error(`Redis: DNS resolution failed for ${process.env.REDIS_URL}`);
           }
-          return Math.min(retries * 100, 3000);
+          
+          // Max attempts reached
+          if (retries > MAX_RECONNECT_ATTEMPTS) {
+            logger.error(`Redis: Max reconnection attempts (${MAX_RECONNECT_ATTEMPTS}) exceeded`);
+            return new Error('Max Redis reconnection attempts');
+          }
+          
+          // Exponential backoff: 100ms, 200ms, 400ms, ..., max 3000ms
+          const delay = Math.min(retries * 100, 3000);
+          logger.debug(`Redis: Reconnecting in ${delay}ms (attempt ${retries}/${MAX_RECONNECT_ATTEMPTS})`);
+          return delay;
         },
         connectTimeout: 5000,
         noDelay: true
       }
     });
 
+    // Error handler - logs but does not auto-reconnect after disconnect
     redisClient.on('error', (err) => {
-      logger.error(`Redis Client Error: ${err}`);
+      logger.error(`Redis Client Error: ${err.message || err}`);
     });
 
+    // Successful connection
     redisClient.on('connect', () => {
       logger.info('🟢 Redis Client Connected');
+      reconnectAttempts = 0; // Reset on successful connection
     });
 
+    // Client ready and can accept commands
     redisClient.on('ready', () => {
-      logger.info('🚀 Redis Client Ready');
+      logger.info('🚀 Redis Client Ready and accepting commands');
     });
 
+    // Attempting reconnect
+    redisClient.on('reconnecting', () => {
+      logger.warn(`🟡 Redis Client Reconnecting (attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
+    });
+
+    // Connection ended (graceful close or after max attempts)
     redisClient.on('end', () => {
       logger.warn('🔴 Redis Client Connection Ended');
     });
 
     await redisClient.connect();
+    logger.info('✅ Redis connection established successfully');
     return redisClient;
 
   } catch (error) {
@@ -209,11 +235,32 @@ export const clearCache = async (pattern = '*') => {
   }
 };
 
+/**
+ * Check if Redis client is connected and ready
+ */
+export const isRedisConnected = () => {
+  return redisClient?.isOpen === true;
+};
+
+/**
+ * Get Redis health status and reconnection stats
+ */
+export const getRedisHealth = () => {
+  return {
+    connected: isRedisConnected(),
+    isOpen: redisClient?.isOpen,
+    status: redisClient?.status || 'disconnected',
+    reconnectAttempts
+  };
+};
+
 export default { 
   createRedisClient, 
   getRedisClient, 
   setCache, 
   getCache, 
   deleteCache, 
-  clearCache 
+  clearCache,
+  isRedisConnected,
+  getRedisHealth
 };
