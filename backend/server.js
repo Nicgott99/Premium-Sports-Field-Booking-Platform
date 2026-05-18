@@ -12,6 +12,7 @@ import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 import { setupFirebase } from './config/firebase.js';
 import { createRedisClient, getRedisClient } from './config/redis.js';
 import mongoose from 'mongoose';
+import { createIndexes } from './models/index.js';
 import { responseMiddleware } from './utils/responseFormatter.js';
 import logger from './utils/logger.js';
 
@@ -149,6 +150,9 @@ notificationNamespace.on('connection', (socket) => {
 
 // Connect to MongoDB
 await connectDB();
+
+// Create database indexes
+await createIndexes();
 
 // Setup Firebase
 await setupFirebase();
