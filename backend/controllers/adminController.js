@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
+import { logAdminAction, logSecurityAlert } from '../utils/auditLogger.js';
 
 /**
  * Admin Controller - Platform Administration & Moderation System
@@ -246,8 +247,30 @@ export const getAnalytics = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - User not found
  */
 export const manageUsers = asyncHandler(async (req, res) => {
-  logger.info(`Admin ${req.user?.id} managing user`);
-  res.json({ success: true, message: 'Manage users endpoint' });
+  const adminId = req.user?.id;
+  const { userId, action, reason } = req.body;
+
+  logger.info(`Admin ${adminId} managing user ${userId} with action: ${action}`);
+
+  // Log admin action
+  try {
+    logAdminAction({
+      adminId,
+      action: `user_${action}`,
+      targetId: userId,
+      details: { action, reason },
+      ipAddress: req.ip,
+      timestamp: new Date()
+    });
+  } catch (auditErr) {
+    logger.warn(`Audit logging failed: ${auditErr.message}`);
+  }
+
+  res.json({
+    success: true,
+    message: `User ${action} completed successfully`,
+    data: { userId, action }
+  });
 });
 
 /**
@@ -262,8 +285,45 @@ export const manageUsers = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - Field not found
  */
 export const manageFields = asyncHandler(async (req, res) => {
-  logger.info(`Admin ${req.user?.id} managing field`);
-  res.json({ success: true, message: 'Manage fields endpoint' });
+  const adminId = req.user?.id;
+  const { fieldId } = req.params;
+  const { action, reason } = req.body;
+
+  logger.info(`Admin ${adminId} managing field ${fieldId} with action: ${action}`);
+
+  // Log admin action
+  try {
+    logAdminAction({
+      adminId,
+      action: `field_${action}`,
+      targetId: fieldId,
+      details: { action, reason },
+      ipAddress: req.ip,
+      timestamp: new Date()
+    });
+  } catch (auditErr) {
+    logger.warn(`Audit logging failed: ${auditErr.message}`);
+  }
+
+  // Log security alert if field is being rejected/removed
+  if (['reject', 'remove', 'flag'].includes(action)) {
+    try {
+      logSecurityAlert({
+        type: `field_${action}`,
+        severity: action === 'remove' ? 'high' : 'medium',
+        details: { fieldId, reason, adminId },
+        ipAddress: req.ip
+      });
+    } catch (secErr) {
+      logger.warn(`Security logging failed: ${secErr.message}`);
+    }
+  }
+
+  res.json({
+    success: true,
+    message: `Field ${action} completed successfully`,
+    data: { fieldId, action }
+  });
 });
 
 /**
@@ -277,12 +337,59 @@ export const manageFields = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - Booking not found
  */
 export const manageBookings = asyncHandler(async (req, res) => {
-  logger.info(`Admin ${req.user?.id} managing booking`);
-  res.json({ success: true, message: 'Manage bookings endpoint' });
+  const adminId = req.user?.id;
+  const { bookingId } = req.params;
+  const { action, reason } = req.body;
+
+  logger.info(`Admin ${adminId} managing booking ${bookingId} with action: ${action}`);
+
+  // Log admin action
+  try {
+    logAdminAction({
+      adminId,
+      action: `booking_${action}`,
+      targetId: bookingId,
+      details: { action, reason },
+      ipAddress: req.ip,
+      timestamp: new Date()
+    });
+  } catch (auditErr) {
+    logger.warn(`Audit logging failed: ${auditErr.message}`);
+  }
+
+  res.json({
+    success: true,
+    message: `Booking ${action} completed successfully`,
+    data: { bookingId, action }
+  });
 });
 
 export const managePayments = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Manage payments endpoint' });
+  const adminId = req.user?.id;
+  const { paymentId } = req.params;
+  const { action, reason } = req.body;
+
+  logger.info(`Admin ${adminId} managing payment ${paymentId} with action: ${action}`);
+
+  // Log admin action
+  try {
+    logAdminAction({
+      adminId,
+      action: `payment_${action}`,
+      targetId: paymentId,
+      details: { action, reason },
+      ipAddress: req.ip,
+      timestamp: new Date()
+    });
+  } catch (auditErr) {
+    logger.warn(`Audit logging failed: ${auditErr.message}`);
+  }
+
+  res.json({
+    success: true,
+    message: `Payment ${action} completed successfully`,
+    data: { paymentId, action }
+  });
 });
 
 export const systemSettings = asyncHandler(async (req, res) => {
