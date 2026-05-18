@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
+import { isFieldAvailable, markFieldTimeSlot, releaseFieldTimeSlot, getFieldAvailability } from '../utils/fieldAvailability.js';
 
 /**
  * Booking Controller - Field Reservation Management
@@ -159,6 +160,7 @@ export const createBooking = asyncHandler(async (req, res) => {
       participants,
       userNotes
     } = req.body;
+    const userId = req.user?.id;
 
     // Validate required fields
     if (!fieldId || !date || !timeSlot || !duration) {
@@ -168,6 +170,26 @@ export const createBooking = asyncHandler(async (req, res) => {
       });
     }
 
+    // Check field availability using utility
+    const available = await isFieldAvailable(fieldId, date, timeSlot, duration);
+    if (!available) {
+      logger.warn(`Field ${fieldId} not available for ${date} ${timeSlot} (duration: ${duration}h)`);
+      return res.status(409).json({
+        success: false,
+        message: 'Field is not available for the requested time slot',
+        data: {
+          fieldId,
+          date,
+          timeSlot,
+          duration,
+          available: false
+        }
+      });
+    }
+
+    // Get field availability info
+    const availabilityInfo = await getFieldAvailability(fieldId, date);
+
     // Calculate pricing (sample calculation)
     const hourlyRate = 2000; // Sample rate
     const baseAmount = hourlyRate * duration;
@@ -176,13 +198,14 @@ export const createBooking = asyncHandler(async (req, res) => {
     // Create booking object
     const booking = {
       id: 'booking_' + Date.now(),
+      userId,
       fieldId,
       fieldName: 'Premium Stadium A', // Sample field name
       date,
       timeSlot,
       duration,
       participants: participants || 1,
-      status: 'confirmed',
+      status: 'pending',
       paymentStatus: 'pending',
       pricing: {
         baseAmount,
@@ -194,12 +217,26 @@ export const createBooking = asyncHandler(async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
+    // Mark time slot as reserved
+    try {
+      await markFieldTimeSlot(fieldId, date, timeSlot, duration, booking.id);
+      logger.info(`Time slot marked for field ${fieldId}: ${date} ${timeSlot}`);
+    } catch (markErr) {
+      logger.error(`Failed to mark field time slot: ${markErr.message}`);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to reserve time slot',
+        error: markErr.message
+      });
+    }
+
     res.status(201).json({
       success: true,
       message: 'Booking created successfully',
       data: booking
     });
   } catch (error) {
+    logger.error(`Error creating booking: ${error.message}`);
     res.status(400).json({
       success: false,
       message: 'Error creating booking',
@@ -473,6 +510,17 @@ export const cancelBooking = asyncHandler(async (req, res) => {
 
   // Update booking status
   // await Booking.findByIdAndUpdate(bookingId, { status: 'cancelled' });
+
+  // Release field time slot
+  if (booking.fieldId) {
+    try {
+      await releaseFieldTimeSlot(booking.fieldId, booking.date, booking.timeSlot, bookingId);
+      logger.info(`Field time slot released for field ${booking.fieldId}`);
+    } catch (releaseErr) {
+      logger.error(`Failed to release field time slot: ${releaseErr.message}`);
+      // Continue anyway, don't fail the cancellation
+    }
+  }
 
   res.status(200).json({
     success: true,
