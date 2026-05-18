@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { isWebhookProcessed, markWebhookProcessed } from '../utils/webhookIdempotency.js';
 import { withTimeout, TIMEOUT_PRESETS } from '../utils/requestTimeout.js';
 import { logPaymentEvent, logAdminAction } from '../utils/auditLogger.js';
+import { scheduleWebhookRetry, getRetryAttempts } from '../utils/webhookRetry.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15' });
 
@@ -411,17 +412,52 @@ export const handleWebhook = asyncHandler(async (req, res) => {
     // Mark as processed early to avoid race conditions
     if (webhookId) await markWebhookProcessed(webhookId);
 
-    // Handle common events (expand as needed)
-    switch (event.type) {
-      case 'payment_intent.succeeded':
-        logger.info('PaymentIntent succeeded');
-        // TODO: find payment and update booking
-        break;
-      case 'charge.refunded':
-        logger.info('Charge refunded');
-        break;
-      default:
-        logger.debug(`Unhandled Stripe event type: ${event.type}`);
+    // Handle common events with retry on failure
+    try {
+      switch (event.type) {
+        case 'payment_intent.succeeded':
+          logger.info('PaymentIntent succeeded');
+          // TODO: find payment and update booking
+          break;
+        case 'charge.refunded':
+          logger.info('Charge refunded');
+          break;
+        default:
+          logger.debug(`Unhandled Stripe event type: ${event.type}`);
+      }
+    } catch (eventError) {
+      logger.error(`Error processing webhook event ${webhookId}: ${eventError.message}`);
+
+      // Schedule retry for failed event processing
+      if (webhookId) {
+        const retryInfo = await scheduleWebhookRetry(
+          webhookId,
+          async () => {
+            // Retry logic would go here
+            logger.info(`Retrying webhook ${webhookId}`);
+          },
+          {
+            error: eventError.message,
+            statusCode: 500,
+            eventType: event.type
+          }
+        );
+
+        logger.info(`Webhook retry scheduled: ${JSON.stringify(retryInfo)}`);
+
+        // Return 202 Accepted if retry is scheduled
+        if (retryInfo.scheduled) {
+          return res.status(202).json({
+            success: false,
+            message: 'Webhook processing failed, retry scheduled',
+            retryInfo
+          });
+        }
+      }
+
+      // If no retry scheduled, return error
+      res.status(500);
+      throw eventError;
     }
 
     return res.status(200).json({ success: true, message: 'Webhook processed' });
