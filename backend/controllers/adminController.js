@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 import { logAdminAction, logSecurityAlert } from '../utils/auditLogger.js';
+import { performHealthCheck, getMetrics } from '../utils/healthCheck.js';
 
 /**
  * Admin Controller - Platform Administration & Moderation System
@@ -216,8 +217,45 @@ export const getPaymentManagement = asyncHandler(async (req, res) => {
  * @throws {Error} 403 - User not admin
  */
 export const getSystemHealth = asyncHandler(async (req, res) => {
-  logger.info(`Admin ${req.user?.id} checked system health`);
-  res.json({ success: true, message: 'System health endpoint', data: { status: 'healthy' } });
+  const adminId = req.user?.id;
+  logger.info(`Admin ${adminId} checking system health`);
+
+  try {
+    const [health, metrics] = await Promise.all([
+      performHealthCheck(),
+      getMetrics()
+    ]);
+
+    // Log admin action
+    try {
+      logAdminAction({
+        adminId,
+        action: 'system_health_check',
+        targetId: 'system',
+        details: { status: health.status },
+        ipAddress: req.ip,
+        timestamp: new Date()
+      });
+    } catch (auditErr) {
+      logger.warn(`Audit logging failed: ${auditErr.message}`);
+    }
+
+    res.json({
+      success: true,
+      message: 'System health check completed',
+      data: {
+        health,
+        metrics
+      }
+    });
+  } catch (error) {
+    logger.error(`System health check error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: 'System health check failed',
+      error: error.message
+    });
+  }
 });
 
 /**
