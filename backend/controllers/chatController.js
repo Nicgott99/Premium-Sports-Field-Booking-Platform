@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
+import { isDuplicate, recordNotification, getNotificationHistory } from '../utils/notificationDeduplicator.js';
 
 /**
  * Chat & Messaging Controller
@@ -183,11 +184,56 @@ export const getChatMessages = asyncHandler(async (req, res) => {
  * @throws {Error} 403 - User not participant of room
  */
 export const sendChatMessage = asyncHandler(async (req, res) => {
-  logger.info(`User ${req.user?.id} sending message to room: ${req.params.roomId}`);
+  const { roomId } = req.params;
+  const userId = req.user?.id;
+  const { text, attachments = [] } = req.body;
+
+  logger.info(`User ${userId} sending message to room: ${roomId}`);
+
+  // Create unique message identifier
+  const messageHash = `${roomId}:${userId}:${text}:${Date.now()}`.substring(0, 100);
+
+  // Check for duplicate message (prevent double-sends)
+  if (isDuplicate('chat_message', messageHash)) {
+    logger.warn(`Duplicate message detected from ${userId} to ${roomId}`);
+    const history = getNotificationHistory('chat_message', messageHash);
+    if (history && history.length > 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'Message already sent',
+        data: history[0],
+        isDuplicate: true
+      });
+    }
+  }
+
+  // Create message object
+  const messageData = {
+    messageId: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    roomId,
+    userId,
+    text,
+    attachments,
+    createdAt: new Date().toISOString(),
+    status: 'sent'
+  };
+
+  // Record message for deduplication
+  try {
+    recordNotification('chat_message', messageHash, {
+      messageId: messageData.messageId,
+      roomId,
+      userId,
+      textPreview: text.substring(0, 50)
+    });
+  } catch (dedupErr) {
+    logger.warn(`Failed to record message for deduplication: ${dedupErr.message}`);
+  }
+
   res.status(201).json({
     success: true,
     message: 'Message sent successfully',
-    data: { messageId: 'placeholder-message-id' }
+    data: messageData
   });
 });
 
