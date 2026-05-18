@@ -10,7 +10,8 @@ import dotenv from 'dotenv';
 import connectDB from './config/database.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 import { setupFirebase } from './config/firebase.js';
-import { createRedisClient } from './config/redis.js';
+import { createRedisClient, getRedisClient } from './config/redis.js';
+import mongoose from 'mongoose';
 import { responseMiddleware } from './utils/responseFormatter.js';
 import logger from './utils/logger.js';
 
@@ -296,6 +297,25 @@ server.listen(PORT, () => {
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received, shutting down gracefully');
   server.close(() => {
+    // close mongoose connection
+    try {
+      mongoose.connection.close(false, () => {
+        logger.info('MongoDB connection closed');
+      });
+    } catch (err) {
+      logger.warn(`Error closing MongoDB connection: ${err.message}`);
+    }
+
+    // close redis client if present
+    try {
+      const redis = getRedisClient();
+      if (redis) {
+        redis.quit().catch(e => logger.warn(`Redis quit error: ${e.message}`));
+      }
+    } catch (e) {
+      logger.debug('No redis client to close');
+    }
+
     logger.info('Process terminated');
     process.exit(0);
   });
@@ -304,9 +324,46 @@ process.on('SIGTERM', () => {
 process.on('SIGINT', () => {
   logger.info('SIGINT received, shutting down gracefully');
   server.close(() => {
+    try {
+      mongoose.connection.close(false, () => {
+        logger.info('MongoDB connection closed');
+      });
+    } catch (err) {
+      logger.warn(`Error closing MongoDB connection: ${err.message}`);
+    }
+
+    try {
+      const redis = getRedisClient();
+      if (redis) {
+        redis.quit().catch(e => logger.warn(`Redis quit error: ${e.message}`));
+      }
+    } catch (e) {
+      logger.debug('No redis client to close');
+    }
+
     logger.info('Process terminated');
     process.exit(0);
   });
+});
+
+// Global error handlers
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error(`Unhandled Rejection at: ${promise} reason: ${reason}`);
+  // Graceful shutdown on critical failures
+  setTimeout(() => process.exit(1), 1000);
+});
+
+process.on('uncaughtException', (err) => {
+  logger.error(`Uncaught Exception: ${err.message}`, { stack: err.stack });
+  // Attempt graceful shutdown
+  try {
+    server.close(() => {
+      mongoose.connection.close(false, () => logger.info('MongoDB closed after uncaught exception'));
+    });
+  } catch (_) {
+    // ignore
+  }
+  setTimeout(() => process.exit(1), 1000);
 });
 
 export default app;

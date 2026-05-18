@@ -153,7 +153,9 @@ const router = express.Router();
  */"
 
 // Webhook route (public, no auth required)
-router.post('/webhook', handleWebhook);
+// Stripe and other payment providers require the raw body for signature verification.
+// Use express.raw specifically for the webhook route to preserve the raw payload.
+router.post('/webhook', express.raw({ type: 'application/json', limit: '1mb' }), handleWebhook);
 
 // All other routes require authentication
 router.use(protect);

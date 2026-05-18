@@ -1,5 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
+import Stripe from 'stripe';
+import { isWebhookProcessed, markWebhookProcessed } from '../utils/webhookIdempotency.js';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15' });
 
 /**
  * Payment Controller - Transaction and Subscription Management
@@ -265,10 +269,64 @@ export const createPaymentIntent = asyncHandler(async (req, res) => {
  */
 export const handleWebhook = asyncHandler(async (req, res) => {
   logger.info('Processing webhook event from payment provider');
-  res.status(200).json({
-    success: true,
-    message: 'Webhook processed successfully'
-  });
+
+  // Stripe sends a signature header that must be verified using the raw body
+  const sig = req.headers['stripe-signature'] || req.headers['Stripe-Signature'];
+  const rawBody = req.body; // express.raw middleware ensures this is a Buffer
+
+  // If Stripe secret is configured, attempt to verify signature
+  if (process.env.STRIPE_WEBHOOK_SECRET) {
+    if (!sig) {
+      res.status(400);
+      throw new Error('Missing Stripe signature header');
+    }
+
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    } catch (err) {
+      logger.warn(`Invalid Stripe webhook signature: ${err.message}`);
+      res.status(400);
+      throw new Error('Invalid webhook signature');
+    }
+
+    // Idempotency: skip if we've processed this webhook already
+    const webhookId = event.id || (event?.data?.object?.id);
+    if (webhookId && (await isWebhookProcessed(webhookId))) {
+      logger.info(`Duplicate webhook received, skipping: ${webhookId}`);
+      return res.status(200).json({ success: true, message: 'Duplicate webhook ignored' });
+    }
+
+    // Mark as processed early to avoid race conditions
+    if (webhookId) await markWebhookProcessed(webhookId);
+
+    // Handle common events (expand as needed)
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        logger.info('PaymentIntent succeeded');
+        // TODO: find payment and update booking
+        break;
+      case 'charge.refunded':
+        logger.info('Charge refunded');
+        break;
+      default:
+        logger.debug(`Unhandled Stripe event type: ${event.type}`);
+    }
+
+    return res.status(200).json({ success: true, message: 'Webhook processed' });
+  }
+
+  // Fallback for non-Stripe providers or when secret isn't configured
+  try {
+    // Basic processing of JSON body
+    logger.debug('Webhook received without signature verification');
+    // Implement generic webhook handling as needed
+    return res.status(200).json({ success: true, message: 'Webhook processed (no signature verification)' });
+  } catch (error) {
+    logger.error(`Webhook handling error: ${error.message}`);
+    res.status(500);
+    throw error;
+  }
 });
 
 /**
