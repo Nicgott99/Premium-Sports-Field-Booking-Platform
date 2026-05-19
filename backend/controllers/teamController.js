@@ -1,6 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
-import { createInvitation, getInvitation, markInvitationAccepted, isInvitationExpired, cleanupExpiredInvitations } from '../utils/invitationManager.js';
+import { createInvitation, isInvitationValid, acceptInvitation, cleanupExpiredInvitations } from '../utils/invitationManager.js';
+import Team from '../models/Team.js';
+import User from '../models/User.js';
 
 /**
  * Team Management Controller
