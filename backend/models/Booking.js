@@ -553,7 +553,7 @@ bookingSchema.methods.cancelBooking = function(cancelledBy, reason, refundAmount
   return this.save();
 };
 
-bookingSchema.methods.checkIn = function(method = 'manual', location = null, verifiedBy = null) {
+bookingSchema.methods.recordCheckIn = function(method = 'manual', location = null, verifiedBy = null) {
   this.checkIn.time = new Date();
   this.checkIn.method = method;
   this.checkIn.location = location;
@@ -563,7 +563,7 @@ bookingSchema.methods.checkIn = function(method = 'manual', location = null, ver
   return this.save();
 };
 
-bookingSchema.methods.checkOut = function(condition = 'good', notes = '', verifiedBy = null) {
+bookingSchema.methods.recordCheckOut = function(condition = 'good', notes = '', verifiedBy = null) {
   this.checkOut.time = new Date();
   this.checkOut.condition = condition;
   this.checkOut.notes = notes;
