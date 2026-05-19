@@ -1,6 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
-import { isFieldAvailable, markFieldTimeSlot, releaseFieldTimeSlot, getFieldAvailability } from '../utils/fieldAvailability.js';
+import { validateFieldAvailability, getAvailableSlots, validateWithVersionLock } from '../utils/fieldAvailability.js';
+import Booking from '../models/Booking.js';
+import Field from '../models/Field.js';
 
 /**
  * Booking Controller - Field Reservation Management
@@ -99,43 +101,6 @@ import { isFieldAvailable, markFieldTimeSlot, releaseFieldTimeSlot, getFieldAvai
  * - User bookings: 5 minutes cache
  * - Field details: 10 minutes cache
  */
- * 2. confirmed: Booking verified, payment collected
- * 3. in-progress: Booking active (at current time)
- * 4. completed: Booking finished successfully
- * 5. cancelled: User-initiated cancellation
- * 6. no-show: User didn't arrive
- * 
- * Pricing Rules:
- * - Hourly rate × duration = base amount
- * - Discounts apply for multi-hour bookings
- * - Peak pricing during high-demand hours
- * - Group discounts for large bookings
- * 
- * Cancellation Policy:
- * - 24+ hours before: 100% refund
- * - 12-24 hours before: 50% refund
- * - <12 hours before: No refund
- * - After start time: No refund
- * 
- * Availability Logic:
- * - Checks existing bookings for time slot
- * - Respects field operating hours
- * - Accounts for buffer times between bookings
- * - Validates participant capacity
- * 
- * Access Control:
- * - Authenticated: Create, view own bookings
- * - Owner: View field bookings, calendar
- * - Admin: Manage all bookings
- * 
- * Event Emissions:
- * - booking_created
- * - booking_confirmed
- * - booking_cancelled
- * - booking_completed
- * - refund_processed
- * - qr_generated
- */
 
 /**
  * Create new booking for a field
@@ -171,8 +136,26 @@ export const createBooking = asyncHandler(async (req, res) => {
     }
 
     // Check field availability using utility
-    const available = await isFieldAvailable(fieldId, date, timeSlot, duration);
-    if (!available) {
+    const field = await Field.findById(fieldId);
+    if (!field) {
+      return res.status(404).json({
+        success: false,
+        message: 'Field not found'
+      });
+    }
+
+    // Parse dates
+    const bookingDate = new Date(date);
+    const startTime = new Date(`${date}T${timeSlot.split('-')[0]}`);
+    const durationMs = duration * 60 * 60 * 1000;
+    const endTime = new Date(startTime.getTime() + durationMs);
+
+    const availabilityCheck = validateFieldAvailability(field, {
+      startTime,
+      endTime
+    });
+
+    if (!availabilityCheck.available) {
       logger.warn(`Field ${fieldId} not available for ${date} ${timeSlot} (duration: ${duration}h)`);
       return res.status(409).json({
         success: false,
@@ -182,65 +165,70 @@ export const createBooking = asyncHandler(async (req, res) => {
           date,
           timeSlot,
           duration,
-          available: false
+          available: false,
+          conflicts: availabilityCheck.conflicts
         }
       });
     }
 
-    // Get field availability info
-    const availabilityInfo = await getFieldAvailability(fieldId, date);
+    // Get available slots for this date
+    const availableSlots = getAvailableSlots(field, bookingDate, {
+      slotDurationMinutes: duration * 60
+    });
 
     // Calculate pricing (sample calculation)
-    const hourlyRate = 2000; // Sample rate
+    const hourlyRate = field.hourlyRate || 2000;
     const baseAmount = hourlyRate * duration;
     const totalAmount = baseAmount;
 
-    // Create booking object
-    const booking = {
-      id: 'booking_' + Date.now(),
-      userId,
-      fieldId,
-      fieldName: 'Premium Stadium A', // Sample field name
-      date,
-      timeSlot,
-      duration,
-      participants: participants || 1,
-      status: 'pending',
-      paymentStatus: 'pending',
-      pricing: {
-        baseAmount,
-        totalAmount,
-        currency: 'BDT'
-      },
-      bookingReference: 'SPB' + Date.now(),
-      userNotes: userNotes || '',
-      createdAt: new Date().toISOString()
-    };
-
-    // Mark time slot as reserved
+    // Create booking document in database
     try {
-      await markFieldTimeSlot(fieldId, date, timeSlot, duration, booking.id);
-      logger.info(`Time slot marked for field ${fieldId}: ${date} ${timeSlot}`);
-    } catch (markErr) {
-      logger.error(`Failed to mark field time slot: ${markErr.message}`);
+      const newBooking = await Booking.create({
+        userId,
+        fieldId,
+        fieldName: field.name,
+        startTime,
+        endTime,
+        duration,
+        participants: participants || 1,
+        status: 'pending',
+        paymentStatus: 'pending',
+        totalAmount,
+        currency: 'BDT',
+        userNotes: userNotes || ''
+      });
+
+      logger.info(`Booking created: ${newBooking._id} for field ${fieldId} by user ${userId}`);
+
+      // Add booking to field's bookings array
+      await Field.findByIdAndUpdate(
+        fieldId,
+        {
+          $push: { bookings: newBooking._id },
+          $inc: { __v: 1 }
+        },
+        { new: true }
+      );
+
+      return res.status(201).json({
+        success: true,
+        message: 'Booking created successfully',
+        data: newBooking
+      });
+    } catch (bookingErr) {
+      logger.error(`Failed to create booking: ${bookingErr.message}`);
       return res.status(500).json({
         success: false,
-        message: 'Failed to reserve time slot',
-        error: markErr.message
+        message: 'Failed to create booking',
+        error: bookingErr.message
       });
     }
-
-    res.status(201).json({
-      success: true,
-      message: 'Booking created successfully',
-      data: booking
-    });
-  } catch (error) {
-    logger.error(`Error creating booking: ${error.message}`);
-    res.status(400).json({
+  } catch (err) {
+    logger.error(`Booking creation error: ${err.message}`);
+    return res.status(500).json({
       success: false,
-      message: 'Error creating booking',
-      error: error.message
+      message: 'Internal server error',
+      error: err.message
     });
   }
 });
@@ -508,16 +496,19 @@ export const cancelBooking = asyncHandler(async (req, res) => {
     logger.warn(`Failed to log booking cancellation: ${auditError.message}`);
   }
 
-  // Update booking status
-  // await Booking.findByIdAndUpdate(bookingId, { status: 'cancelled' });
-
-  // Release field time slot
+  // Update booking status and remove from field's bookings
   if (booking.fieldId) {
     try {
-      await releaseFieldTimeSlot(booking.fieldId, booking.date, booking.timeSlot, bookingId);
-      logger.info(`Field time slot released for field ${booking.fieldId}`);
-    } catch (releaseErr) {
-      logger.error(`Failed to release field time slot: ${releaseErr.message}`);
+      await Field.findByIdAndUpdate(
+        booking.fieldId,
+        {
+          $pull: { bookings: bookingId },
+          $inc: { __v: 1 }
+        }
+      );
+      logger.info(`Booking removed from field ${booking.fieldId}`);
+    } catch (updateErr) {
+      logger.error(`Failed to update field bookings: ${updateErr.message}`);
       // Continue anyway, don't fail the cancellation
     }
   }
