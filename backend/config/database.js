@@ -88,7 +88,13 @@ const connectDB = async () => {
 
   } catch (error) {
     logger.error(`❌ MongoDB connection failed: ${error.message}`);
-    process.exit(1);
+    if (process.env.NODE_ENV === 'production') {
+      logger.error('MongoDB connection is required in production mode. Exiting...');
+      process.exit(1);
+    } else {
+      logger.warn('MongoDB connection failed in development mode. Server will continue without database connection.');
+      logger.warn('To fix: Start MongoDB locally (mongod) or configure MONGODB_URI in .env');
+    }
   }
 };
 
