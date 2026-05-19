@@ -24,7 +24,7 @@
  *   success: true,
  *   statusCode: 200,
  *   message: "Operation successful",
- *   data: { /* payload */ },
+ *   data: { ... },
  *   timestamp: "2024-05-15T10:30:00Z"
  * }
  * 
