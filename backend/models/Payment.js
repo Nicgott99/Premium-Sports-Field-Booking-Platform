@@ -115,12 +115,10 @@ const paymentSchema = new mongoose.Schema(
     // Payment Reference
     paymentId: {
       type: String,
-      unique: true,
       required: [true, 'Payment ID is required']
     },
     transactionId: {
-      type: String,
-      unique: true
+      type: String
     },
 
     // User and Booking
@@ -177,8 +175,7 @@ const paymentSchema = new mongoose.Schema(
 
     // Invoice
     invoiceNumber: {
-      type: String,
-      unique: true
+      type: String
     },
     invoiceUrl: String,
 

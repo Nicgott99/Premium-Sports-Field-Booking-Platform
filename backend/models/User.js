@@ -55,7 +55,6 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'Email is required'],
-    unique: true,
     lowercase: true,
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
   },
@@ -76,7 +75,6 @@ const userSchema = new mongoose.Schema({
   // Firebase Integration
   firebaseUid: {
     type: String,
-    unique: true,
     sparse: true
   },
   
@@ -123,8 +121,7 @@ const userSchema = new mongoose.Schema({
       default: 'Bangladesh'
     },
     coordinates: {
-      type: [Number], // [longitude, latitude]
-      index: '2dsphere'
+      type: [Number] // [longitude, latitude]
     }
   },
   

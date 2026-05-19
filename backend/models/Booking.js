@@ -53,7 +53,6 @@ const bookingSchema = new mongoose.Schema({
   // Basic Information
   bookingId: {
     type: String,
-    unique: true,
     required: true
   },
   

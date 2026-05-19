@@ -121,8 +121,7 @@ const fieldSchema = new mongoose.Schema({
     postalCode: String,
     coordinates: {
       type: [Number], // [longitude, latitude]
-      required: [true, 'Coordinates are required'],
-      index: '2dsphere'
+      required: [true, 'Coordinates are required']
     },
     landmarks: [String]
   },
@@ -526,7 +525,6 @@ const fieldSchema = new mongoose.Schema({
   seo: {
     slug: {
       type: String,
-      unique: true,
       lowercase: true
     },
     metaTitle: String,
