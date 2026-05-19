@@ -78,43 +78,6 @@ import express from 'express';
  * - Followers/following: 10 minutes
  * - Stats: 15 minutes
  */
- * 
- * Preferences & Settings:
- * PUT /preferences - Update notification and privacy settings
- * PUT /location - Update user location
- * 
- * Safety & Moderation:
- * POST /:id/report - Report inappropriate user
- * POST /:id/block - Block user
- * POST /:id/unblock - Unblock user
- * GET /blocked - Get list of blocked users
- * 
- * Subscription Management:
- * PUT /subscription - Update user subscription tier
- * DELETE /subscription - Cancel subscription
- * 
- * Data Management:
- * GET /export - Export user data (GDPR)
- * POST /request-deletion - Request account deletion (30-day delay)
- * 
- * Query Parameters:
- * - page: Pagination page number
- * - limit: Results per page
- * - sort: Sort field (createdAt, name, rating)
- * - order: asc or desc
- * 
- * Access Control:
- * - Own profile: All operations
- * - Other profiles: Limited public data only
- * - Admin: Full access to all user data
- * 
- * Error Responses:
- * 401 - Unauthorized/token missing
- * 403 - Forbidden (insufficient permissions)
- * 404 - User not found
- * 409 - Conflict (duplicate block, already following, etc.)
- * 500 - Server error
- */
 
 import {
   getUsers,

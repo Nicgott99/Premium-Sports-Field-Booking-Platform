@@ -61,10 +61,10 @@ import express from 'express';
  *   success: boolean,
  *   message: string,
  *   data: {
- *     analytics: { /* data */ },
- *     summary: { /* summary stats */ },
- *     trends: { /* trend data */ },
- *     comparison: { /* period comparison */ }
+ *     analytics: { ... },
+ *     summary: { ... },
+ *     trends: { ... },
+ *     comparison: { ... }
  *   },
  *   timestamp: ISO 8601 date
  * }
@@ -96,7 +96,6 @@ import express from 'express';
  * - Comparative metrics (period-over-period)
  */
 
-import express from 'express';
 import {
   getPlatformAnalytics,
   getBookingAnalytics,

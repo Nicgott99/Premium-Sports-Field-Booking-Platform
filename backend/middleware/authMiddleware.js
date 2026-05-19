@@ -87,50 +87,6 @@ import logger from '../utils/logger.js';
  * - role: User role for quick checks
  * - email: User email address
  */
- * - Firebase: Authorization: Bearer <firebase-id-token>
- * 
- * User Roles and Permissions:
- * - user: Regular user (book fields, leave reviews, join teams)
- * - field_owner: Manage own fields and bookings
- * - manager: Manage fields and bookings (multiple fields)
- * - admin: Full platform access (users, analytics, system settings)
- * 
- * Protected User Fields:
- * - Password: Excluded via .select('-password')
- * - Two-Factor Secret: Never exposed
- * - Recovery Codes: Never exposed
- * 
- * Account Status Verification:
- * - Active: Normal access granted
- * - Suspended: Temporarily blocked
- * - Banned: Permanently blocked
- * - Pending_Verification: Limited access until email verified
- * 
- * Security Features:
- * - Token expiration enforcement
- * - User database verification
- * - Account status checks
- * - Role-based authorization
- * - Request logging for audit trail
- * - Error handling without data leakage
- * 
- * Middleware Composition:
- * - protect: JWT authentication
- * - protectFirebase: Firebase authentication
- * - admin: Admin role check
- * - manager: Manager or admin role check
- * - fieldOwner: Field owner, manager, or admin role check
- * 
- * Error Response Examples:
- * - 401: "Not authorized, no token" (missing token)
- * - 401: "Not authorized, token failed" (invalid/expired)
- * - 403: "Not authorized as admin" (insufficient permissions)
- * 
- * Usage Examples:
- * router.delete('/:id', protect, admin, deleteUser)
- * router.get('/', protect, fieldOwner, getFieldListings)
- * router.post('/', protect, createBooking)
- */
 
 /**
  * JWT Authentication Middleware

@@ -133,41 +133,6 @@ const router = express.Router();
  * - Verification token: 24 hours
  * - Reset token: 30 minutes
  */
- * POST /refresh-token - Refresh access token
- * 
- * Protected Routes (require authentication):
- * POST /logout - Logout user session
- * GET /profile - Get authenticated user profile
- * PUT /profile - Update user profile
- * PUT /change-password - Change password
- * POST /resend-verification - Resend verification email
- * DELETE /account - Delete user account
- * 
- * Validation:
- * - Register: Email format, password strength, phone format
- * - Login: Email/password validation
- * - Password Change: Current password verification
- * 
- * Response Format:
- * {
- *   success: boolean,
- *   message: string,
- *   data: { user: {...}, token: "..." }
- * }
- * 
- * Error Responses:
- * 400 - Invalid data or validation error
- * 401 - Invalid credentials or unauthorized
- * 404 - User not found
- * 409 - Email/phone already exists
- * 500 - Server error
- * 
- * Future Features (Currently Disabled):
- * - Firebase authentication integration
- * - Two-factor authentication (2FA)
- * - Session management
- * - OAuth integration
- */
 
 // Public routes
 /**

@@ -65,7 +65,7 @@ const router = express.Router();
  * {
  *   success: true,
  *   message: string,
- *   data: { /* specific response data */ },
+ *   data: { ... },
  *   timestamp: ISO 8601 datetime,
  *   requestId: unique identifier
  * }
@@ -150,7 +150,7 @@ const router = express.Router();
  * - 12-24 hours before booking: 50% refund
  * - Less than 12 hours: No refund
  * - Admin override with reason logging
- */"
+ */
 
 // Webhook route (public, no auth required)
 // Stripe and other payment providers require the raw body for signature verification.

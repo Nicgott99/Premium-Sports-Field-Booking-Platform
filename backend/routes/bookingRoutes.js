@@ -1,3 +1,18 @@
+import express from 'express';
+import {
+  createBooking,
+  getUserBookings,
+  getBookingById,
+  updateBooking,
+  cancelBooking,
+  checkAvailability,
+  getFieldCalendar,
+  getBookingStats,
+  getBookingQRCode,
+  verifyBookingQR
+} from '../controllers/bookingController.js';
+import { protect, fieldOwner } from '../middleware/authMiddleware.js';
+
 /**
  * Booking Routes - Field Reservation API Endpoints
  * Complete booking operations from creation to completion with cancellation and refunds
