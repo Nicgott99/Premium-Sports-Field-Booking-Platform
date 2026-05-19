@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
-import { isDuplicate, recordNotification, getNotificationHistory } from '../utils/notificationDeduplicator.js';
+import { isDuplicateNotification, markNotificationSent, checkAndMarkNotification } from '../utils/notificationDeduplicator.js';
 
 /**
  * Chat & Messaging Controller
@@ -194,17 +194,18 @@ export const sendChatMessage = asyncHandler(async (req, res) => {
   const messageHash = `${roomId}:${userId}:${text}:${Date.now()}`.substring(0, 100);
 
   // Check for duplicate message (prevent double-sends)
-  if (isDuplicate('chat_message', messageHash)) {
-    logger.warn(`Duplicate message detected from ${userId} to ${roomId}`);
-    const history = getNotificationHistory('chat_message', messageHash);
-    if (history && history.length > 0) {
+  try {
+    const isDuplicate = await isDuplicateNotification(userId, 'chat_message', roomId);
+    if (isDuplicate) {
+      logger.warn(`Duplicate message detected from ${userId} to ${roomId}`);
       return res.status(200).json({
         success: true,
         message: 'Message already sent',
-        data: history[0],
         isDuplicate: true
       });
     }
+  } catch (checkErr) {
+    logger.warn(`Failed to check for duplicate: ${checkErr.message}`);
   }
 
   // Create message object
@@ -220,7 +221,7 @@ export const sendChatMessage = asyncHandler(async (req, res) => {
 
   // Record message for deduplication
   try {
-    recordNotification('chat_message', messageHash, {
+    await markNotificationSent(userId, 'chat_message', roomId, {
       messageId: messageData.messageId,
       roomId,
       userId,
