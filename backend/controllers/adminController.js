@@ -125,6 +125,14 @@ import { performHealthCheck, getMetrics } from '../utils/healthCheck.js';
  * - Announcements: 30 minutes
  * - Reports: No cache (always fresh)
  */
+
+/**
+ * Get dashboard statistics
+ * @async
+ * @route GET /api/admin/dashboard
+ * @access Private/Admin
+ */
+export const getDashboardStats = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: 'Admin dashboard stats endpoint',

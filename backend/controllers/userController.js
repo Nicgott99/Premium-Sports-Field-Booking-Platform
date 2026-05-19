@@ -96,24 +96,6 @@ import logger from '../utils/logger.js';
  * - Stats: 15 minutes
  * - Preferences: 5 minutes
  */
- * - Booking model: User booking history
- * - Team model: User team memberships
- * - Review model: User reviews and ratings
- * - Notification model: User notification preferences
- * - Subscription model: User subscription tier
- * 
- * Access Control:
- * - Public: Profile viewing (limited data)
- * - Private: Own profile operations
- * - Admin: User management and stats
- * 
- * Event Emissions:
- * - user_profile_updated
- * - user_avatar_changed
- * - user_followed
- * - user_subscription_changed
- * - account_deletion_requested
- */
 
 /**
  * Get all users with filtering and pagination
