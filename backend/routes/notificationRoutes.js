@@ -137,6 +137,9 @@
  * - Dismissed: 7 days
  * - Auto-delete: After read (configurable)
  */
+
+import express from 'express';
+import {
   getUserNotifications,
   markAsRead,
   markAllAsRead,
@@ -262,9 +265,5 @@ router.post('/push/send', admin, sendPushNotification);
  * @body pushToken, deviceId
  */
 router.post('/push/subscribe', subscribeToPush);
-
-export default router;
-router.post('/subscribe', subscribeToPush);
-router.post('/send', admin, sendPushNotification);
 
 export default router;
