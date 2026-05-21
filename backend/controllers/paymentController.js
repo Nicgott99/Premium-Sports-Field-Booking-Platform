@@ -461,9 +461,14 @@ export const getPaymentHistory = asyncHandler(async (req, res) => {
  * @throws {Error} 400 - Cannot refund completed payment
  */
 export const refundPayment = asyncHandler(async (req, res) => {
-  const { paymentId } = req.params;
+  const paymentId = req.params.paymentId || req.params.id;
   const { reason = 'No reason provided' } = req.body;
   const userId = req.user?.id;
+
+  if (!paymentId) {
+    res.status(400);
+    throw new Error('paymentId is required');
+  }
 
   logger.info(`Refunding payment ${paymentId} for user ${userId}`);
 
