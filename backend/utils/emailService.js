@@ -335,8 +335,19 @@ export const sendNotificationEmail = async (email, subject, message) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
-    return { success: true };
+    const result = await sendEmailWithRetry(
+      () => transporter.sendMail(mailOptions),
+      email,
+      subject
+    );
+
+    if (!result.success) {
+      logger.warn(`Notification email failed for ${email}: ${result.error || 'unknown'}`);
+      return result;
+    }
+
+    logger.info(`Notification email sent to ${email}`);
+    return { success: true, attempt: result.attempt };
   } catch (error) {
     console.error('Email sending error:', error);
     return { success: false, error: error.message };
