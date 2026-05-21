@@ -343,74 +343,72 @@ export const getFields = asyncHandler(async (req, res) => {
 });
 
 export const getField = asyncHandler(async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    // Sample field data
-    const field = {
-      id: id,
-      name: `Premium Field ${id}`,
-      sport: 'Football',
-      location: 'Dhaka, Bangladesh',
-      rating: 4.5,
-      pricePerHour: 2000,
-      currency: 'BDT',
-      description: 'Professional sports field with modern amenities and excellent facilities',
-      images: [
-        'https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800',
-        'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800'
-      ],
-      amenities: ['Floodlights', 'Changing Rooms', 'Parking', 'Security', 'Refreshments'],
-      operatingHours: {
-        monday: { open: '06:00', close: '23:00', isOpen: true },
-        tuesday: { open: '06:00', close: '23:00', isOpen: true },
-        wednesday: { open: '06:00', close: '23:00', isOpen: true },
-        thursday: { open: '06:00', close: '23:00', isOpen: true },
-        friday: { open: '06:00', close: '23:00', isOpen: true },
-        saturday: { open: '06:00', close: '23:00', isOpen: true },
-        sunday: { open: '08:00', close: '22:00', isOpen: true }
-      },
-      surface: 'Natural Grass',
-      capacity: {
-        minPlayers: 11,
-        maxPlayers: 22
-      },
-      bookingPolicy: 'Minimum 1 hour booking required. Advance booking recommended.',
-      owner: {
-        name: 'Field Owner',
-        phone: '+880123456789',
-        email: 'owner@example.com'
-      },
-      reviews: [
-        {
-          id: 1,
-          user: 'John Doe',
-          rating: 5,
-          comment: 'Excellent field with great facilities!',
-          date: '2024-01-15'
-        },
-        {
-          id: 2,
-          user: 'Jane Smith',
-          rating: 4,
-          comment: 'Good field, clean changing rooms.',
-          date: '2024-01-10'
-        }
-      ]
-    };
-
-    res.json({
-      success: true,
-      message: 'Field retrieved successfully',
-      data: field
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching field',
-      error: error.message
-    });
+  const { id } = req.params;
+  
+  // Validate field ID format (MongoDB ObjectId)
+  if (!id || id.length !== 24) {
+    res.status(400);
+    throw new Error('Invalid field ID format');
   }
+  
+  // Sample field data
+  const field = {
+    id: id,
+    name: `Premium Field ${id}`,
+    sport: 'Football',
+    location: 'Dhaka, Bangladesh',
+    rating: 4.5,
+    pricePerHour: 2000,
+    currency: 'BDT',
+    description: 'Professional sports field with modern amenities and excellent facilities',
+    images: [
+      'https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800',
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800'
+    ],
+    amenities: ['Floodlights', 'Changing Rooms', 'Parking', 'Security', 'Refreshments'],
+    operatingHours: {
+      monday: { open: '06:00', close: '23:00', isOpen: true },
+      tuesday: { open: '06:00', close: '23:00', isOpen: true },
+      wednesday: { open: '06:00', close: '23:00', isOpen: true },
+      thursday: { open: '06:00', close: '23:00', isOpen: true },
+      friday: { open: '06:00', close: '23:00', isOpen: true },
+      saturday: { open: '06:00', close: '23:00', isOpen: true },
+      sunday: { open: '08:00', close: '22:00', isOpen: true }
+    },
+    surface: 'Natural Grass',
+    capacity: {
+      minPlayers: 11,
+      maxPlayers: 22
+    },
+    bookingPolicy: 'Minimum 1 hour booking required. Advance booking recommended.',
+    owner: {
+      name: 'Field Owner',
+      phone: '+880123456789',
+      email: 'owner@example.com'
+    },
+    reviews: [
+      {
+        id: 1,
+        user: 'John Doe',
+        rating: 5,
+        comment: 'Excellent field with great facilities!',
+        date: '2024-01-15'
+      },
+      {
+        id: 2,
+        user: 'Jane Smith',
+        rating: 4,
+        comment: 'Good field, clean changing rooms.',
+        date: '2024-01-10'
+      }
+    ]
+  };
+
+  res.json({
+    success: true,
+    message: 'Field retrieved successfully',
+    data: field
+  });
 });
 
 export const createField = asyncHandler(async (req, res) => {

@@ -123,7 +123,15 @@ export const getUsers = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - User not found
  */
 export const getUser = asyncHandler(async (req, res) => {
-  logger.info(`Fetching user: ${req.params.id}`);
+  const { id } = req.params;
+  
+  // Validate user ID format (MongoDB ObjectId)
+  if (!id || id.length !== 24) {
+    res.status(400);
+    throw new Error('Invalid user ID format');
+  }
+  
+  logger.info(`Fetching user: ${id}`);
   res.json({ success: true, message: 'Get user endpoint', data: {} });
 });
 
