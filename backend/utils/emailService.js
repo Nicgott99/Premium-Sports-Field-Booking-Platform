@@ -256,10 +256,19 @@ export const sendPasswordResetEmail = async (email, token) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
-    return { success: true };
+    const result = await sendEmailWithRetry(
+      () => transporter.sendMail(mailOptions),
+      email,
+      mailOptions.subject
+    );
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true, attempt: result.attempt };
   } catch (error) {
-    console.error('Email sending error:', error);
+    logger.error(`Password reset email sending error: ${error.message}`);
     return { success: false, error: error.message };
   }
 };
