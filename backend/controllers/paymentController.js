@@ -355,9 +355,6 @@ export const handleWebhook = asyncHandler(async (req, res) => {
       return res.status(200).json({ success: true, message: 'Duplicate webhook ignored' });
     }
 
-    // Mark as processed early to avoid race conditions
-    if (webhookId) await markWebhookProcessed(webhookId);
-
     // Handle common events with retry on failure
     try {
       switch (event.type) {
@@ -404,6 +401,11 @@ export const handleWebhook = asyncHandler(async (req, res) => {
       // If no retry scheduled, return error
       res.status(500);
       throw eventError;
+    }
+
+    // Mark as processed only after successful handling
+    if (webhookId) {
+      await markWebhookProcessed(webhookId);
     }
 
     return res.status(200).json({ success: true, message: 'Webhook processed' });
