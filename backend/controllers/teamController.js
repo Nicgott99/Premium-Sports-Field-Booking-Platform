@@ -279,8 +279,8 @@ export const acceptTeamInvite = asyncHandler(async (req, res) => {
 
   logger.info(`User ${userId} accepting team invitation ${inviteId}`);
 
-  // Get invitation
-  const invitation = await getInvitation(inviteId);
+  // Get invitation from temporary store
+  const invitation = invitationStore.get(inviteId);
 
   if (!invitation) {
     return res.status(404).json({
@@ -290,7 +290,7 @@ export const acceptTeamInvite = asyncHandler(async (req, res) => {
   }
 
   // Check if expired
-  if (isInvitationExpired(invitation)) {
+  if (!isInvitationValid(invitation)) {
     logger.warn(`Expired invitation ${inviteId} attempted to be accepted`);
     return res.status(410).json({
       success: false,
@@ -298,8 +298,17 @@ export const acceptTeamInvite = asyncHandler(async (req, res) => {
     });
   }
 
-  // Mark as accepted
-  await markInvitationAccepted(inviteId, userId);
+  // Ensure the invitation belongs to this user when userId is present
+  if (invitation.userId && invitation.userId !== userId) {
+    return res.status(403).json({
+      success: false,
+      message: 'You are not authorized to accept this invitation'
+    });
+  }
+
+  // Mark as accepted and persist updated state
+  const acceptedInvitation = acceptInvitation(invitation);
+  invitationStore.set(inviteId, acceptedInvitation);
 
   res.status(200).json({
     success: true,
