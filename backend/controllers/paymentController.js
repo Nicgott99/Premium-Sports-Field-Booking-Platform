@@ -352,6 +352,7 @@ export const handleWebhook = asyncHandler(async (req, res) => {
     const webhookId = event.id || (event?.data?.object?.id);
     if (webhookId && (await isWebhookProcessed(webhookId))) {
       logger.info(`Duplicate webhook received, skipping: ${webhookId}`);
+      res.set('X-Processed-By', 'Premium-Sports-Backend');
       return res.status(200).json({ success: true, message: 'Duplicate webhook ignored' });
     }
 
@@ -390,6 +391,7 @@ export const handleWebhook = asyncHandler(async (req, res) => {
 
         // Return 202 Accepted if retry is scheduled
         if (retryInfo.scheduled) {
+          res.set('X-Processed-By', 'Premium-Sports-Backend');
           return res.status(202).json({
             success: false,
             message: 'Webhook processing failed, retry scheduled',
@@ -408,6 +410,7 @@ export const handleWebhook = asyncHandler(async (req, res) => {
       await markWebhookProcessed(webhookId);
     }
 
+    res.set('X-Processed-By', 'Premium-Sports-Backend');
     return res.status(200).json({ success: true, message: 'Webhook processed' });
   }
 
