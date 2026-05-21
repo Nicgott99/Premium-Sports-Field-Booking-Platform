@@ -7,7 +7,15 @@ import { logPaymentEvent, logAdminAction } from '../utils/auditLogger.js';
 import { scheduleWebhookRetry, getRetryAttempts } from '../utils/webhookRetry.js';
 import { processRefundRequest, verifyRefundEligibility } from '../utils/refundManagement.js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15' });
+// Validate Stripe API key before initializing
+if (!process.env.STRIPE_SECRET_KEY) {
+  logger.error('STRIPE_SECRET_KEY not configured in environment variables');
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { 
+  apiVersion: '2022-11-15',
+  timeout: 30000 // 30 second timeout for Stripe API calls
+});
 
 /**
  * Payment Controller - Transaction and Subscription Management

@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import {
   registerUser,
   loginUser,
@@ -18,6 +19,42 @@ import { protect, protectFirebase } from '../middleware/authMiddleware.js';
 import { validateRegister, validateLogin, validatePasswordChange } from '../middleware/validationMiddleware.js';
 
 const router = express.Router();
+
+// Rate limiters for sensitive endpoints
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // 5 requests per hour
+  message: 'Too many registration attempts, please try again after an hour',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const loginLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // 10 requests per hour
+  message: 'Too many login attempts, please try again after an hour',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method !== 'POST'
+});
+
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // 3 requests per hour per IP
+  message: 'Too many password reset attempts, please try again after an hour',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method !== 'POST'
+});
+
+const resendVerificationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // 5 requests per hour
+  message: 'Too many verification email requests, please try again after an hour',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method !== 'POST'
+});
 
 /**
  * Authentication Routes - Complete Auth API Endpoints
@@ -141,7 +178,7 @@ const router = express.Router();
  * @access Public
  * @body firstName, lastName, email, phone, password
  */
-router.post('/register', validateRegister, registerUser);
+router.post('/register', registerLimiter, validateRegister, registerUser);
 
 /**
  * @route POST /api/auth/login
@@ -149,7 +186,7 @@ router.post('/register', validateRegister, registerUser);
  * @access Public
  * @body email, password
  */
-router.post('/login', validateLogin, loginUser);
+router.post('/login', loginLimiter, validateLogin, loginUser);
 
 /**
  * @route POST /api/auth/forgot-password
@@ -157,7 +194,7 @@ router.post('/login', validateLogin, loginUser);
  * @access Public
  * @body email
  */
-router.post('/forgot-password', forgotPassword);
+router.post('/forgot-password', passwordResetLimiter, forgotPassword);
 
 /**
  * @route POST /api/auth/reset-password/:token
@@ -166,7 +203,7 @@ router.post('/forgot-password', forgotPassword);
  * @param token - Email verification token
  * @body password, passwordConfirm
  */
-router.post('/reset-password/:token', resetPassword);
+router.post('/reset-password/:token', passwordResetLimiter, resetPassword);
 
 /**
  * @route GET /api/auth/verify-email/:token
@@ -222,7 +259,7 @@ router.put('/change-password', validatePasswordChange, changePassword);
  * @desc Resend email verification link
  * @access Private
  */
-router.post('/resend-verification', resendVerification);
+router.post('/resend-verification', resendVerificationLimiter, resendVerification);
 
 /**
  * @route DELETE /api/auth/account

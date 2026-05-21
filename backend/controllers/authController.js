@@ -94,14 +94,10 @@ export const registerUser = asyncHandler(async (req, res) => {
   user.verificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
   await user.save();
 
-  // Send verification email
-  try {
-    sendVerificationEmail(user.email, verificationToken).catch((emailError) => {
-      logger.error(`Email sending failed: ${emailError.message}`);
-    });
-  } catch (error) {
-    logger.error(`Email sending failed: ${error.message}`);
-  }
+  // Send verification email asynchronously without blocking response
+  sendVerificationEmail(user.email, verificationToken).catch((emailError) => {
+    logger.error(`Email sending failed for user ${user.id}: ${emailError.message}`);
+  });
 
   // Generate JWT token
   const token = user.generateToken();

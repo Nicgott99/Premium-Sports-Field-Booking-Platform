@@ -116,139 +116,113 @@ import Field from '../models/Field.js';
  * @throws {Error} 400 - Missing required booking fields
  */
 export const createBooking = asyncHandler(async (req, res) => {
-  try {
-    const {
-      fieldId,
-      date,
-      timeSlot,
-      duration,
-      participants,
-      userNotes
-    } = req.body;
-    const userId = req.user?.id;
+  const {
+    fieldId,
+    date,
+    timeSlot,
+    duration,
+    participants,
+    userNotes
+  } = req.body;
+  const userId = req.user?.id;
 
-    // Validate required fields
-    if (!fieldId || !date || !timeSlot || !duration) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide all required booking details (fieldId, date, timeSlot, duration)'
-      });
-    }
-
-    // Check field availability using utility
-    const field = await Field.findById(fieldId);
-    if (!field) {
-      return res.status(404).json({
-        success: false,
-        message: 'Field not found'
-      });
-    }
-
-    // Parse dates
-    const bookingDate = new Date(date);
-    const startTime = new Date(`${date}T${timeSlot.split('-')[0]}`);
-    const durationMs = duration * 60 * 60 * 1000;
-    const endTime = new Date(startTime.getTime() + durationMs);
-
-    const availabilityCheck = validateFieldAvailability(field, {
-      startTime,
-      endTime
-    });
-
-    if (!availabilityCheck.available) {
-      logger.warn(`Field ${fieldId} not available for ${date} ${timeSlot} (duration: ${duration}h)`);
-      return res.status(409).json({
-        success: false,
-        message: 'Field is not available for the requested time slot',
-        data: {
-          fieldId,
-          date,
-          timeSlot,
-          duration,
-          available: false,
-          conflicts: availabilityCheck.conflicts
-        }
-      });
-    }
-
-    // Get available slots for this date
-    const availableSlots = getAvailableSlots(field, bookingDate, {
-      slotDurationMinutes: duration * 60
-    });
-
-    // Calculate pricing (sample calculation)
-    const hourlyRate = field.hourlyRate || 2000;
-    const baseAmount = hourlyRate * duration;
-    const totalAmount = baseAmount;
-
-    // Create booking document in database
-    try {
-      const newBooking = await Booking.create({
-        userId,
-        fieldId,
-        fieldName: field.name,
-        startTime,
-        endTime,
-        duration,
-        participants: participants || 1,
-        status: 'pending',
-        paymentStatus: 'pending',
-        totalAmount,
-        currency: 'BDT',
-        userNotes: userNotes || ''
-      });
-
-      logger.info(`Booking created: ${newBooking._id} for field ${fieldId} by user ${userId}`);
-
-      // Add booking to field's bookings array
-      await Field.findByIdAndUpdate(
-        fieldId,
-        {
-          $push: { bookings: newBooking._id },
-          $inc: { __v: 1 }
-        },
-        { new: true }
-      );
-
-      return res.status(201).json({
-        success: true,
-        message: 'Booking created successfully',
-        data: newBooking
-      });
-    } catch (bookingErr) {
-      logger.error(`Failed to create booking: ${bookingErr.message}`);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to create booking',
-        error: bookingErr.message
-      });
-    }
-  } catch (err) {
-    logger.error(`Booking creation error: ${err.message}`);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: err.message
-    });
+  // Validate required fields
+  if (!fieldId || !date || !timeSlot || !duration) {
+    res.status(400);
+    throw new Error('Please provide all required booking details (fieldId, date, timeSlot, duration)');
   }
+
+  // Validate participants number
+  if (participants && (participants < 1 || !Number.isInteger(participants))) {
+    res.status(400);
+    throw new Error('Participants must be a positive integer');
+  }
+
+  // Check field availability using utility
+  const field = await Field.findById(fieldId);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
+  }
+
+  // Validate participants against field capacity
+  const maxCapacity = field.capacity || 22;
+  if ((participants || 1) > maxCapacity) {
+    res.status(400);
+    throw new Error(`Participants count (${participants}) exceeds field capacity (${maxCapacity})`);
+  }
+
+  // Parse dates
+  const bookingDate = new Date(date);
+  const startTime = new Date(`${date}T${timeSlot.split('-')[0]}`);
+  const durationMs = duration * 60 * 60 * 1000;
+  const endTime = new Date(startTime.getTime() + durationMs);
+
+  const availabilityCheck = validateFieldAvailability(field, {
+    startTime,
+    endTime
+  });
+
+  if (!availabilityCheck.available) {
+    logger.warn(`Field ${fieldId} not available for ${date} ${timeSlot} (duration: ${duration}h)`);
+    res.status(409);
+    throw new Error('Field is not available for the requested time slot');
+  }
+
+  // Calculate pricing
+  const hourlyRate = field.pricing?.hourly || 2000;
+  const baseAmount = hourlyRate * duration;
+  const totalAmount = baseAmount;
+
+  const newBooking = await Booking.create({
+    userId,
+    fieldId,
+    fieldName: field.name,
+    startTime,
+    endTime,
+    duration,
+    participants: participants || 1,
+    status: 'pending',
+    paymentStatus: 'pending',
+    totalAmount,
+    currency: 'BDT',
+    userNotes: userNotes || ''
+  });
+
+  logger.info(`Booking created: ${newBooking._id} for field ${fieldId} by user ${userId}`);
+
+  // Add booking to field's bookings array
+  await Field.findByIdAndUpdate(
+    fieldId,
+    {
+      $push: { bookings: newBooking._id },
+      $inc: { __v: 1 }
+    },
+    { new: true }
+  );
+
+  res.status(201).json({
+    success: true,
+    message: 'Booking created successfully',
+    data: newBooking
+  });
 });
 
 // @desc    Get user bookings
 // @route   GET /api/bookings
 // @access  Private
 export const getUserBookings = asyncHandler(async (req, res) => {
-  try {
-    const {
-      status,
-      upcoming = false
-    } = req.query;
+  const {
+    status,
+    upcoming = false
+  } = req.query;
 
-    // Parse and validate pagination parameters safely
-    const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
-    const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+  // Parse and validate pagination parameters safely
+  const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
 
-    // Sample bookings data
-    const sampleBookings = [
+  // Sample bookings data
+  const sampleBookings = [
       {
         id: 'booking_1',
         fieldId: '1',
@@ -345,25 +319,17 @@ export const getUserBookings = asyncHandler(async (req, res) => {
         hasPrevPage: page > 1
       }
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching bookings',
-      error: error.message
-    });
-  }
 });
 
 // @desc    Get booking by ID
 // @route   GET /api/bookings/:id
 // @access  Private
 export const getBookingById = asyncHandler(async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    // Sample detailed booking data
-    const booking = {
-      id: id,
+  const { id } = req.params;
+  
+  // Sample detailed booking data
+  const booking = {
+    id: id,
       fieldId: '1',
       fieldName: 'Premium Stadium A',
       date: '2024-12-01',
@@ -412,13 +378,6 @@ export const getBookingById = asyncHandler(async (req, res) => {
       message: 'Booking retrieved successfully',
       data: booking
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching booking',
-      error: error.message
-    });
-  }
 });
 
 // @desc    Update booking

@@ -215,11 +215,8 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req, res) => {
-    // Use originalUrl to reliably detect full request path (including mount)
-    const url = req.originalUrl || req.url || '';
-    // Allow health checks and admin/login endpoints to bypass global rate limiter
-    const allowPaths = ['/api/health', '/api/v1/admin', '/api/admin', '/api/v1/auth/login', '/api/auth/login'];
-    return allowPaths.some(p => url.startsWith(p));
+    // Only allow health checks to bypass rate limiting
+    return req.path === '/api/health' || req.path === '/api/v1/health';
   }
 });
 
