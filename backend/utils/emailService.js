@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import logger from './logger.js';
+import { sendEmailWithRetry } from './emailErrorHandler.js';
 
 /**
  * Email Service - Nodemailer Configuration & Email Sending
@@ -214,9 +215,18 @@ export const sendVerificationEmail = async (email, token) => {
       `
     };
 
-    const result = await transporter.sendMail(mailOptions);
+    const result = await sendEmailWithRetry(
+      () => transporter.sendMail(mailOptions),
+      email,
+      mailOptions.subject
+    );
+
+    if (!result.success) {
+      return result;
+    }
+
     logger.info(`Verification email sent to ${email}`);
-    return { success: true };
+    return { success: true, attempt: result.attempt };
   } catch (error) {
     logger.error(`Failed to send verification email to ${email}: ${error.message}`);
     return { success: false, error: error.message };
