@@ -254,6 +254,24 @@ export const getRedisHealth = () => {
   };
 };
 
+/**
+ * Ping Redis with an optional timeout (ms). Returns true if PONG/OK received.
+ */
+export const pingRedis = async (timeoutMs = 2000) => {
+  try {
+    if (!redisClient?.isOpen) return false;
+    const pingPromise = redisClient.ping();
+    const res = await Promise.race([
+      pingPromise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Redis ping timeout')), timeoutMs))
+    ]);
+    return res === 'PONG' || res === 'OK' || !!res;
+  } catch (err) {
+    logger.warn(`Redis ping failed: ${err.message}`);
+    return false;
+  }
+};
+
 export default { 
   createRedisClient, 
   getRedisClient, 
