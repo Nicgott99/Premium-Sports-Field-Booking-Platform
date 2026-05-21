@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/database.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 import { setupFirebase } from './config/firebase.js';
-import { createRedisClient, getRedisClient } from './config/redis.js';
+import { createRedisClient, getRedisClient, getRedisHealth } from './config/redis.js';
 import mongoose from 'mongoose';
 import { createIndexes } from './models/index.js';
 import { responseMiddleware } from './utils/responseFormatter.js';
@@ -243,6 +243,29 @@ app.get('/api/health', (req, res) => {
     version: '1.0.0',
     apiVersion: 'v1'
   });
+});
+
+// Extended health status endpoint - checks MongoDB and Redis connectivity
+app.get('/api/health/status', async (req, res) => {
+  try {
+    const dbState = mongoose?.connection?.readyState ?? 0; // 0 = disconnected, 1 = connected
+    const redisHealth = typeof getRedisHealth === 'function' ? getRedisHealth() : { connected: false };
+
+    return res.status(200).json({
+      success: true,
+      message: 'Service health status',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      database: {
+        readyState: dbState,
+        connected: dbState === 1
+      },
+      redis: redisHealth
+    });
+  } catch (err) {
+    logger.error(`Health status check failed: ${err.message}`);
+    return res.status(500).json({ success: false, message: 'Health status check failed' });
+  }
 });
 
 // API v1 Routes with version prefix
