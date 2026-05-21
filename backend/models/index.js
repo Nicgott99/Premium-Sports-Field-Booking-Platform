@@ -23,15 +23,15 @@ export const createIndexes = async () => {
 
     // Field indexes
     await Field.collection.createIndex({ owner: 1 });
-    await Field.collection.createIndex({ sport: 1 });
+    await Field.collection.createIndex({ sports: 1 });
     await Field.collection.createIndex({ 'location.city': 1 });
     await Field.collection.createIndex({ 'location.coordinates': '2dsphere' }); // Geo index
     await Field.collection.createIndex({ createdAt: -1 });
     await Field.collection.createIndex({ status: 1 });
 
     // Booking indexes
-    await Booking.collection.createIndex({ userId: 1 });
-    await Booking.collection.createIndex({ fieldId: 1 });
+    await Booking.collection.createIndex({ user: 1 });
+    await Booking.collection.createIndex({ field: 1 });
     await Booking.collection.createIndex({ status: 1 });
     await Booking.collection.createIndex({ startTime: 1, endTime: 1 });
     await Booking.collection.createIndex({ createdAt: -1 });
@@ -44,7 +44,7 @@ export const createIndexes = async () => {
     await Review.collection.createIndex({ createdAt: -1 });
 
     // Team indexes
-    await Team.collection.createIndex({ owner: 1 });
+    await Team.collection.createIndex({ captain: 1 });
     await Team.collection.createIndex({ members: 1 });
     await Team.collection.createIndex({ sport: 1 });
 
@@ -54,13 +54,13 @@ export const createIndexes = async () => {
     await Tournament.collection.createIndex({ createdAt: -1 });
 
     // Payment indexes
-    await Payment.collection.createIndex({ userId: 1 });
-    await Payment.collection.createIndex({ status: 1 });
+    await Payment.collection.createIndex({ user: 1 });
+    await Payment.collection.createIndex({ paymentStatus: 1 });
     await Payment.collection.createIndex({ createdAt: -1 });
-    await Payment.collection.createIndex({ stripePaymentIntentId: 1 }, { sparse: true });
+    await Payment.collection.createIndex({ transactionId: 1 }, { sparse: true });
 
     // Notification indexes
-    await Notification.collection.createIndex({ userId: 1 });
+    await Notification.collection.createIndex({ user: 1 });
     await Notification.collection.createIndex({ type: 1 });
     await Notification.collection.createIndex({ createdAt: -1 });
 
