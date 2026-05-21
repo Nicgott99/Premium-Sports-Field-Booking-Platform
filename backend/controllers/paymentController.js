@@ -482,6 +482,12 @@ export const refundPayment = asyncHandler(async (req, res) => {
       ipAddress: req.ip,
       status: 'processing'
     });
+    try {
+      // Audit admin action for refunds
+      logAdminAction({ action: 'refund_initiated', adminId: userId, targetId: paymentId, details: { reason } });
+    } catch (auditErr) {
+      logger.warn(`Admin audit logging failed: ${auditErr.message}`);
+    }
   } catch (auditErr) {
     logger.warn(`Audit logging failed: ${auditErr.message}`);
   }
