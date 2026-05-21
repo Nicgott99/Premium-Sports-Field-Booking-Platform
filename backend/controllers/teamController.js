@@ -96,7 +96,34 @@ import User from '../models/User.js';
  * @throws {Error} 400 - Invalid team data or duplicate name
  */
 export const createTeam = asyncHandler(async (req, res) => {
-  logger.info(`Creating team for user: ${req.user?.id}`);
+  const { name, description, sport, maxMembers } = req.body;
+  const userId = req.user?.id;
+  
+  // Validate required fields
+  if (!name || !sport) {
+    res.status(400);
+    throw new Error('Please provide team name and sport type');
+  }
+  
+  // Validate team name length
+  if (name.length < 3 || name.length > 100) {
+    res.status(400);
+    throw new Error('Team name must be between 3 and 100 characters');
+  }
+  
+  // Validate description if provided
+  if (description && description.length > 500) {
+    res.status(400);
+    throw new Error('Team description must not exceed 500 characters');
+  }
+  
+  // Validate max members if provided
+  if (maxMembers && (maxMembers < 5 || maxMembers > 50 || !Number.isInteger(maxMembers))) {
+    res.status(400);
+    throw new Error('Max members must be an integer between 5 and 50');
+  }
+  
+  logger.info(`Creating team "${name}" for user: ${userId}`);
   res.status(201).json({
     success: true,
     message: 'Team created successfully',

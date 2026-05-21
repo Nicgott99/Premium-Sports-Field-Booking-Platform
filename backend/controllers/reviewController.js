@@ -123,7 +123,34 @@ import logger from '../utils/logger.js';
  * @throws {Error} 409 - User already reviewed this target
  */
 export const createReview = asyncHandler(async (req, res) => {
-  logger.info(`Creating review for user: ${req.user?.id}`);
+  const { fieldId, rating, comment } = req.body;
+  const userId = req.user?.id;
+  
+  // Validate required fields
+  if (!fieldId || !rating || !comment) {
+    res.status(400);
+    throw new Error('Please provide fieldId, rating, and comment');
+  }
+  
+  // Validate rating range
+  if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+    res.status(400);
+    throw new Error('Rating must be an integer between 1 and 5');
+  }
+  
+  // Validate comment length
+  if (comment.length < 10 || comment.length > 1000) {
+    res.status(400);
+    throw new Error('Comment must be between 10 and 1000 characters');
+  }
+  
+  // Validate field ID format
+  if (fieldId.length !== 24) {
+    res.status(400);
+    throw new Error('Invalid field ID format');
+  }
+  
+  logger.info(`Creating review for field: ${fieldId} by user: ${userId}`);
   res.status(201).json({
     success: true,
     message: 'Review created successfully',
@@ -145,7 +172,15 @@ export const createReview = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - Field not found
  */
 export const getFieldReviews = asyncHandler(async (req, res) => {
-  logger.info(`Fetching reviews for field: ${req.params.fieldId}`);
+  const { fieldId } = req.params;
+  
+  // Validate field ID format
+  if (!fieldId || fieldId.length !== 24) {
+    res.status(400);
+    throw new Error('Invalid field ID format');
+  }
+  
+  logger.info(`Fetching reviews for field: ${fieldId}`);
   res.status(200).json({
     success: true,
     message: 'Field reviews retrieved successfully',
