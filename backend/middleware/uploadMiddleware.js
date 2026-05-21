@@ -1,5 +1,6 @@
 import multer from 'multer';
 import path from 'node:path';
+import logger from '../utils/logger.js';
 
 /**
  * Upload Middleware - File Upload Handling with Multer
@@ -237,3 +238,15 @@ export const upload = multer({
 });
 
 export default upload;
+
+/**
+ * Multer error handler middleware
+ * Usage: app.use(multerErrorHandler) after routes to catch Multer errors
+ */
+export const multerErrorHandler = (err, req, res, next) => {
+  if (err && err.name === 'MulterError') {
+    logger.warn(`Multer error: ${err.message}`);
+    return res.status(400).json({ success: false, message: err.message });
+  }
+  return next(err);
+};
