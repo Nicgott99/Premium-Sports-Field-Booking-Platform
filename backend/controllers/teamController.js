@@ -240,24 +240,33 @@ export const leaveTeam = asyncHandler(async (req, res) => {
 // @route   POST /api/teams/:id/invite
 // @access  Private
 export const inviteToTeam = asyncHandler(async (req, res) => {
-  const { teamId, userId, email } = req.body;
+  const { userId, email } = req.body;
+  const teamId = req.params.id || req.body.teamId;
   const invitedBy = req.user?.id;
+
+  if (!teamId) {
+    res.status(400);
+    throw new Error('Team ID is required');
+  }
+
+  if (!userId && !email) {
+    res.status(400);
+    throw new Error('Either userId or email is required for invitation');
+  }
 
   logger.info(`Creating team invitation for ${email || userId} to team ${teamId}`);
 
   // Create invitation with 7-day expiry
-  const invitationId = await createInvitation({
-    type: 'team',
-    teamId,
-    userId: userId || email,
-    invitedBy,
-    expiresIn: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+  const invitation = createInvitation(teamId, userId || email, invitedBy, {
+    ttlMs: 7 * 24 * 60 * 60 * 1000
   });
+
+  invitationStore.set(invitation.id, invitation);
 
   res.status(200).json({
     success: true,
     message: 'Invitation sent successfully',
-    data: { invitationId }
+    data: { invitationId: invitation.id, expiresAt: invitation.expiresAt }
   });
 });
 
