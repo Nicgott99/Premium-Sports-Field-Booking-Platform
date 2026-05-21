@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/database.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 import { setupFirebase } from './config/firebase.js';
-import { createRedisClient, getRedisClient, getRedisHealth } from './config/redis.js';
+import { createRedisClient, getRedisClient, getRedisHealth, pingRedis } from './config/redis.js';
 import mongoose from 'mongoose';
 import { createIndexes } from './models/index.js';
 import { cleanupExpiredInvitations } from './utils/invitationManager.js';
@@ -270,6 +270,7 @@ app.get('/api/health/status', async (req, res) => {
   try {
     const dbState = mongoose?.connection?.readyState ?? 0; // 0 = disconnected, 1 = connected
     const redisHealth = typeof getRedisHealth === 'function' ? getRedisHealth() : { connected: false };
+    const redisPing = typeof pingRedis === 'function' ? await pingRedis(1500) : false;
 
     return res.status(200).json({
       success: true,
