@@ -160,6 +160,16 @@ export const processPayment = asyncHandler(async (req, res) => {
   const { amount, currency = 'USD', paymentMethodId, bookingId } = req.body;
   const paymentId = `pay_${Date.now()}`;
 
+  if (!paymentMethodId) {
+    res.status(400);
+    throw new Error('paymentMethodId is required');
+  }
+
+  if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+    res.status(400);
+    throw new Error('amount must be a positive number');
+  }
+
   logger.info(`Processing payment ${paymentId} for user: ${userId}`);
 
   // Log payment event
