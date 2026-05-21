@@ -13,6 +13,7 @@ import { setupFirebase } from './config/firebase.js';
 import { createRedisClient, getRedisClient, getRedisHealth } from './config/redis.js';
 import mongoose from 'mongoose';
 import { createIndexes } from './models/index.js';
+import { cleanupExpiredInvitations } from './utils/invitationManager.js';
 import { responseMiddleware } from './utils/responseFormatter.js';
 import logger from './utils/logger.js';
 
@@ -165,6 +166,20 @@ await setupFirebase();
 // Setup Redis
 const redisClient = await createRedisClient();
 app.set('redisClient', redisClient);
+
+// Periodic cleanup for expired invitations (runs hourly)
+try {
+  setInterval(() => {
+    try {
+      cleanupExpiredInvitations();
+      logger.debug('Expired invitations cleanup run completed');
+    } catch (e) {
+      logger.warn(`Invitation cleanup error: ${e.message}`);
+    }
+  }, 60 * 60 * 1000);
+} catch (e) {
+  logger.debug('Invitation cleanup scheduler not started');
+}
 
 // Trust proxy
 app.set('trust proxy', 1);
