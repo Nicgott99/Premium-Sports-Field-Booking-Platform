@@ -269,6 +269,8 @@ app.get('/api/health/status', async (req, res) => {
 });
 
 // API v1 Routes with version prefix
+// Ensure Stripe/webhook raw body is available for webhook verification
+app.use('/api/v1/payments/webhook', express.raw({ type: '*/*', limit: '1mb' }));
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/fields', fieldRoutes);
