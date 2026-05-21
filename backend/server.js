@@ -151,8 +151,13 @@ notificationNamespace.on('connection', (socket) => {
 // Connect to MongoDB
 await connectDB();
 
-// Create database indexes
-await createIndexes();
+// Create database indexes (non-fatal)
+try {
+  await createIndexes();
+  logger.info('Database indexes created/verified');
+} catch (idxErr) {
+  logger.warn(`Database index creation failed (non-fatal): ${idxErr.message}`);
+}
 
 // Setup Firebase
 await setupFirebase();
