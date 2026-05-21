@@ -260,6 +260,16 @@ export const createPaymentIntent = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
   const { amount, currency = 'USD', bookingId } = req.body;
 
+  if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+    res.status(400);
+    throw new Error('amount must be a positive number');
+  }
+
+  if (!bookingId) {
+    res.status(400);
+    throw new Error('bookingId is required');
+  }
+
   logger.info(`Creating payment intent for user: ${userId}`);
 
   // Log audit event
