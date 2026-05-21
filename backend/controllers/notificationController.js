@@ -143,7 +143,15 @@ export const getUserNotifications = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - Notification not found
  */
 export const markAsRead = asyncHandler(async (req, res) => {
-  logger.info(`Marking notification as read: ${req.params.id}`);
+  const { id } = req.params;
+  
+  // Validate notification ID format
+  if (!id || id.length !== 24) {
+    res.status(400);
+    throw new Error('Invalid notification ID format');
+  }
+  
+  logger.info(`Marking notification as read: ${id}`);
   res.status(200).json({
     success: true,
     message: 'Notification marked as read'
@@ -178,7 +186,15 @@ export const markAllAsRead = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - Notification not found
  */
 export const deleteNotification = asyncHandler(async (req, res) => {
-  logger.info(`Deleting notification: ${req.params.id}`);
+  const { id } = req.params;
+  
+  // Validate notification ID format
+  if (!id || id.length !== 24) {
+    res.status(400);
+    throw new Error('Invalid notification ID format');
+  }
+  
+  logger.info(`Deleting notification: ${id}`);
   res.status(200).json({
     success: true,
     message: 'Notification deleted successfully'
