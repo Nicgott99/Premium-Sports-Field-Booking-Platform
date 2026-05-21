@@ -4,6 +4,9 @@ import { createInvitation, isInvitationValid, acceptInvitation, cleanupExpiredIn
 import Team from '../models/Team.js';
 import User from '../models/User.js';
 
+// Temporary in-memory invitation store for invite acceptance flow
+const invitationStore = new Map();
+
 /**
  * Team Management Controller
  * Handles team creation, membership, and team operations
