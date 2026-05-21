@@ -1,6 +1,24 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 
+// Simple HTTP send with retry/backoff for outgoing webhooks
+const sendHttpWithRetry = async (url, payload, options = {}, attempts = 3) => {
+  let lastErr = null;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await fetch(url, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options });
+      if (res.ok) return { success: true, status: res.status };
+      lastErr = new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      lastErr = err;
+    }
+    // Exponential backoff
+    await new Promise(r => setTimeout(r, Math.min(1000 * (2 ** i), 10000)));
+  }
+  logger.warn(`Webhook delivery failed after ${attempts} attempts: ${lastErr?.message}`);
+  return { success: false, error: lastErr?.message };
+};
+
 /**
  * Notification Controller - Alert and Message Management
  * Comprehensive notification operations with preferences, delivery, and analytics
@@ -261,8 +279,19 @@ export const sendPushNotification = asyncHandler(async (req, res) => {
     }
 
     // Send notification (would call Firebase Admin SDK or similar)
-    // For now, just simulate successful send
+    // For now, just simulate successful send; if webhookUrl provided try delivering
     logger.info(`Push notification sent to user ${userId}: ${type}`);
+
+    if (req.body?.webhookUrl) {
+      try {
+        const webhookPayload = { userId, type, relatedEntityId, title, message };
+        const delivered = await sendHttpWithRetry(req.body.webhookUrl, webhookPayload, {}, 3);
+        if (!delivered.success) logger.warn(`Webhook delivery failed for user ${userId}: ${delivered.error}`);
+        else logger.info(`Webhook delivered for user ${userId} to ${req.body.webhookUrl}`);
+      } catch (err) {
+        logger.warn(`Webhook send exception: ${err.message}`);
+      }
+    }
 
     res.status(200).json({
       success: true,
