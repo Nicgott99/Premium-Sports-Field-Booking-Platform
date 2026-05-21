@@ -11,6 +11,7 @@ import connectDB from './config/database.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 import { setupFirebase } from './config/firebase.js';
 import { createRedisClient, getRedisClient, getRedisHealth, pingRedis } from './config/redis.js';
+import { multerErrorHandler } from './middleware/uploadMiddleware.js';
 import mongoose from 'mongoose';
 import { createIndexes } from './models/index.js';
 import { cleanupExpiredInvitations } from './utils/invitationManager.js';
@@ -327,6 +328,8 @@ app.set('notificationNamespace', notificationNamespace);
 
 // Error Handling Middleware
 app.use(notFound);
+// Multer errors -> friendly JSON
+app.use(multerErrorHandler);
 app.use(errorHandler);
 
 // Start Server
