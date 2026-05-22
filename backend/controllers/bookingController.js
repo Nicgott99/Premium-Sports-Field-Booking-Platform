@@ -175,18 +175,23 @@ export const createBooking = asyncHandler(async (req, res) => {
   const totalAmount = baseAmount;
 
   const newBooking = await Booking.create({
-    userId,
-    fieldId,
-    fieldName: field.name,
+    user: userId,
+    field: fieldId,
+    sport: (field.sport || 'football').toLowerCase(),
     startTime,
     endTime,
     duration,
-    participants: participants || 1,
+    participants: {
+      primary: userId,
+      expectedCount: participants || 1
+    },
     status: 'pending',
-    paymentStatus: 'pending',
-    totalAmount,
-    currency: 'BDT',
-    userNotes: userNotes || ''
+    pricing: {
+      basePrice: baseAmount,
+      totalAmount,
+      currency: 'BDT'
+    },
+    notes: { user: userNotes || '' }
   });
 
   logger.info(`Booking created: ${newBooking._id} for field ${fieldId} by user ${userId}`);
