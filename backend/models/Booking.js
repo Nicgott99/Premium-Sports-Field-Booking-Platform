@@ -691,7 +691,7 @@ bookingSchema.statics.getBookingStats = function(fieldId, startDate, endDate) {
   return this.aggregate([
     {
       $match: {
-        field: mongoose.Types.ObjectId(fieldId),
+        field: new mongoose.Types.ObjectId(fieldId),
         startTime: { $gte: startDate, $lte: endDate }
       }
     },
