@@ -406,6 +406,16 @@ export const resetPassword = asyncHandler(async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
 
+  if (!password) {
+    res.status(400);
+    throw new Error('New password is required');
+  }
+
+  if (password.length < 8) {
+    res.status(400);
+    throw new Error('Password must be at least 8 characters long');
+  }
+
   // Hash token to compare with database
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
