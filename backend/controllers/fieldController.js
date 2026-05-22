@@ -160,17 +160,16 @@ import logger from '../utils/logger.js';
 export const getFields = asyncHandler(async (req, res) => {
   try {
     const {
-      page = 1,
-      limit = 12,
       sport,
       city,
       minPrice,
       maxPrice,
       minRating,
-      search,
-      sortBy = 'createdAt',
-      sortOrder = 'desc'
+      search
     } = req.query;
+
+    const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit, 10) || 12));
 
     // Sample fields data with Bangladesh-focused content
     const sampleFields = [
