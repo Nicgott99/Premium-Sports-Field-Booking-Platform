@@ -296,6 +296,17 @@ export const manageUsers = asyncHandler(async (req, res) => {
   const adminId = req.user?.id;
   const { userId, action, reason } = req.body;
 
+  if (!userId || !action) {
+    res.status(400);
+    throw new Error('userId and action are required');
+  }
+
+  const allowedActions = ['ban', 'suspend', 'verify', 'restore', 'activate', 'deactivate'];
+  if (!allowedActions.includes(action)) {
+    res.status(400);
+    throw new Error(`Invalid action. Allowed: ${allowedActions.join(', ')}`);
+  }
+
   logger.info(`Admin ${adminId} managing user ${userId} with action: ${action}`);
 
   // Log admin action
