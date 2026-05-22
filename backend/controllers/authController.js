@@ -327,6 +327,16 @@ export const changePassword = asyncHandler(async (req, res) => {
     throw new Error('Current password and new password are required');
   }
 
+  if (newPassword.length < 8) {
+    res.status(400);
+    throw new Error('New password must be at least 8 characters long');
+  }
+
+  if (newPassword === currentPassword) {
+    res.status(400);
+    throw new Error('New password must be different from the current password');
+  }
+
   const user = await User.findById(req.user.id).select('+password');
 
   if (!user) {
