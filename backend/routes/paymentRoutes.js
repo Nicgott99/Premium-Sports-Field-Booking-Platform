@@ -7,7 +7,9 @@ import {
   getSubscriptionPlans,
   subscribeToPlan,
   cancelSubscription,
-  handleWebhook
+  handleWebhook,
+  checkRefundEligibility,
+  processBookingRefund
 } from '../controllers/paymentController.js';
 
 import { protect, admin, manager, premiumUser } from '../middleware/authMiddleware.js';
@@ -208,5 +210,19 @@ router.get('/plans', getSubscriptionPlans);
  * @access Private
  */
 router.post('/refund/:paymentId', refundPayment);
+
+/**
+ * @route GET /api/payments/refund-eligibility/:bookingId
+ * @desc Check refund eligibility for a booking
+ * @access Private
+ */
+router.get('/refund-eligibility/:bookingId', checkRefundEligibility);
+
+/**
+ * @route POST /api/payments/booking-refund/:bookingId
+ * @desc Process refund for a booking
+ * @access Private
+ */
+router.post('/booking-refund/:bookingId', processBookingRefund);
 
 export default router;
