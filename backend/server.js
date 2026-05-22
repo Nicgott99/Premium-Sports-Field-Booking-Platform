@@ -207,6 +207,7 @@ const corsOrigins = new Set([
     ? process.env.CLIENT_URL.split(',').map(origin => origin.trim()).filter(Boolean)
     : []),
   'http://localhost:3000',
+  'http://localhost:5173',
   'https://cse471-sports.vercel.app'
 ]);
 
