@@ -353,6 +353,11 @@ export const changePassword = asyncHandler(async (req, res) => {
 export const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
+  if (!email) {
+    res.status(400);
+    throw new Error('Email address is required');
+  }
+
   const user = await User.findOne({ email: email.toLowerCase() });
 
   if (!user) {
