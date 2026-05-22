@@ -395,7 +395,7 @@ export const updateBooking = asyncHandler(async (req, res) => {
 // @route   DELETE /api/bookings/:id
 // @access  Private
 export const cancelBooking = asyncHandler(async (req, res) => {
-  const { bookingId } = req.params;
+  const bookingId = req.params.id;
   const userId = req.user?.id;
   const { reason = 'User requested' } = req.body;
 
