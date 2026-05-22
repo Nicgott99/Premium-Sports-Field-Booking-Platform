@@ -208,10 +208,12 @@ export const getAvailableSlots = (field, date, options = {}) => {
   while (currentTime < dayEnd) {
     const slotEnd = new Date(currentTime.getTime() + slotDurationMinutes * 60 * 1000);
 
-    // Check if slot conflicts with any booking
-    const isAvailable = !hasSlotConflict(
-      { startTime: currentTime, endTime: slotEnd },
-      bookingsForDate
+    // Check if slot conflicts with any existing booking
+    const isAvailable = !bookingsForDate.some(booking =>
+      hasSlotConflict(
+        { startTime: currentTime, endTime: slotEnd },
+        { startTime: booking.startTime, endTime: booking.endTime }
+      )
     );
 
     slots.push({
