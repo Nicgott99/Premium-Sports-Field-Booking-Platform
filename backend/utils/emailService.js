@@ -313,7 +313,7 @@ export const sendBookingConfirmationEmail = async (email, bookingDetails) => {
     logger.info(`Booking confirmation email sent to ${email}`);
     return { success: true, attempt: result.attempt };
   } catch (error) {
-    console.error('Email sending error:', error);
+    logger.error(`Booking confirmation email error for ${email}: ${error.message}`);
     return { success: false, error: error.message };
   }
 };
@@ -349,7 +349,7 @@ export const sendNotificationEmail = async (email, subject, message) => {
     logger.info(`Notification email sent to ${email}`);
     return { success: true, attempt: result.attempt };
   } catch (error) {
-    console.error('Email sending error:', error);
+    logger.error(`Notification email error for ${email}: ${error.message}`);
     return { success: false, error: error.message };
   }
 };
