@@ -123,17 +123,18 @@ import logger from '../utils/logger.js';
  * @throws {Error} 409 - User already reviewed this target
  */
 export const createReview = asyncHandler(async (req, res) => {
-  const { fieldId, rating, comment } = req.body;
+  const { fieldId, comment } = req.body;
+  const rating = Number(req.body.rating);
   const userId = req.user?.id;
-  
+
   // Validate required fields
-  if (!fieldId || !rating || !comment) {
+  if (!fieldId || !req.body.rating || !comment) {
     res.status(400);
     throw new Error('Please provide fieldId, rating, and comment');
   }
-  
-  // Validate rating range
-  if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+
+  // Validate rating range (parse to number first since body fields arrive as strings)
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     res.status(400);
     throw new Error('Rating must be an integer between 1 and 5');
   }
