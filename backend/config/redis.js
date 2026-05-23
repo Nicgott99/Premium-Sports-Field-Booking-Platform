@@ -87,6 +87,10 @@ let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 15;
 
 export const createRedisClient = async () => {
+  if (process.env.REDIS_URL === 'disabled') {
+    logger.warn('Redis disabled (REDIS_URL=disabled). Skipping connection.');
+    return null;
+  }
   try {
     redisClient = createClient({
       url: process.env.REDIS_URL || 'redis://localhost:6379',
