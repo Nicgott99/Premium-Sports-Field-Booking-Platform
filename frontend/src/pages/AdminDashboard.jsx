@@ -25,7 +25,7 @@ const AdminDashboard = () => {
     }
     
     const parsedUser = JSON.parse(userData);
-    if (!parsedUser.isAdmin) {
+    if (parsedUser.role !== 'admin') {
       alert('Access denied. Admin privileges required.');
       navigate('/');
       return;
@@ -42,16 +42,16 @@ const AdminDashboard = () => {
       
       // Load all data in parallel
       const [statsRes, fieldsRes, bookingsRes, usersRes] = await Promise.all([
-        fetch('http://localhost:5000/api/admin/stats', {
+        fetch('/api/v1/admin/stats', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:5000/api/admin/fields', {
+        fetch('/api/v1/admin/fields', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:5000/api/admin/bookings', {
+        fetch('/api/v1/admin/bookings', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:5000/api/admin/users', {
+        fetch('/api/v1/admin/users', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
   const handleFieldAction = async (fieldId, action) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/admin/fields/${fieldId}/${action}`, {
+      const response = await fetch(`/api/v1/admin/fields/${fieldId}/${action}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -107,7 +107,7 @@ const AdminDashboard = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/admin/bookings/${bookingId}/cancel`, {
+      const response = await fetch(`/api/v1/admin/bookings/${bookingId}/cancel`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
