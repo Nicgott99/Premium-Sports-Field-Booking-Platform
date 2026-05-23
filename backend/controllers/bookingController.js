@@ -226,104 +226,37 @@ export const getUserBookings = asyncHandler(async (req, res) => {
   const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
   const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
 
-  // Sample bookings data
-  const sampleBookings = [
-      {
-        id: 'booking_1',
-        fieldId: '1',
-        fieldName: 'Premium Stadium A',
-        fieldImage: 'https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800',
-        date: '2024-12-01',
-        timeSlot: '10:00 AM - 12:00 PM',
-        duration: 2,
-        participants: 11,
-        status: 'confirmed',
-        paymentStatus: 'paid',
-        totalAmount: 5000,
-        currency: 'BDT',
-        bookingReference: 'SPB202412011001',
-        createdAt: '2024-11-20T10:00:00Z',
-        field: {
-          name: 'Premium Stadium A',
-          location: 'Dhaka, Bangladesh',
-          sport: 'Football'
-        }
-      },
-      {
-        id: 'booking_2',
-        fieldId: '2',
-        fieldName: 'Elite Basketball Arena',
-        fieldImage: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800',
-        date: '2024-12-03',
-        timeSlot: '6:00 PM - 8:00 PM',
-        duration: 2,
-        participants: 8,
-        status: 'pending',
-        paymentStatus: 'pending',
-        totalAmount: 3600,
-        currency: 'BDT',
-        bookingReference: 'SPB202412031801',
-        createdAt: '2024-11-21T14:30:00Z',
-        field: {
-          name: 'Elite Basketball Arena',
-          location: 'Chittagong, Bangladesh',
-          sport: 'Basketball'
-        }
-      },
-      {
-        id: 'booking_3',
-        fieldId: '3',
-        fieldName: 'Modern Tennis Complex',
-        fieldImage: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800',
-        date: '2024-11-25',
-        timeSlot: '8:00 AM - 10:00 AM',
-        duration: 2,
-        participants: 4,
-        status: 'completed',
-        paymentStatus: 'paid',
-        totalAmount: 2400,
-        currency: 'BDT',
-        bookingReference: 'SPB202411250801',
-        createdAt: '2024-11-18T09:15:00Z',
-        field: {
-          name: 'Modern Tennis Complex',
-          location: 'Sylhet, Bangladesh',
-          sport: 'Tennis'
-        }
-      }
-    ];
+  const query = { user: req.user.id };
 
-    // Apply filters
-    let filteredBookings = sampleBookings;
+  if (status) {
+    query.status = status;
+  }
 
-    if (status) {
-      filteredBookings = filteredBookings.filter(booking => booking.status === status);
-    }
+  if (upcoming === 'true') {
+    query.startTime = { $gte: new Date() };
+  }
 
-    if (upcoming === 'true') {
-      const today = new Date();
-      filteredBookings = filteredBookings.filter(booking => new Date(booking.date) >= today);
-    }
+  const total = await Booking.countDocuments(query);
+  const bookings = await Booking.find(query)
+    .populate('field', 'name location images sport pricing')
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
 
-    // Apply pagination
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + Number(limit);
-    const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
-
-    res.json({
-      success: true,
-      message: 'User bookings retrieved successfully',
-      data: paginatedBookings,
-      count: paginatedBookings.length,
-      total: filteredBookings.length,
+  res.json({
+    success: true,
+    message: 'User bookings retrieved successfully',
+    data: {
+      bookings,
+      total,
       pagination: {
-        currentPage: Number(page),
-        totalPages: Math.ceil(filteredBookings.length / limit),
-        totalBookings: filteredBookings.length,
-        hasNextPage: endIndex < filteredBookings.length,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
         hasPrevPage: page > 1
       }
-    });
+    }
+  });
 });
 
 // @desc    Get booking by ID
