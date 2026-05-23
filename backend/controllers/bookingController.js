@@ -265,57 +265,26 @@ export const getUserBookings = asyncHandler(async (req, res) => {
 export const getBookingById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   
-  // Sample detailed booking data
-  const booking = {
-    id: id,
-      fieldId: '1',
-      fieldName: 'Premium Stadium A',
-      date: '2024-12-01',
-      timeSlot: '10:00 AM - 12:00 PM',
-      duration: 2,
-      participants: 11,
-      status: 'confirmed',
-      paymentStatus: 'paid',
-      bookingReference: 'SPB202412011001',
-      pricing: {
-        baseAmount: 5000,
-        deposit: 0,
-        totalAmount: 5000,
-        currency: 'BDT'
-      },
-      userNotes: 'Corporate team building event',
-      adminNotes: 'VIP treatment requested',
-      createdAt: '2024-11-20T10:00:00Z',
-      field: {
-        name: 'Premium Stadium A',
-        location: {
-          address: 'Gulshan Circle 1',
-          city: 'Dhaka',
-          district: 'Dhaka'
-        },
-        sport: 'Football',
-        images: ['https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800'],
-        amenities: ['Floodlights', 'Changing Rooms', 'Parking', 'Security'],
-        operatingHours: '6:00 AM - 11:00 PM',
-        surface: 'Natural Grass',
-        owner: {
-          name: 'Stadium Management',
-          phone: '+880123456789',
-          email: 'info@stadium.com'
-        }
-      },
-      user: {
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '+880987654321'
-      }
-    };
+  const booking = await Booking.findById(id)
+    .populate('field', 'name location images sport amenities pricing operatingHours surface')
+    .populate('user', 'firstName lastName email phone');
 
-    res.json({
-      success: true,
-      message: 'Booking retrieved successfully',
-      data: booking
-    });
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
+
+  // Ensure the booking belongs to the requesting user (or admin)
+  if (booking.user?._id?.toString() !== req.user.id && req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to view this booking');
+  }
+
+  res.json({
+    success: true,
+    message: 'Booking retrieved successfully',
+    data: booking
+  });
 });
 
 // @desc    Update booking
