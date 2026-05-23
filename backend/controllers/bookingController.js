@@ -370,10 +370,40 @@ export const cancelBooking = asyncHandler(async (req, res) => {
 // @route   POST /api/bookings/check-availability
 // @access  Public
 export const checkAvailability = asyncHandler(async (req, res) => {
-  res.status(200).json({
+  const { fieldId, date, timeSlot, duration } = req.body;
+
+  if (!fieldId || !date || !timeSlot || !duration) {
+    res.status(400);
+    throw new Error('fieldId, date, timeSlot, and duration are required');
+  }
+
+  const field = await Field.findById(fieldId);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
+  }
+
+  const startTime = new Date(`${date}T${timeSlot.split('-')[0].trim()}`);
+  const endTime = new Date(startTime.getTime() + Number(duration) * 60 * 60 * 1000);
+
+  const conflict = await Booking.findOne({
+    field: fieldId,
+    status: { $in: ['pending', 'confirmed'] },
+    $or: [
+      { startTime: { $lt: endTime }, endTime: { $gt: startTime } }
+    ]
+  });
+
+  res.json({
     success: true,
     message: 'Availability checked successfully',
-    data: { available: true }
+    data: {
+      available: !conflict,
+      fieldId,
+      date,
+      timeSlot,
+      duration
+    }
   });
 });
 
