@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 import Field from '../models/Field.js';
+import Booking from '../models/Booking.js';
 
 /**
  * Field Controller - Sports Facility Listing & Management
@@ -411,6 +412,61 @@ export const updateFieldAvailability = asyncHandler(async (req, res) => {
       recommendation: availability.recommendation,
       checkedAt: new Date()
     }
+  });
+});
+
+export const getFieldAvailability = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { date } = req.query;
+
+  if (!date) {
+    res.status(400);
+    throw new Error('date query parameter is required (YYYY-MM-DD)');
+  }
+
+  const field = await Field.findById(id);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
+  }
+
+  const targetDate = new Date(date);
+  const dayStart = new Date(targetDate);
+  dayStart.setHours(8, 0, 0, 0);
+  const dayEnd = new Date(targetDate);
+  dayEnd.setHours(22, 0, 0, 0);
+
+  const existingBookings = await Booking.find({
+    field: id,
+    status: { $in: ['pending', 'confirmed'] },
+    startTime: { $lt: dayEnd },
+    endTime: { $gt: dayStart }
+  }).select('startTime endTime');
+
+  const hourlyRate = field.pricing?.hourly || 2000;
+  const slotDuration = 2;
+  const slots = [];
+  let cursor = new Date(dayStart);
+
+  while (cursor < dayEnd) {
+    const slotEnd = new Date(cursor.getTime() + slotDuration * 60 * 60 * 1000);
+    const isBooked = existingBookings.some(b =>
+      cursor < new Date(b.endTime) && slotEnd > new Date(b.startTime)
+    );
+    slots.push({
+      startTime: cursor.toTimeString().slice(0, 5),
+      endTime: slotEnd.toTimeString().slice(0, 5),
+      duration: slotDuration,
+      isAvailable: !isBooked,
+      price: hourlyRate * slotDuration
+    });
+    cursor = slotEnd;
+  }
+
+  res.json({
+    success: true,
+    message: 'Field availability retrieved successfully',
+    data: { slots, date, fieldId: id }
   });
 });
 

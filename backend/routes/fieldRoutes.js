@@ -153,6 +153,7 @@ import {
   uploadFieldImages,
   deleteFieldImage,
   updateFieldAvailability,
+  getFieldAvailability,
   getFieldBookings,
   getFieldStats,
   getFieldReviews,
@@ -282,6 +283,7 @@ router.get('/:id', cache(300), getField);
  * @cache 300 seconds
  * @param id - Field ID
  */
+router.get('/:id/availability', cache(60), getFieldAvailability);
 router.get('/:id/reviews', cache(300), getFieldReviews);
 
 // Protected routes
