@@ -146,8 +146,8 @@ const WorkingAbout = () => {
                       title: 'Excellence',
                       description: 'Partnering only with premium facilities that meet our high standards'
                     }
-                  ].map((item, index) => (
-                    <div key={index} className="bg-black/20 p-6 rounded-xl">
+                  ].map((item) => (
+                    <div key={item.title} className="bg-black/20 p-6 rounded-xl">
                       <div className="text-4xl mb-4">{item.icon}</div>
                       <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
                       <p className="text-gray-300">{item.description}</p>
@@ -163,8 +163,8 @@ const WorkingAbout = () => {
             <div className="premium-card">
               <h2 className="text-4xl font-bold text-white mb-8 text-center">👥 Meet Our Team</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {teamMembers.map((member, index) => (
-                  <div key={index} className="text-center bg-black/20 p-6 rounded-xl">
+                {teamMembers.map((member) => (
+                  <div key={member.name} className="text-center bg-black/20 p-6 rounded-xl">
                     <img 
                       src={member.image} 
                       alt={member.name}
@@ -224,8 +224,8 @@ const WorkingAbout = () => {
                     title: '⚡ Speed & Efficiency',
                     description: 'We value your time and ensure our platform is fast, reliable, and easy to use.'
                   }
-                ].map((value, index) => (
-                  <div key={index} className="bg-black/20 p-6 rounded-xl">
+                ].map((value) => (
+                  <div key={value.title} className="bg-black/20 p-6 rounded-xl">
                     <h3 className="text-2xl font-bold text-white mb-4">{value.title}</h3>
                     <p className="text-gray-300 leading-relaxed">{value.description}</p>
                   </div>
@@ -239,8 +239,8 @@ const WorkingAbout = () => {
         <div className="premium-card mb-16">
           <h2 className="text-4xl font-bold text-white mb-8 text-center">📈 Our Impact</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
                 <div className="text-4xl mb-3">{stat.icon}</div>
                 <div className="text-4xl font-black premium-gradient-text mb-2">{stat.number}</div>
                 <div className="text-white font-semibold">{stat.label}</div>
@@ -258,13 +258,13 @@ const WorkingAbout = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => window.location.href = '/register'}
+              onClick={() => { globalThis.location.href = '/register'; }}
               className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-xl transition-all"
             >
               🏟️ Start Booking
             </button>
             <button
-              onClick={() => window.location.href = '/contact'}
+              onClick={() => { globalThis.location.href = '/contact'; }}
               className="px-8 py-4 bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white font-bold rounded-xl transition-all"
             >
               🤝 Partner With Us
