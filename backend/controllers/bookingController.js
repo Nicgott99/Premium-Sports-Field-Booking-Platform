@@ -132,8 +132,9 @@ export const createBooking = asyncHandler(async (req, res) => {
     throw new Error('Please provide all required booking details (fieldId, date, timeSlot, duration)');
   }
 
-  // Validate participants number
-  if (participants && (participants < 1 || !Number.isInteger(participants))) {
+  // Coerce participants to integer (req.body values arrive as strings)
+  const participantCount = participants !== undefined ? Number.parseInt(participants, 10) : undefined;
+  if (participantCount !== undefined && (!Number.isInteger(participantCount) || participantCount < 1)) {
     res.status(400);
     throw new Error('Participants must be a positive integer');
   }
@@ -147,9 +148,9 @@ export const createBooking = asyncHandler(async (req, res) => {
 
   // Validate participants against field capacity
   const maxCapacity = field.capacity || 22;
-  if ((participants || 1) > maxCapacity) {
+  if ((participantCount || 1) > maxCapacity) {
     res.status(400);
-    throw new Error(`Participants count (${participants}) exceeds field capacity (${maxCapacity})`);
+    throw new Error(`Participants count (${participantCount}) exceeds field capacity (${maxCapacity})`);
   }
 
   // Parse dates
@@ -183,7 +184,7 @@ export const createBooking = asyncHandler(async (req, res) => {
     duration,
     participants: {
       primary: userId,
-      expectedCount: participants || 1
+      expectedCount: participantCount || 1
     },
     status: 'pending',
     pricing: {
