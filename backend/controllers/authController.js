@@ -603,8 +603,40 @@ export const deleteAccount = asyncHandler(async (req, res) => {
   });
 });
 
-// Additional controller functions would be implemented here...
-// Including: linkFirebaseAccount, unlinkFirebaseAccount, twoFactorAuth, etc.
+// @desc    Submit contact form message
+// @route   POST /api/v1/auth/contact
+// @access  Public
+export const submitContactMessage = asyncHandler(async (req, res) => {
+  const { name, email, phone, subject, category, message, priority } = req.body;
+
+  if (!name || !email || !message) {
+    res.status(400);
+    throw new Error('Name, email, and message are required');
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    res.status(400);
+    throw new Error('Please provide a valid email address');
+  }
+
+  const refId = `CS-${Date.now().toString().slice(-6)}`;
+
+  logger.info(`Contact form submission: ${refId} from ${email} - ${category || 'General'} [${priority || 'normal'}]`);
+
+  res.json({
+    success: true,
+    message: 'Your message has been received. We will get back to you within 24 hours.',
+    data: {
+      referenceId: refId,
+      name,
+      email,
+      subject: subject || 'Contact Form Submission',
+      category: category || 'General Inquiry',
+      priority: priority || 'normal'
+    }
+  });
+});
 
 export default {
   registerUser,
@@ -619,5 +651,6 @@ export default {
   verifyEmail,
   resendVerification,
   refreshToken,
-  deleteAccount
+  deleteAccount,
+  submitContactMessage
 };

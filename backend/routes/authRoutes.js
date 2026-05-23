@@ -12,7 +12,8 @@ import {
   verifyEmail,
   resendVerification,
   refreshToken,
-  deleteAccount
+  deleteAccount,
+  submitContactMessage
 } from '../controllers/authController.js';
 
 import { protect, protectFirebase } from '../middleware/authMiddleware.js';
@@ -220,6 +221,8 @@ router.get('/verify-email/:token', verifyEmail);
  * @body refreshToken
  */
 router.post('/refresh-token', refreshToken);
+
+router.post('/contact', submitContactMessage);
 
 // Protected routes
 router.use(protect); // All routes after this require authentication
