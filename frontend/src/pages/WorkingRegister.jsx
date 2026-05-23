@@ -14,9 +14,11 @@ const WorkingRegister = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    setError('');
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -25,56 +27,65 @@ const WorkingRegister = () => {
 
   const validateForm = () => {
     const { firstName, lastName, email, phone, password, confirmPassword, agreeTerms } = formData;
-    
+
     if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
-      alert('Please fill in all required fields!');
+      setError('Please fill in all required fields.');
       return false;
     }
-    
+
     if (password !== confirmPassword) {
-      alert('Passwords do not match!');
+      setError('Passwords do not match.');
       return false;
     }
-    
-    if (password.length < 6) {
-      alert('Password must be at least 6 characters long!');
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
       return false;
     }
-    
+
     if (!agreeTerms) {
-      alert('Please agree to the Terms and Conditions!');
+      setError('Please agree to the Terms and Conditions.');
       return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
-    
-    setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      alert(`Account Created Successfully!\n\nWelcome ${formData.firstName} ${formData.lastName}!\nEmail: ${formData.email}\nPhone: ${formData.phone}\nNewsletter: ${formData.newsletter ? 'Subscribed' : 'Not subscribed'}\n\nThis would normally create account and send verification email.`);
-      
-      // Simulate successful registration
-      localStorage.setItem('user', JSON.stringify({
-        email: formData.email,
-        name: `${formData.firstName} ${formData.lastName}`,
-        phone: formData.phone,
-        registrationTime: new Date().toISOString()
-      }));
-      
-      // Redirect to login or dashboard
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 2000);
-      
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/v1/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('user', JSON.stringify(data.data.user));
+      globalThis.location.href = '/dashboard';
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   const getPasswordStrength = (password) => {
@@ -90,7 +101,7 @@ const WorkingRegister = () => {
   return (
     <div className="min-h-screen pt-24 px-4 premium-bg-pattern">
       <div className="max-w-2xl mx-auto">
-        
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="text-6xl mb-4">✨</div>
@@ -105,14 +116,22 @@ const WorkingRegister = () => {
         {/* Registration Form */}
         <div className="premium-card">
           <form onSubmit={handleSubmit} className="space-y-6">
-            
+
+            {/* Error Message */}
+            {error && (
+              <div className="px-4 py-3 bg-red-500/20 border border-red-500/40 rounded-xl text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+
             {/* Name Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">
+                <label htmlFor="reg-firstName" className="block text-gray-700 font-semibold mb-2">
                   👤 First Name *
                 </label>
                 <input
+                  id="reg-firstName"
                   type="text"
                   name="firstName"
                   value={formData.firstName}
@@ -124,10 +143,11 @@ const WorkingRegister = () => {
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">
+                <label htmlFor="reg-lastName" className="block text-gray-700 font-semibold mb-2">
                   👤 Last Name *
                 </label>
                 <input
+                  id="reg-lastName"
                   type="text"
                   name="lastName"
                   value={formData.lastName}
@@ -142,10 +162,11 @@ const WorkingRegister = () => {
 
             {/* Email Field */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
+              <label htmlFor="reg-email" className="block text-gray-700 font-semibold mb-2">
                 📧 Email Address *
               </label>
               <input
+                id="reg-email"
                 type="email"
                 name="email"
                 value={formData.email}
@@ -159,10 +180,11 @@ const WorkingRegister = () => {
 
             {/* Phone Field */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
+              <label htmlFor="reg-phone" className="block text-gray-700 font-semibold mb-2">
                 📱 Phone Number *
               </label>
               <input
+                id="reg-phone"
                 type="tel"
                 name="phone"
                 value={formData.phone}
@@ -176,16 +198,17 @@ const WorkingRegister = () => {
             {/* Password Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">
+                <label htmlFor="reg-password" className="block text-gray-700 font-semibold mb-2">
                   🔒 Password *
                 </label>
                 <div className="relative">
                   <input
+                    id="reg-password"
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    placeholder="Create password"
+                    placeholder="Min 8 characters"
                     className="w-full px-4 py-3 rounded-xl bg-white/70 text-gray-900 border border-blue-300 focus:border-blue-500 focus:outline-none transition-all placeholder-gray-500"
                     autoComplete="new-password"
                     required
@@ -202,7 +225,7 @@ const WorkingRegister = () => {
                 {formData.password && (
                   <div className="mt-2">
                     <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-2 rounded-full transition-all"
                         style={{ width: `${passwordStrength.strength}%` }}
                       ></div>
@@ -214,11 +237,12 @@ const WorkingRegister = () => {
                 )}
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">
+                <label htmlFor="reg-confirmPassword" className="block text-gray-700 font-semibold mb-2">
                   🔒 Confirm Password *
                 </label>
                 <div className="relative">
                   <input
+                    id="reg-confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     name="confirmPassword"
                     value={formData.confirmPassword}
@@ -239,12 +263,12 @@ const WorkingRegister = () => {
                 {/* Password Match Indicator */}
                 {formData.confirmPassword && (
                   <p className={`text-sm mt-1 ${
-                    formData.password === formData.confirmPassword 
-                      ? 'text-green-400' 
+                    formData.password === formData.confirmPassword
+                      ? 'text-green-400'
                       : 'text-red-400'
                   }`}>
-                    {formData.password === formData.confirmPassword 
-                      ? '✅ Passwords match' 
+                    {formData.password === formData.confirmPassword
+                      ? '✅ Passwords match'
                       : '❌ Passwords do not match'
                     }
                   </p>
@@ -264,26 +288,10 @@ const WorkingRegister = () => {
                   required
                 />
                 <span className="text-gray-300">
-                  I agree to the{' '}
-                  <button
-                    type="button"
-                    onClick={() => alert('Terms and Conditions would be displayed here')}
-                    className="text-purple-400 hover:text-purple-300 underline"
-                  >
-                    Terms and Conditions
-                  </button>
-                  {' '}and{' '}
-                  <button
-                    type="button"
-                    onClick={() => alert('Privacy Policy would be displayed here')}
-                    className="text-purple-400 hover:text-purple-300 underline"
-                  >
-                    Privacy Policy
-                  </button>
-                  *
+                  I agree to the Terms and Conditions and Privacy Policy *
                 </span>
               </label>
-              
+
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -319,7 +327,7 @@ const WorkingRegister = () => {
           <div className="mt-6 text-center">
             <span className="text-gray-400">Already have an account? </span>
             <button
-              onClick={() => window.location.href = '/login'}
+              onClick={() => { globalThis.location.href = '/login'; }}
               className="text-purple-400 hover:text-purple-300 font-semibold transition-colors"
             >
               Sign in here
@@ -336,8 +344,8 @@ const WorkingRegister = () => {
               { icon: '⚡', title: 'Instant Booking', desc: 'Book fields in seconds' },
               { icon: '🏆', title: 'Tournaments', desc: 'Join competitive events' },
               { icon: '📊', title: 'Analytics', desc: 'Track your progress' }
-            ].map((feature, index) => (
-              <div key={index} className="text-center p-4 bg-black/20 rounded-xl">
+            ].map((feature) => (
+              <div key={feature.title} className="text-center p-4 bg-black/20 rounded-xl">
                 <div className="text-3xl mb-2">{feature.icon}</div>
                 <h4 className="text-gray-700 font-semibold mb-1">{feature.title}</h4>
                 <p className="text-gray-400 text-sm">{feature.desc}</p>
