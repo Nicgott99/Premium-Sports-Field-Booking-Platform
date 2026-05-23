@@ -66,8 +66,8 @@ const WorkingBookings = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/v1/bookings/${bookingId}/cancel`, {
-        method: 'PUT',
+      const response = await fetch(`/api/v1/bookings/${bookingId}`, {
+        method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
