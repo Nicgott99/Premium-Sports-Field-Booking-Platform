@@ -40,7 +40,7 @@ const PremiumRegister = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -83,7 +83,7 @@ const PremiumRegister = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/verify', {
+      const response = await fetch('/api/v1/auth/verify-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

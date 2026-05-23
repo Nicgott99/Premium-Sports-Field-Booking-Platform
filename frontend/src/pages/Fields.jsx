@@ -12,7 +12,7 @@ const Fields = () => {
   const [sortBy, setSortBy] = useState('rating');
   const [viewMode, setViewMode] = useState('grid');
 
-  const API_BASE_URL = 'http://localhost:5000/api';
+  const API_BASE_URL = '/api/v1';
 
   useEffect(() => {
     fetchFields();

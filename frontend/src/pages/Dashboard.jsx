@@ -24,7 +24,7 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/bookings/my', {
+      const response = await fetch('/api/v1/bookings', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

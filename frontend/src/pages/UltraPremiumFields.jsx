@@ -20,7 +20,7 @@ const UltraPremiumFields = () => {
   const fetchFields = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/fields');
+      const response = await fetch('/api/v1/fields');
       if (response.ok) {
         const data = await response.json();
         setFields(data);
