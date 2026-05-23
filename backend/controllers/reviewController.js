@@ -1,5 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
+import Review from '../models/Review.js';
+import Field from '../models/Field.js';
 
 /**
  * Review Controller - Field Rating and Review Management
@@ -151,11 +153,31 @@ export const createReview = asyncHandler(async (req, res) => {
     throw new Error('Invalid field ID format');
   }
   
-  logger.info(`Creating review for field: ${fieldId} by user: ${userId}`);
+  const field = await Field.findById(fieldId);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
+  }
+
+  const existing = await Review.findOne({ field: fieldId, user: userId });
+  if (existing) {
+    res.status(409);
+    throw new Error('You have already reviewed this field');
+  }
+
+  const review = await Review.create({
+    field: fieldId,
+    user: userId,
+    rating,
+    title: req.body.title || comment.slice(0, 80),
+    content: comment
+  });
+
+  logger.info(`Review created: ${review._id} for field ${fieldId} by user ${userId}`);
   res.status(201).json({
     success: true,
     message: 'Review created successfully',
-    data: { id: 'placeholder-review-id' }
+    data: review
   });
 });
 
@@ -181,11 +203,36 @@ export const getFieldReviews = asyncHandler(async (req, res) => {
     throw new Error('Invalid field ID format');
   }
   
+  const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+
+  const field = await Field.findById(fieldId);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
+  }
+
+  const total = await Review.countDocuments({ field: fieldId, isApproved: true });
+  const reviews = await Review.find({ field: fieldId, isApproved: true })
+    .populate('user', 'firstName lastName')
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
   logger.info(`Fetching reviews for field: ${fieldId}`);
   res.status(200).json({
     success: true,
     message: 'Field reviews retrieved successfully',
-    data: { reviews: [] }
+    data: {
+      reviews,
+      total,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1
+      }
+    }
   });
 });
 
@@ -201,11 +248,15 @@ export const getFieldReviews = asyncHandler(async (req, res) => {
  * @throws {Error} 500 - Database error
  */
 export const getUserReviews = asyncHandler(async (req, res) => {
-  logger.info(`Fetching reviews created by user: ${req.user?.id}`);
+  const reviews = await Review.find({ user: req.user.id })
+    .populate('field', 'name sport location')
+    .sort({ createdAt: -1 });
+
+  logger.info(`Fetching reviews created by user: ${req.user.id}`);
   res.status(200).json({
     success: true,
     message: 'User reviews retrieved successfully',
-    data: { reviews: [] }
+    data: { reviews, total: reviews.length }
   });
 });
 
