@@ -1,91 +1,47 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const WorkingBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // all, upcoming, completed, cancelled
+  const [error, setError] = useState('');
+  const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
 
-  // Generate working bookings data
-  const generateBookingsData = () => {
-    return [
-      {
-        id: 1,
-        fieldName: 'Elite Champions Stadium',
-        sport: 'Football',
-        date: '2025-09-30',
-        time: '16:00 - 18:00',
-        duration: 2,
-        price: 10000,
-        status: 'confirmed',
-        location: 'Gulshan, Dhaka',
-        bookingDate: '2025-09-25',
-        contact: '+880-1711-123456'
-      },
-      {
-        id: 2,
-        fieldName: 'Thunder Basketball Arena',
-        sport: 'Basketball',
-        date: '2025-10-01',
-        time: '19:00 - 21:00',
-        duration: 2,
-        price: 6000,
-        status: 'confirmed',
-        location: 'Dhanmondi, Dhaka',
-        bookingDate: '2025-09-26',
-        contact: '+880-1711-234567'
-      },
-      {
-        id: 3,
-        fieldName: 'Royal Tennis Club',
-        sport: 'Tennis',
-        date: '2025-09-28',
-        time: '14:00 - 15:00',
-        duration: 1,
-        price: 2500,
-        status: 'completed',
-        location: 'Banani, Dhaka',
-        bookingDate: '2025-09-20',
-        contact: '+880-1711-345678'
-      },
-      {
-        id: 4,
-        fieldName: 'Aqua Sports Complex',
-        sport: 'Swimming',
-        date: '2025-10-05',
-        time: '07:00 - 08:00',
-        duration: 1,
-        price: 2000,
-        status: 'confirmed',
-        location: 'Bashundhara, Dhaka',
-        bookingDate: '2025-09-27',
-        contact: '+880-1711-678901'
-      },
-      {
-        id: 5,
-        fieldName: 'Badminton Excellence Center',
-        sport: 'Badminton',
-        date: '2025-09-25',
-        time: '18:00 - 19:00',
-        duration: 1,
-        price: 1500,
-        status: 'cancelled',
-        location: 'Uttara, Dhaka',
-        bookingDate: '2025-09-22',
-        contact: '+880-1711-567890'
-      }
-    ];
-  };
-
-  useEffect(() => {
+  const fetchBookings = useCallback(async () => {
     setLoading(true);
-    setTimeout(() => {
-      setBookings(generateBookingsData());
+    setError('');
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/v1/bookings', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.status === 401) {
+        globalThis.location.href = '/login';
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to load bookings');
+      }
+
+      setBookings(data.data?.bookings || data.data || []);
+    } catch (err) {
+      setError(err.message || 'Failed to load bookings');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   }, []);
 
-  // Working filter function
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
+
   const filteredBookings = bookings.filter(booking => {
     if (filter === 'all') return true;
     if (filter === 'upcoming') return booking.status === 'confirmed' && new Date(booking.date) >= new Date();
@@ -94,32 +50,52 @@ const WorkingBookings = () => {
     return true;
   }).sort((a, b) => {
     if (sortBy === 'date') return new Date(b.date) - new Date(a.date);
-    if (sortBy === 'price') return b.price - a.price;
-    return a.fieldName.localeCompare(b.fieldName);
+    if (sortBy === 'price') {
+      const priceA = a.pricing?.totalAmount ?? a.price ?? 0;
+      const priceB = b.pricing?.totalAmount ?? b.price ?? 0;
+      return priceB - priceA;
+    }
+    const nameA = a.field?.name ?? a.fieldName ?? '';
+    const nameB = b.field?.name ?? b.fieldName ?? '';
+    return nameA.localeCompare(nameB);
   });
 
-  // Working action functions
-  const handleCancelBooking = (booking) => {
-    if (window.confirm(`Cancel booking for ${booking.fieldName} on ${booking.date}?`)) {
-      setBookings(bookings.map(b => 
-        b.id === booking.id ? { ...b, status: 'cancelled' } : b
+  const handleCancelBooking = async (booking) => {
+    const bookingId = booking._id || booking.id;
+    if (!globalThis.confirm(`Cancel booking for ${booking.field?.name ?? booking.fieldName} on ${booking.date}?`)) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/v1/bookings/${bookingId}/cancel`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ reason: 'Cancelled by user' })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to cancel booking');
+      }
+
+      setBookings(prev => prev.map(b =>
+        (b._id || b.id) === bookingId ? { ...b, status: 'cancelled' } : b
       ));
       alert('Booking cancelled successfully!');
-    }
-  };
-
-  const handleRescheduleBooking = (booking) => {
-    const newDate = prompt(`Reschedule ${booking.fieldName} booking. Enter new date (YYYY-MM-DD):`, booking.date);
-    if (newDate && newDate !== booking.date) {
-      setBookings(bookings.map(b => 
-        b.id === booking.id ? { ...b, date: newDate } : b
-      ));
-      alert(`Booking rescheduled to ${newDate}!`);
+    } catch (err) {
+      alert(err.message || 'Failed to cancel booking. Please try again.');
     }
   };
 
   const handleViewDetails = (booking) => {
-    alert(`Booking Details:\n\nField: ${booking.fieldName}\nSport: ${booking.sport}\nDate: ${booking.date}\nTime: ${booking.time}\nDuration: ${booking.duration} hour(s)\nPrice: ৳${booking.price}\nStatus: ${booking.status.toUpperCase()}\nLocation: ${booking.location}\nContact: ${booking.contact}`);
+    const name = booking.field?.name ?? booking.fieldName ?? 'N/A';
+    const sport = booking.sport ?? 'N/A';
+    const price = booking.pricing?.totalAmount ?? booking.price ?? 'N/A';
+    const location = booking.field?.location?.address ?? booking.location ?? 'N/A';
+    alert(`Booking Details:\n\nField: ${name}\nSport: ${sport}\nDate: ${booking.date}\nStatus: ${booking.status?.toUpperCase()}\nLocation: ${location}\nPrice: ৳${price}`);
   };
 
   const getStatusColor = (status) => {
@@ -138,6 +114,19 @@ const WorkingBookings = () => {
           <div className="text-8xl mb-6 animate-bounce">📅</div>
           <h2 className="text-4xl font-bold premium-gradient-text mb-4">Loading Your Bookings...</h2>
           <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center premium-bg-pattern">
+        <div className="text-center">
+          <div className="text-8xl mb-6">⚠️</div>
+          <h2 className="text-4xl font-bold premium-gradient-text mb-4">Failed to Load Bookings</h2>
+          <p className="text-xl text-gray-300 mb-6">{error}</p>
+          <button onClick={fetchBookings} className="premium-btn">Try Again</button>
         </div>
       </div>
     );
@@ -163,8 +152,8 @@ const WorkingBookings = () => {
             { label: 'Upcoming', value: bookings.filter(b => b.status === 'confirmed').length, icon: '⏰', color: 'from-green-500 to-emerald-500' },
             { label: 'Completed', value: bookings.filter(b => b.status === 'completed').length, icon: '✅', color: 'from-purple-500 to-violet-500' },
             { label: 'Cancelled', value: bookings.filter(b => b.status === 'cancelled').length, icon: '❌', color: 'from-red-500 to-pink-500' }
-          ].map((stat, index) => (
-            <div key={index} className="premium-card text-center">
+          ].map((stat) => (
+            <div key={stat.label} className="premium-card text-center">
               <div className="text-4xl mb-2">{stat.icon}</div>
               <div className={`text-3xl font-black mb-2 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
                 {stat.value}
@@ -179,8 +168,9 @@ const WorkingBookings = () => {
           <div className="flex flex-wrap gap-4 items-center justify-between">
             <div className="flex flex-wrap gap-4">
               <div>
-                <label className="block text-white font-semibold mb-2">Filter by Status</label>
+                <label htmlFor="filter-status" className="block text-white font-semibold mb-2">Filter by Status</label>
                 <select
+                  id="filter-status"
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
                   className="px-4 py-2 rounded-lg bg-black/30 text-white border border-purple-500/30 focus:border-purple-500 focus:outline-none"
@@ -192,8 +182,9 @@ const WorkingBookings = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-white font-semibold mb-2">Sort by</label>
+                <label htmlFor="sort-by" className="block text-white font-semibold mb-2">Sort by</label>
                 <select
+                  id="sort-by"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 rounded-lg bg-black/30 text-white border border-purple-500/30 focus:border-purple-500 focus:outline-none"
@@ -213,62 +204,54 @@ const WorkingBookings = () => {
 
         {/* Bookings List */}
         <div className="space-y-6">
-          {filteredBookings.map((booking) => (
-            <div key={booking.id} className="premium-card">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                
-                {/* Booking Info */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-4 mb-4">
-                    <h3 className="text-2xl font-bold text-white">{booking.fieldName}</h3>
-                    <span className={`px-3 py-1 rounded-full text-white text-sm font-semibold ${getStatusColor(booking.status)}`}>
-                      {booking.status.toUpperCase()}
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
-                    <div>
-                      <p><strong>🏅 Sport:</strong> {booking.sport}</p>
-                      <p><strong>📅 Date:</strong> {booking.date}</p>
-                      <p><strong>🕒 Time:</strong> {booking.time}</p>
+          {filteredBookings.map((booking) => {
+            const bookingId = booking._id || booking.id;
+            const fieldName = booking.field?.name ?? booking.fieldName ?? 'Unknown Field';
+            const sport = booking.sport ?? 'N/A';
+            const price = booking.pricing?.totalAmount ?? booking.price ?? 0;
+            const location = booking.field?.location?.address ?? booking.location ?? 'N/A';
+            return (
+              <div key={bookingId} className="premium-card">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-4 mb-4">
+                      <h3 className="text-2xl font-bold text-white">{fieldName}</h3>
+                      <span className={`px-3 py-1 rounded-full text-white text-sm font-semibold ${getStatusColor(booking.status)}`}>
+                        {booking.status?.toUpperCase()}
+                      </span>
                     </div>
-                    <div>
-                      <p><strong>📍 Location:</strong> {booking.location}</p>
-                      <p><strong>⏱️ Duration:</strong> {booking.duration} hour(s)</p>
-                      <p><strong>💰 Price:</strong> ৳{booking.price}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
+                      <div>
+                        <p><strong>🏅 Sport:</strong> {sport}</p>
+                        <p><strong>📅 Date:</strong> {booking.date}</p>
+                        <p><strong>🕒 Time:</strong> {booking.startTime} - {booking.endTime}</p>
+                      </div>
+                      <div>
+                        <p><strong>📍 Location:</strong> {location}</p>
+                        <p><strong>💰 Price:</strong> ৳{price}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => handleViewDetails(booking)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-                  >
-                    View Details
-                  </button>
-                  
-                  {booking.status === 'confirmed' && (
-                    <>
-                      <button
-                        onClick={() => handleRescheduleBooking(booking)}
-                        className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-semibold transition-all"
-                      >
-                        Reschedule
-                      </button>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={() => handleViewDetails(booking)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+                    >
+                      View Details
+                    </button>
+                    {booking.status === 'confirmed' && (
                       <button
                         onClick={() => handleCancelBooking(booking)}
                         className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-all"
                       >
                         Cancel
                       </button>
-                    </>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* No Bookings */}
@@ -279,8 +262,8 @@ const WorkingBookings = () => {
             <p className="text-xl text-gray-300 mb-6">
               {filter === 'all' ? 'You have no bookings yet.' : `No ${filter} bookings found.`}
             </p>
-            <button 
-              onClick={() => window.location.href = '/fields'}
+            <button
+              onClick={() => { globalThis.location.href = '/fields'; }}
               className="premium-btn"
             >
               Book Your First Field
@@ -291,24 +274,18 @@ const WorkingBookings = () => {
         {/* Quick Actions */}
         <div className="premium-card mt-12">
           <h3 className="text-2xl font-bold text-white mb-6">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button 
-              onClick={() => window.location.href = '/fields'}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              onClick={() => { globalThis.location.href = '/fields'; }}
               className="p-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-semibold transition-all"
             >
               🏟️ Book New Field
             </button>
-            <button 
-              onClick={() => alert('Feature coming soon! This would show booking history and analytics.')}
+            <button
+              onClick={fetchBookings}
               className="p-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-xl font-semibold transition-all"
             >
-              📊 View Analytics
-            </button>
-            <button 
-              onClick={() => alert('Feature coming soon! This would show favorite fields and quick booking options.')}
-              className="p-4 bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white rounded-xl font-semibold transition-all"
-            >
-              ⭐ Favorites
+              🔄 Refresh Bookings
             </button>
           </div>
         </div>
