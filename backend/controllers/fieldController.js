@@ -239,75 +239,77 @@ export const getField = asyncHandler(async (req, res) => {
 });
 
 export const createField = asyncHandler(async (req, res) => {
-  try {
-    const fieldData = req.body;
-    
-    // Simulate field creation
-    const newField = {
-      id: 'field_' + Date.now(),
-      ...fieldData,
-      createdAt: new Date().toISOString(),
-      isActive: true,
-      rating: 0,
-      reviews: []
-    };
+  const fieldData = req.body;
 
-    res.status(201).json({
-      success: true,
-      message: 'Field created successfully',
-      data: newField
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: 'Error creating field',
-      error: error.message
-    });
+  if (!fieldData.name || !fieldData.sport) {
+    res.status(400);
+    throw new Error('Field name and sport are required');
   }
+
+  const newField = await Field.create({
+    ...fieldData,
+    owner: req.user.id,
+    isActive: true
+  });
+
+  logger.info(`Field created: ${newField._id} by user ${req.user.id}`);
+
+  res.status(201).json({
+    success: true,
+    message: 'Field created successfully',
+    data: newField
+  });
 });
 
 export const updateField = asyncHandler(async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
+  const { id } = req.params;
 
-    // Simulate field update
-    const updatedField = {
-      id: id,
-      ...updateData,
-      updatedAt: new Date().toISOString()
-    };
-
-    res.json({
-      success: true,
-      message: 'Field updated successfully',
-      data: updatedField
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: 'Error updating field',
-      error: error.message
-    });
+  const field = await Field.findById(id);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
   }
+
+  if (field.owner?.toString() !== req.user.id && req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to update this field');
+  }
+
+  const updatedField = await Field.findByIdAndUpdate(id, req.body, {
+    new: true,
+    runValidators: true
+  });
+
+  res.json({
+    success: true,
+    message: 'Field updated successfully',
+    data: updatedField
+  });
 });
 
 export const deleteField = asyncHandler(async (req, res) => {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    res.json({
-      success: true,
-      message: 'Field deleted successfully',
-      deletedId: id
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error deleting field',
-      error: error.message
-    });
+  const field = await Field.findById(id);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
   }
+
+  if (field.owner?.toString() !== req.user.id && req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to delete this field');
+  }
+
+  await Field.findByIdAndDelete(id);
+
+  logger.info(`Field deleted: ${id} by user ${req.user.id}`);
+
+  res.json({
+    success: true,
+    message: 'Field deleted successfully',
+    data: { id }
+  });
 });
 
 export const uploadFieldImages = asyncHandler(async (req, res) => {
