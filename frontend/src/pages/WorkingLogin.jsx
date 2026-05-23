@@ -8,9 +8,11 @@ const WorkingLogin = () => {
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    setError('');
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -19,41 +21,64 @@ const WorkingLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (formData.email && formData.password) {
-        alert(`Welcome back!\n\nEmail: ${formData.email}\nRemember Me: ${formData.rememberMe ? 'Yes' : 'No'}\n\nThis would normally authenticate and redirect to dashboard.`);
-        // Simulate successful login
-        localStorage.setItem('user', JSON.stringify({
+    try {
+      const response = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           email: formData.email,
-          name: formData.email.split('@')[0],
-          loginTime: new Date().toISOString()
-        }));
-        window.location.href = '/dashboard';
-      } else {
-        alert('Please fill in all fields!');
+          password: formData.password,
+          rememberMe: formData.rememberMe
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
       }
+
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('user', JSON.stringify(data.data.user));
+      globalThis.location.href = '/dashboard';
+    } catch (err) {
+      setError(err.message || 'Login failed. Please try again.');
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const email = prompt('Enter your email address to reset your password:');
+    if (!email) return;
+    try {
+      const response = await fetch('/api/v1/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await response.json();
+      alert(data.message || (response.ok ? 'Password reset email sent!' : 'Failed to send reset email.'));
+    } catch {
+      alert('Failed to send reset email. Please try again.');
+    }
   };
 
   const handleDemoLogin = () => {
     setFormData({
       email: 'demo@sportspro.com',
-      password: 'demo123',
+      password: '',
       rememberMe: false
     });
-    setTimeout(() => {
-      document.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true }));
-    }, 500);
   };
 
   return (
     <div className="min-h-screen pt-24 px-4 premium-bg-pattern flex items-center justify-center">
       <div className="max-w-md w-full">
-        
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="text-6xl mb-4">🔐</div>
@@ -68,13 +93,21 @@ const WorkingLogin = () => {
         {/* Login Form */}
         <div className="premium-card">
           <form onSubmit={handleSubmit} className="space-y-6">
-            
+
+            {/* Error Message */}
+            {error && (
+              <div className="px-4 py-3 bg-red-500/20 border border-red-500/40 rounded-xl text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+
             {/* Email Field */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
+              <label htmlFor="login-email" className="block text-gray-700 font-semibold mb-2">
                 📧 Email Address
               </label>
               <input
+                id="login-email"
                 type="email"
                 name="email"
                 value={formData.email}
@@ -88,11 +121,12 @@ const WorkingLogin = () => {
 
             {/* Password Field */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
+              <label htmlFor="login-password" className="block text-gray-700 font-semibold mb-2">
                 🔒 Password
               </label>
               <div className="relative">
                 <input
+                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={formData.password}
@@ -126,7 +160,7 @@ const WorkingLogin = () => {
               </label>
               <button
                 type="button"
-                onClick={() => alert('Password reset feature would be implemented here')}
+                onClick={handleForgotPassword}
                 className="text-blue-600 hover:text-blue-800 transition-colors"
               >
                 Forgot password?
@@ -155,7 +189,7 @@ const WorkingLogin = () => {
               onClick={handleDemoLogin}
               className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold rounded-xl transition-all duration-300"
             >
-              🎮 Try Demo Login
+              🎮 Fill Demo Email
             </button>
           </form>
 
@@ -188,7 +222,7 @@ const WorkingLogin = () => {
           <div className="mt-6 text-center">
             <span className="text-gray-400">Don't have an account? </span>
             <button
-              onClick={() => window.location.href = '/register'}
+              onClick={() => { globalThis.location.href = '/register'; }}
               className="text-purple-400 hover:text-purple-300 font-semibold transition-colors"
             >
               Sign up here
@@ -203,8 +237,8 @@ const WorkingLogin = () => {
             { icon: '⚡', text: 'Instant Booking' },
             { icon: '🏆', text: 'Tournaments' },
             { icon: '📊', text: 'Analytics' }
-          ].map((feature, index) => (
-            <div key={index} className="premium-card py-4">
+          ].map((feature) => (
+            <div key={feature.text} className="premium-card py-4">
               <div className="text-2xl mb-1">{feature.icon}</div>
               <div className="text-sm text-gray-300">{feature.text}</div>
             </div>
