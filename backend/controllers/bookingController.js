@@ -307,93 +307,60 @@ export const cancelBooking = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
   const { reason = 'User requested' } = req.body;
 
-  // Import utilities inside to prevent circular dependencies
-  const { calculateRefund } = await import('../utils/refundCalculator.js');
-  const { logBookingCancellation } = await import('../utils/auditLogger.js');
-
   if (!bookingId) {
     res.status(400);
     throw new Error('Booking ID is required');
   }
 
-  if (!userId) {
-    res.status(401);
-    throw new Error('Not authenticated');
+  const booking = await Booking.findById(bookingId);
+
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
   }
 
-  // Fetch booking (assumes Booking model exists)
-  // const booking = await Booking.findById(bookingId);
-  // For now, mock implementation:
-  const booking = {
-    _id: bookingId,
-    userId: userId,
-    startTime: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours from now
-    totalAmount: 5000,
-    status: 'confirmed'
-  };
-
-  // Verify ownership
-  if (booking.userId.toString() !== userId.toString()) {
+  if (booking.user?.toString() !== userId && req.user.role !== 'admin') {
     res.status(403);
     throw new Error('Not authorized to cancel this booking');
   }
 
-  // Check if already cancelled
   if (booking.status === 'cancelled') {
     res.status(400);
     throw new Error('Booking is already cancelled');
   }
 
-  // Calculate refund based on policy
-  const refundInfo = calculateRefund(booking.startTime, booking.totalAmount, {
-    cancellationTime: new Date(),
-    currency: booking.currency || 'BDT'
-  });
+  const totalAmount = booking.pricing?.totalAmount ?? 0;
+  const hoursUntilBooking = (new Date(booking.startTime) - new Date()) / (1000 * 60 * 60);
+  let refundPercentage = 0;
+  if (hoursUntilBooking >= 24) refundPercentage = 100;
+  else if (hoursUntilBooking >= 12) refundPercentage = 50;
+  const refundAmount = Math.round(totalAmount * refundPercentage / 100);
 
-  // Log cancellation in audit trail
-  try {
-    logBookingCancellation({
-      userId,
-      bookingId,
-      reason,
-      refundAmount: refundInfo.refundAmount,
-      ipAddress: req.ip
-    });
-  } catch (auditError) {
-    logger.warn(`Failed to log booking cancellation: ${auditError.message}`);
-  }
+  booking.status = 'cancelled';
+  booking.cancellation = { reason, cancelledAt: new Date(), cancelledBy: userId };
+  await booking.save();
 
-  // Update booking status and remove from field's bookings
-  if (booking.fieldId) {
+  if (booking.field) {
     try {
-      await Field.findByIdAndUpdate(
-        booking.fieldId,
-        {
-          $pull: { bookings: bookingId },
-          $inc: { __v: 1 }
-        }
-      );
-      logger.info(`Booking removed from field ${booking.fieldId}`);
+      await Field.findByIdAndUpdate(booking.field, { $pull: { bookings: bookingId } });
     } catch (updateErr) {
-      logger.error(`Failed to update field bookings: ${updateErr.message}`);
-      // Continue anyway, don't fail the cancellation
+      logger.error(`Failed to update field bookings on cancel: ${updateErr.message}`);
     }
   }
+
+  logger.info(`Booking ${bookingId} cancelled by user ${userId}`);
 
   res.status(200).json({
     success: true,
     message: 'Booking cancelled successfully',
     data: {
       bookingId,
-      previousStatus: booking.status,
-      newStatus: 'cancelled',
+      status: 'cancelled',
       refund: {
-        eligible: refundInfo.eligible,
-        amount: refundInfo.refundAmount,
-        percentage: refundInfo.refundPercentage,
-        policy: refundInfo.policy,
-        reason: refundInfo.reason,
-        hoursUntilBooking: refundInfo.hoursUntilBooking
+        eligible: refundAmount > 0,
+        amount: refundAmount,
+        percentage: refundPercentage,
+        hoursUntilBooking: Math.round(hoursUntilBooking)
       }
     }
   });
