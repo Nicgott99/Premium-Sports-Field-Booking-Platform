@@ -28,10 +28,10 @@ const PremiumBooking = () => {
 
   const loadFields = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/fields');
+      const response = await fetch('/api/v1/fields?limit=50');
       const data = await response.json();
       if (data.success) {
-        setFields(data.fields);
+        setFields(data.data?.fields ?? data.data ?? []);
       }
     } catch (error) {
       console.error('Error loading fields:', error);
@@ -41,14 +41,12 @@ const PremiumBooking = () => {
   const loadUserBookings = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/bookings/my', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await fetch('/api/v1/bookings', {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
       if (data.success) {
-        setUserBookings(data.bookings);
+        setUserBookings(data.data?.bookings ?? data.data ?? []);
       }
     } catch (error) {
       console.error('Error loading bookings:', error);
@@ -58,10 +56,10 @@ const PremiumBooking = () => {
   const loadTimeSlots = async (fieldId, date) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/fields/${fieldId}/slots/${date}`);
+      const response = await fetch(`/api/v1/fields/${fieldId}/availability?date=${date}`);
       const data = await response.json();
       if (data.success) {
-        setAvailableSlots(data.slots);
+        setAvailableSlots(data.data?.slots ?? data.data ?? []);
       }
     } catch (error) {
       console.error('Error loading time slots:', error);
@@ -102,7 +100,7 @@ const PremiumBooking = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/bookings', {
+      const response = await fetch('/api/v1/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,8 +109,8 @@ const PremiumBooking = () => {
         body: JSON.stringify({
           fieldId: selectedField._id,
           date: selectedDate,
-          startTime: selectedSlot.startTime,
-          endTime: selectedSlot.endTime
+          timeSlot: `${selectedSlot.startTime}-${selectedSlot.endTime}`,
+          duration: selectedSlot.duration || 1
         })
       });
 
