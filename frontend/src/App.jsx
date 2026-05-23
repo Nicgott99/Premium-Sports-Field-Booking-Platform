@@ -8,6 +8,12 @@ import PremiumLogin from './pages/PremiumLogin';
 import PremiumBooking from './pages/PremiumBooking';
 import AddField from './pages/AddField';
 import AdminDashboard from './pages/AdminDashboard';
+import WorkingFields from './pages/WorkingFields';
+import FieldDetails from './pages/FieldDetails';
+import WorkingBookings from './pages/WorkingBookings';
+import Profile from './pages/Profile';
+import WorkingContact from './pages/WorkingContact';
+import WorkingAbout from './pages/WorkingAbout';
 
 const App = () => {
   return (
@@ -27,6 +33,12 @@ const App = () => {
             <Route path="/booking" element={<PremiumBooking />} />
             <Route path="/add-field" element={<AddField />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/fields" element={<WorkingFields />} />
+            <Route path="/fields/:id" element={<FieldDetails />} />
+            <Route path="/bookings" element={<WorkingBookings />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/contact" element={<WorkingContact />} />
+            <Route path="/about" element={<WorkingAbout />} />
           </Routes>
         </Layout>
       </Router>
