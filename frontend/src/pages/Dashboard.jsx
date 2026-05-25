@@ -47,11 +47,14 @@ const Dashboard = () => {
   const completedCount = bookings.filter(b => b.status === 'completed').length;
   const totalSpent     = bookings.reduce((s, b) => s + (b.pricing?.totalAmount || 0), 0);
 
+  const isOwner = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'fieldOwner';
+
   const QUICK = [
     { icon: '🏟️', label: 'Browse Fields',  sub: 'Find and book a venue',      path: '/fields',    grad: 'linear-gradient(135deg,#7c3aed,#6d28d9)' },
     { icon: '📅', label: 'My Bookings',    sub: 'View all reservations',       path: '/bookings',  grad: 'linear-gradient(135deg,#0891b2,#0e7490)' },
     { icon: '👤', label: 'My Profile',     sub: 'Update account details',      path: '/profile',   grad: 'linear-gradient(135deg,#059669,#047857)' },
     { icon: '📞', label: 'Contact Support', sub: 'Get help from our team',     path: '/contact',   grad: 'linear-gradient(135deg,#d97706,#b45309)' },
+    ...(isOwner ? [{ icon: '➕', label: 'Add Field', sub: 'List a new sports venue', path: '/add-field', grad: 'linear-gradient(135deg,#ec4899,#be185d)' }] : []),
   ];
 
   return (
