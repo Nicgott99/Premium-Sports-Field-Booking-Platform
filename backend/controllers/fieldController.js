@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 import Field from '../models/Field.js';
 import Booking from '../models/Booking.js';
+import Review from '../models/Review.js';
 
 /**
  * Field Controller - Sports Facility Listing & Management
@@ -365,7 +366,38 @@ export const getFieldStats = asyncHandler(async (req, res) => {
 });
 
 export const getFieldReviews = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get field reviews endpoint', data: [] });
+  const { id } = req.params;
+  const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+
+  const field = await Field.findById(id);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
+  }
+
+  const total = await Review.countDocuments({ field: id, isApproved: true });
+  const reviews = await Review.find({ field: id, isApproved: true })
+    .populate('user', 'firstName lastName')
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .select('-__v');
+
+  res.json({
+    success: true,
+    message: 'Reviews retrieved successfully',
+    data: {
+      reviews,
+      total,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    },
+  });
 });
 
 export const updateFieldAvailability = asyncHandler(async (req, res) => {
