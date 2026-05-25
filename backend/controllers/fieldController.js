@@ -358,11 +358,83 @@ export const deleteFieldImage = asyncHandler(async (req, res) => {
 });
 
 export const getFieldBookings = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get field bookings endpoint', data: [] });
+  const { id } = req.params;
+  const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+
+  const field = await Field.findById(id);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
+  }
+
+  if (field.owner?.toString() !== req.user.id && req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to view field bookings');
+  }
+
+  const total = await Booking.countDocuments({ field: id });
+  const bookings = await Booking.find({ field: id })
+    .populate('user', 'firstName lastName email phone')
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .select('-__v');
+
+  res.json({
+    success: true,
+    message: 'Field bookings retrieved successfully',
+    data: {
+      bookings,
+      total,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    },
+  });
 });
 
 export const getFieldStats = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get field stats endpoint', data: {} });
+  const { id } = req.params;
+
+  const field = await Field.findById(id);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
+  }
+
+  if (field.owner?.toString() !== req.user.id && req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to view field stats');
+  }
+
+  const [totalBookings, confirmedBookings, totalReviews, revenueAgg] = await Promise.all([
+    Booking.countDocuments({ field: id }),
+    Booking.countDocuments({ field: id, status: 'confirmed' }),
+    Review.countDocuments({ field: id, isApproved: true }),
+    Booking.aggregate([
+      { $match: { field: field._id, status: { $in: ['confirmed', 'completed'] } } },
+      { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+    ]),
+  ]);
+
+  const totalRevenue = revenueAgg[0]?.total ?? 0;
+
+  res.json({
+    success: true,
+    message: 'Field stats retrieved successfully',
+    data: {
+      totalBookings,
+      confirmedBookings,
+      totalReviews,
+      totalRevenue,
+      averageRating: field.rating?.average ?? 0,
+      ratingCount: field.rating?.count ?? 0,
+    },
+  });
 });
 
 export const getFieldReviews = asyncHandler(async (req, res) => {
