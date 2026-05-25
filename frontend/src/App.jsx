@@ -17,7 +17,7 @@ import WorkingAbout from './pages/WorkingAbout';
 
 const App = () => {
   return (
-    <div className="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#0f0c29,#1a1040,#0f0c29)' }}>
       <Router
         future={{
           v7_startTransition: true,
