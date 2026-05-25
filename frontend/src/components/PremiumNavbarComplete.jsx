@@ -27,15 +27,15 @@ const PremiumNavbar = () => {
       setUser(token && raw ? JSON.parse(raw) : null);
     };
     load();
-    window.addEventListener('storage', load);
-    return () => window.removeEventListener('storage', load);
+    globalThis.addEventListener('storage', load);
+    return () => globalThis.removeEventListener('storage', load);
   }, [location]);
 
   /* ── Scroll ─── */
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 12);
-    window.addEventListener('scroll', h, { passive: true });
-    return () => window.removeEventListener('scroll', h);
+    const h = () => setScrolled(globalThis.scrollY > 12);
+    globalThis.addEventListener('scroll', h, { passive: true });
+    return () => globalThis.removeEventListener('scroll', h);
   }, []);
 
   /* ── Close user menu on outside click ─── */
@@ -97,7 +97,7 @@ const PremiumNavbar = () => {
           </Link>
 
           {/* ── Desktop nav ─── */}
-          <div style={{ display:'flex', alignItems:'center', gap:'0.25rem', display: 'none' }} className="desktop-nav">
+          <div style={{ alignItems:'center', gap:'0.25rem' }} className="desktop-nav">
             {NAV_LINKS.map(l => (
               <Link key={l.path} to={l.path} style={{
                 textDecoration:'none',
@@ -109,10 +109,19 @@ const PremiumNavbar = () => {
                 background: isActive(l.path) ? 'rgba(124,58,237,0.18)' : 'transparent',
                 transition:'all 200ms',
               }}
-              onMouseEnter={e => { if (!isActive(l.path)) { e.target.style.color='#e2e8f0'; e.target.style.background='rgba(255,255,255,0.06)'; }}}
-              onMouseLeave={e => { if (!isActive(l.path)) { e.target.style.color='#94a3b8'; e.target.style.background='transparent'; }}}
+              onMouseEnter={e => { if (!isActive(l.path)) { e.currentTarget.style.color='#e2e8f0'; e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}}
+              onMouseLeave={e => { if (!isActive(l.path)) { e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.background='transparent'; }}}
               >{l.label}</Link>
             ))}
+            {(user?.role === 'admin' || user?.role === 'manager' || user?.role === 'fieldOwner') && (
+              <Link to="/add-field" style={{
+                textDecoration:'none', padding:'0.45rem 0.85rem', borderRadius:'8px',
+                fontSize:'0.88rem', fontWeight:700,
+                color: isActive('/add-field') ? '#34d399' : '#94a3b8',
+                background: isActive('/add-field') ? 'rgba(52,211,153,0.12)' : 'transparent',
+                transition:'all 200ms',
+              }}>+ Add Field</Link>
+            )}
             {user?.role === 'admin' && (
               <Link to="/admin" style={{
                 textDecoration:'none', padding:'0.45rem 0.85rem', borderRadius:'8px',
@@ -276,6 +285,9 @@ const PremiumNavbar = () => {
               transition:'all 200ms',
             }}>{l.label}</Link>
           ))}
+          {(user?.role === 'admin' || user?.role === 'manager' || user?.role === 'fieldOwner') && (
+            <Link to="/add-field" style={{ textDecoration:'none', display:'block', padding:'0.75rem 1rem', borderRadius:'10px', fontSize:'0.95rem', fontWeight:700, color:'#34d399' }}>+ Add Field</Link>
+          )}
           {user?.role === 'admin' && (
             <Link to="/admin" style={{ textDecoration:'none', display:'block', padding:'0.75rem 1rem', borderRadius:'10px', fontSize:'0.95rem', fontWeight:700, color:'#fbbf24' }}>👑 Admin</Link>
           )}
@@ -301,8 +313,13 @@ const PremiumNavbar = () => {
       </div>
 
       <style>{`
+        .desktop-nav { display:none; }
         @media(min-width:1024px) {
           .desktop-nav { display:flex !important; }
+        }
+        @keyframes fade-up {
+          from { opacity:0; transform:translateY(6px); }
+          to   { opacity:1; transform:translateY(0);   }
         }
       `}</style>
     </nav>
