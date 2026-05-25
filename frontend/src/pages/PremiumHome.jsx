@@ -1,219 +1,315 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
+/* ── Animated counter hook ─────────────────────────────────── */
+function useCounter(target, duration = 1800) {
+  const [val, setVal] = useState(0);
+  const ref = useRef(null);
+  useEffect(() => {
+    const observer = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      observer.disconnect();
+      let start = null;
+      const step = (ts) => {
+        if (!start) start = ts;
+        const p = Math.min((ts - start) / duration, 1);
+        setVal(Math.floor(p * target));
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }, { threshold: 0.3 });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target, duration]);
+  return [val, ref];
+}
+
+/* ── Data ─────────────────────────────────────────────────── */
+const STATS = [
+  { value: 500,  suffix: '+', label: 'Premium Fields',  color: '#a78bfa', icon: '🏟️' },
+  { value: 12,   suffix: 'K+',label: 'Active Players',  color: '#67e8f9', icon: '👥' },
+  { value: 98,   suffix: '%', label: 'Satisfaction',    color: '#6ee7b7', icon: '⭐' },
+  { value: 24,   suffix: '/7', label: 'Support',        color: '#fcd34d', icon: '🛎️' },
+];
+
+const SPORTS = [
+  { name:'Football',   emoji:'⚽', color:'#22c55e', bg:'rgba(34,197,94,0.12)',   border:'rgba(34,197,94,0.25)'   },
+  { name:'Cricket',    emoji:'🏏', color:'#f59e0b', bg:'rgba(245,158,11,0.12)',  border:'rgba(245,158,11,0.25)'  },
+  { name:'Basketball', emoji:'🏀', color:'#f97316', bg:'rgba(249,115,22,0.12)',  border:'rgba(249,115,22,0.25)'  },
+  { name:'Tennis',     emoji:'🎾', color:'#a3e635', bg:'rgba(163,230,53,0.12)',  border:'rgba(163,230,53,0.25)'  },
+  { name:'Badminton',  emoji:'🏸', color:'#38bdf8', bg:'rgba(56,189,248,0.12)',  border:'rgba(56,189,248,0.25)'  },
+  { name:'Volleyball', emoji:'🏐', color:'#c084fc', bg:'rgba(192,132,252,0.12)', border:'rgba(192,132,252,0.25)' },
+];
+
+const FEATURES = [
+  { icon:'⚡', title:'Instant Booking',    desc:'Reserve any field in under 60 seconds. Real-time availability, zero waiting.', color:'#7c3aed', bg:'rgba(124,58,237,0.12)' },
+  { icon:'🔒', title:'Secure Payments',   desc:'Bank-grade encryption on all transactions. Your money is always protected.', color:'#06b6d4', bg:'rgba(6,182,212,0.12)'   },
+  { icon:'📱', title:'Mobile First',      desc:'Full-featured experience on any device. Book from anywhere, anytime.',         color:'#ec4899', bg:'rgba(236,72,153,0.12)'  },
+  { icon:'⭐', title:'Verified Venues',   desc:'Every field is inspected and approved. We guarantee premium quality.',         color:'#f59e0b', bg:'rgba(245,158,11,0.12)' },
+  { icon:'🎯', title:'Smart Scheduling', desc:'AI-assisted time slot suggestions based on your preferences and history.',      color:'#10b981', bg:'rgba(16,185,129,0.12)' },
+  { icon:'🏆', title:'Loyalty Rewards',  desc:'Earn points with every booking. Redeem for free sessions and exclusive perks.', color:'#f87171', bg:'rgba(248,113,113,0.12)' },
+];
+
+const HOW = [
+  { step:'01', title:'Create Account', desc:'Sign up in seconds with email verification for maximum security.', icon:'👤' },
+  { step:'02', title:'Find Your Field', desc:'Browse premium venues by sport, location, date and price range.', icon:'🔍' },
+  { step:'03', title:'Pick a Time Slot', desc:'Choose from available 2-hour slots, 8AM to midnight, every day.', icon:'📅' },
+  { step:'04', title:'Play & Enjoy',    desc:'Show up, scan your QR code, and elevate your game!', icon:'🏆' },
+];
+
+/* ── Stat card with animated counter ─── */
+function StatCard({ value, suffix, label, color, icon }) {
+  const [count, ref] = useCounter(value);
+  return (
+    <div ref={ref} className="card" style={{ textAlign:'center', padding:'2rem 1rem' }}>
+      <div style={{ fontSize:'2rem', marginBottom:'0.5rem' }}>{icon}</div>
+      <div style={{ fontSize:'2.8rem', fontWeight:900, lineHeight:1, color, marginBottom:'0.4rem' }}>
+        {count}{suffix}
+      </div>
+      <div style={{ fontSize:'0.82rem', color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.06em' }}>{label}</div>
+    </div>
+  );
+}
+StatCard.propTypes = {
+  value:  PropTypes.number.isRequired,
+  suffix: PropTypes.string.isRequired,
+  label:  PropTypes.string.isRequired,
+  color:  PropTypes.string.isRequired,
+  icon:   PropTypes.string.isRequired,
+};
+
+/* ── Main component ────────────────────────────────────────── */
 const PremiumHome = () => {
   const navigate = useNavigate();
+  const [heroVisible, setHeroVisible] = useState(false);
 
-  const handleBookingClick = () => {
-    navigate('/booking');
-  };
-
-  const handleAddFieldClick = () => {
-    navigate('/add-field');
-  };
-
-  const handleRegisterClick = () => {
-    navigate('/register');
-  };
-
-  const handleLoginClick = () => {
-    navigate('/login');
-  };
+  useEffect(() => {
+    const t = setTimeout(() => setHeroVisible(true), 80);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
-      {/* Hero Section */}
-      <div className="pt-24 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
-            Premium Sports
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              {" "}Platform
-            </span>
+    <div className="pg-bg" style={{ minHeight:'100vh' }}>
+
+      {/* ═══════════════════════════════════════════════════════
+          HERO
+      ═══════════════════════════════════════════════════════ */}
+      <section style={{
+        minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center',
+        padding:'7rem 1.5rem 4rem', textAlign:'center', position:'relative', overflow:'hidden',
+      }}>
+        {/* Background orbs */}
+        <div style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
+          <div style={{ position:'absolute', top:'-10%', left:'-10%', width:'60vw', height:'60vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(124,58,237,0.2),transparent 70%)', filter:'blur(80px)' }} />
+          <div style={{ position:'absolute', bottom:'-5%', right:'-10%', width:'50vw', height:'50vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(236,72,153,0.18),transparent 70%)', filter:'blur(80px)' }} />
+          <div style={{ position:'absolute', top:'40%', left:'50%', transform:'translate(-50%,-50%)', width:'40vw', height:'40vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(59,130,246,0.1),transparent 70%)', filter:'blur(60px)' }} />
+        </div>
+
+        <div style={{
+          maxWidth:'860px', margin:'0 auto', position:'relative',
+          opacity: heroVisible ? 1 : 0,
+          transform: heroVisible ? 'none' : 'translateY(30px)',
+          transition:'opacity .7s ease, transform .7s ease',
+        }}>
+          {/* Tag */}
+          <div style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', padding:'0.4rem 1.1rem', background:'rgba(124,58,237,0.14)', border:'1px solid rgba(124,58,237,0.35)', borderRadius:'9999px', color:'#c084fc', fontSize:'0.78rem', fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:'1.5rem' }}>
+            <span>✦</span> Bangladesh's #1 Sports Booking Platform
+          </div>
+
+          {/* Headline */}
+          <h1 style={{
+            fontSize:'clamp(3rem,7vw,6rem)',
+            fontWeight:900, lineHeight:1.05, letterSpacing:'-0.03em',
+            color:'#f1f5f9', marginBottom:'1.5rem',
+          }}>
+            Book Premium{' '}
+            <span style={{
+              background:'linear-gradient(135deg,#a78bfa 0%,#f9a8d4 50%,#67e8f9 100%)',
+              WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent',
+              backgroundSize:'200% 200%',
+              animation:'gradient-shift 4s ease infinite',
+            }}>Sports Fields</span>
+            <br />Like Never Before
           </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
-            Book premium sports fields with advanced time slot system, connect with players, and elevate your game in our state-of-the-art facilities
+
+          <p style={{ fontSize:'clamp(1rem,2.5vw,1.25rem)', color:'#94a3b8', lineHeight:1.7, maxWidth:'56ch', margin:'0 auto 2.5rem' }}>
+            Discover, book, and enjoy 500+ premium sports facilities across Bangladesh. Real-time availability, instant confirmation, zero hassle.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <button 
-              onClick={handleBookingClick}
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-2xl"
-            >
-              🏟️ Book a Field
+
+          {/* CTAs */}
+          <div style={{ display:'flex', flexWrap:'wrap', gap:'1rem', justifyContent:'center', marginBottom:'3rem' }}>
+            <button className="btn-primary btn-xl" onClick={() => navigate('/fields')}>
+              🏟️ Browse Fields
             </button>
-            <button 
-              onClick={handleAddFieldClick}
-              className="px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-2xl"
-            >
-              ➕ Add Your Field
+            <button className="btn-ghost btn-xl" onClick={() => navigate('/register')}>
+              Get Started Free →
             </button>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={handleRegisterClick}
-              className="px-6 py-3 bg-white/10 backdrop-blur-sm text-white font-bold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300"
-            >
-              🚀 Sign Up Now
-            </button>
-            <button 
-              onClick={handleLoginClick}
-              className="px-6 py-3 bg-white/10 backdrop-blur-sm text-white font-bold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300"
-            >
-              🔑 Login
-            </button>
+          {/* Trust bar */}
+          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:'2rem', color:'#64748b', fontSize:'0.82rem', fontWeight:600 }}>
+            {['✅ Free to join','⚡ Instant booking','🔒 Secure payments','📱 Mobile ready'].map(t => (
+              <span key={t}>{t}</span>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Premium Features Banner */}
-      <div className="px-4 py-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30">
-            <div className="text-center">
-              <h2 className="text-3xl font-black text-white mb-4">🎯 Premium Features</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-white">
-                <div className="flex items-center justify-center space-x-2">
-                  <span className="text-2xl">📧</span>
-                  <span className="font-bold">Email & Phone Verification</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <span className="text-2xl">⏰</span>
-                  <span className="font-bold">2-Hour Time Slots (8AM-12AM)</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <span className="text-2xl">👑</span>
-                  <span className="font-bold">Admin Approval System</span>
-                </div>
+      {/* ═══════════════════════════════════════════════════════
+          SPORTS CATEGORIES
+      ═══════════════════════════════════════════════════════ */}
+      <section style={{ padding:'4rem 1.5rem' }}>
+        <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:'3rem' }}>
+            <div className="section-tag">🏅 Sports We Cover</div>
+            <h2 className="section-heading">Your Sport, Your Court</h2>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))', gap:'1rem' }}>
+            {SPORTS.map(s => (
+              <button key={s.name} onClick={() => navigate(`/fields?sport=${s.name.toLowerCase()}`)} style={{
+                display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+                gap:'0.75rem', padding:'1.75rem 1rem',
+                background: s.bg, border:`1px solid ${s.border}`,
+                borderRadius:'16px', cursor:'pointer',
+                transition:'transform 200ms, box-shadow 200ms',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow=`0 12px 30px ${s.bg}`; }}
+              onMouseLeave={e => { e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; }}
+              >
+                <span style={{ fontSize:'2.5rem' }}>{s.emoji}</span>
+                <span style={{ fontWeight:700, color: s.color, fontSize:'0.9rem' }}>{s.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          STATS
+      ═══════════════════════════════════════════════════════ */}
+      <section style={{ padding:'4rem 1.5rem' }}>
+        <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:'1.25rem' }}>
+            {STATS.map(s => <StatCard key={s.label} {...s} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          FEATURES
+      ═══════════════════════════════════════════════════════ */}
+      <section style={{ padding:'5rem 1.5rem' }}>
+        <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:'3.5rem' }}>
+            <div className="section-tag">💎 Platform Features</div>
+            <h2 className="section-heading">Everything You Need</h2>
+            <p className="section-sub" style={{ margin:'1rem auto 0' }}>Built with cutting-edge technology to give you the smoothest sports booking experience in Bangladesh.</p>
+          </div>
+          <div className="auto-grid-3">
+            {FEATURES.map(f => (
+              <div key={f.title} className="card feature-hover-card" style={{
+                '--feat-color': f.color,
+                display:'flex', flexDirection:'column', gap:'1rem',
+                transition:'transform 250ms, border-color 250ms, box-shadow 250ms',
+              }}>
+                <div style={{ width:'48px', height:'48px', borderRadius:'12px', background:f.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.5rem' }}>{f.icon}</div>
+                <h3 style={{ fontWeight:800, fontSize:'1.05rem', color:'#f1f5f9', margin:0 }}>{f.title}</h3>
+                <p style={{ color:'#64748b', fontSize:'0.88rem', lineHeight:1.6, margin:0 }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          HOW IT WORKS
+      ═══════════════════════════════════════════════════════ */}
+      <section style={{ padding:'5rem 1.5rem' }}>
+        <div style={{ maxWidth:'70rem', margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:'3.5rem' }}>
+            <div className="section-tag">🚀 Simple Process</div>
+            <h2 className="section-heading">Book in 4 Easy Steps</h2>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:'1.5rem' }}>
+            {HOW.map((h, i) => (
+              <div key={h.step} className="card" style={{ position:'relative', overflow:'hidden' }}>
+                {/* Step number watermark */}
+                <div style={{
+                  position:'absolute', top:'-0.5rem', right:'1rem',
+                  fontSize:'5rem', fontWeight:900, color:'rgba(124,58,237,0.07)',
+                  lineHeight:1, pointerEvents:'none', userSelect:'none',
+                }}>{h.step}</div>
+
+                <div style={{ fontSize:'2rem', marginBottom:'1rem' }}>{h.icon}</div>
+                <div style={{ fontSize:'0.72rem', fontWeight:700, color:'#7c3aed', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'0.5rem' }}>Step {h.step}</div>
+                <h3 style={{ fontWeight:800, fontSize:'1.1rem', color:'#f1f5f9', marginBottom:'0.5rem' }}>{h.title}</h3>
+                <p style={{ color:'#64748b', fontSize:'0.88rem', lineHeight:1.6, margin:0 }}>{h.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          CTA
+      ═══════════════════════════════════════════════════════ */}
+      <section style={{ padding:'5rem 1.5rem' }}>
+        <div style={{ maxWidth:'60rem', margin:'0 auto' }}>
+          <div style={{
+            background:'linear-gradient(135deg,rgba(124,58,237,0.2),rgba(236,72,153,0.15))',
+            border:'1px solid rgba(124,58,237,0.3)',
+            borderRadius:'24px', padding:'4rem 2.5rem',
+            textAlign:'center', position:'relative', overflow:'hidden',
+          }}>
+            <div style={{ position:'absolute', top:'-30%', left:'-10%', width:'60%', height:'120%', background:'radial-gradient(circle,rgba(124,58,237,0.15),transparent 70%)', filter:'blur(40px)', pointerEvents:'none' }} />
+            <div style={{ position:'relative' }}>
+              <div style={{ fontSize:'3rem', marginBottom:'1rem' }}>🏆</div>
+              <h2 style={{ fontSize:'clamp(1.8rem,4vw,3rem)', fontWeight:900, color:'#f1f5f9', marginBottom:'1rem', letterSpacing:'-0.02em' }}>
+                Ready to Elevate Your Game?
+              </h2>
+              <p style={{ color:'#94a3b8', fontSize:'1.05rem', lineHeight:1.7, marginBottom:'2.5rem', maxWidth:'48ch', margin:'0 auto 2.5rem' }}>
+                Join 12,000+ athletes who trust Premium Sports for their bookings. Sign up free today.
+              </p>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:'1rem', justifyContent:'center' }}>
+                <button className="btn-primary btn-xl" onClick={() => navigate('/register')}>
+                  ✨ Start for Free
+                </button>
+                <button className="btn-ghost btn-xl" onClick={() => navigate('/fields')}>
+                  Browse Fields
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Stats Section */}
-      <div className="px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="text-center bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-              <div className="text-4xl font-black text-blue-400 mb-2">500+</div>
-              <div className="text-gray-300">Premium Fields</div>
-            </div>
-            <div className="text-center bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-              <div className="text-4xl font-black text-purple-400 mb-2">10K+</div>
-              <div className="text-gray-300">Active Players</div>
-            </div>
-            <div className="text-center bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-              <div className="text-4xl font-black text-green-400 mb-2">16Hrs</div>
-              <div className="text-gray-300">Daily Availability</div>
-            </div>
-            <div className="text-center bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-              <div className="text-4xl font-black text-yellow-400 mb-2">99%</div>
-              <div className="text-gray-300">Satisfaction</div>
-            </div>
+      {/* ── Footer ─── */}
+      <footer style={{ padding:'3rem 1.5rem', borderTop:'1px solid rgba(255,255,255,0.06)', textAlign:'center' }}>
+        <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
+          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:'2rem', marginBottom:'2rem' }}>
+            {[['Home','/'],['Fields','/fields'],['Book Now','/booking'],['About','/about'],['Contact','/contact']].map(([l,p]) => (
+              <Link key={p} to={p} style={{ textDecoration:'none', color:'#475569', fontSize:'0.88rem', fontWeight:600, transition:'color 200ms' }}
+              onMouseEnter={e=>e.target.style.color='#94a3b8'}
+              onMouseLeave={e=>e.target.style.color='#475569'}
+              >{l}</Link>
+            ))}
           </div>
+          <p style={{ color:'#334155', fontSize:'0.82rem' }}>© 2025 Premium Sports Platform · Built with ❤️ in Bangladesh</p>
         </div>
-      </div>
+      </footer>
 
-      {/* How It Works Section */}
-      <div className="px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-white mb-4">How It Works</h2>
-            <p className="text-xl text-gray-300">Simple steps to book your perfect field</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4">1</div>
-              <h3 className="text-xl font-bold text-white mb-2">Sign Up</h3>
-              <p className="text-gray-300">Create your account with email verification</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4">2</div>
-              <h3 className="text-xl font-bold text-white mb-2">Browse Fields</h3>
-              <p className="text-gray-300">Explore our premium approved sports facilities</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-pink-600 to-red-600 rounded-full flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4">3</div>
-              <h3 className="text-xl font-bold text-white mb-2">Select Time</h3>
-              <p className="text-gray-300">Choose your preferred 2-hour time slot</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-green-600 rounded-full flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4">4</div>
-              <h3 className="text-xl font-bold text-white mb-2">Book & Play</h3>
-              <p className="text-gray-300">Instant confirmation and enjoy your game</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Features Section */}
-      <div className="px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-white mb-4">Why Choose Our Platform?</h2>
-            <p className="text-xl text-gray-300">Experience the best in sports facility booking</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-black/30 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-blue-500/50 transition-all">
-              <div className="text-4xl mb-4">🏆</div>
-              <h3 className="text-2xl font-bold text-white mb-4">Premium Fields</h3>
-              <p className="text-gray-300">State-of-the-art facilities with professional-grade equipment and admin-approved quality standards</p>
-            </div>
-            
-            <div className="bg-black/30 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-purple-500/50 transition-all">
-              <div className="text-4xl mb-4">⚡</div>
-              <h3 className="text-2xl font-bold text-white mb-4">Smart Booking</h3>
-              <p className="text-gray-300">Advanced 2-hour slot system with real-time availability, automatic verification, and instant confirmations</p>
-            </div>
-            
-            <div className="bg-black/30 backdrop-blur-xl rounded-2xl p-8 border border-white/10 hover:border-green-500/50 transition-all">
-              <div className="text-4xl mb-4">🛡️</div>
-              <h3 className="text-2xl font-bold text-white mb-4">Secure Platform</h3>
-              <p className="text-gray-300">Email/phone uniqueness, verification codes, admin oversight, and secure user authentication system</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Admin Section */}
-      <div className="px-4 py-16">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 backdrop-blur-xl rounded-3xl p-8 border border-purple-500/30 text-center">
-            <h2 className="text-3xl font-black text-white mb-4">🔐 Admin Access</h2>
-            <p className="text-gray-300 mb-6">
-              Admin users get access to advanced dashboard for field approval, booking management, and user oversight
-            </p>
-            <div className="bg-black/30 rounded-2xl p-4 border border-white/10">
-              <p className="text-purple-300 font-bold mb-2">Admin Credentials:</p>
-              <p className="text-white">📧 hasibullah.khan.alvie@g.bracu.ac.bd</p>
-              <p className="text-white">🔑 admin1234</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Call to Action */}
-      <div className="px-4 py-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-xl rounded-3xl p-12 border border-blue-500/30">
-            <h2 className="text-4xl font-black text-white mb-4">Ready to Get Started?</h2>
-            <p className="text-xl text-gray-300 mb-8">Join thousands of athletes using our premium platform</p>
-            <button 
-              onClick={handleRegisterClick}
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-2xl"
-            >
-              🚀 Start Your Journey
-            </button>
-          </div>
-        </div>
-      </div>
+      <style>{`
+        @keyframes gradient-shift {
+          0%,100% { background-position:0% 50%; }
+          50%      { background-position:100% 50%; }
+        }
+        .feature-hover-card:hover {
+          transform: translateY(-4px);
+          border-color: color-mix(in srgb, var(--feat-color) 33%, transparent) !important;
+          box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 30px color-mix(in srgb, var(--feat-color) 13%, transparent) !important;
+        }
+      `}</style>
     </div>
   );
 };
