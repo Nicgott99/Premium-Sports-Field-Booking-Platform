@@ -212,6 +212,113 @@ PasswordForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
+/* ── MyFieldsTab ── */
+function MyFieldsTab({ authFetch, navigate }) {
+  const [fields,  setFields]  = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errMsg,  setErrMsg]  = useState('');
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res  = await authFetch('/api/v1/fields/owner/fields');
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setFields(data.data?.fields || []);
+        } else {
+          setErrMsg(data.message || 'Failed to load fields');
+        }
+      } catch {
+        setErrMsg('Failed to load your fields');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [authFetch]);
+
+  const STATUS_COLOR = {
+    active:   { bg: 'rgba(16,185,129,0.15)',  color: '#6ee7b7', border: 'rgba(16,185,129,0.3)'  },
+    inactive: { bg: 'rgba(100,116,139,0.15)', color: '#94a3b8', border: 'rgba(100,116,139,0.3)' },
+    pending:  { bg: 'rgba(245,158,11,0.15)',  color: '#fcd34d', border: 'rgba(245,158,11,0.3)'  },
+  };
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '3rem' }}>
+        <div className="spinner" style={{ width: '36px', height: '36px', margin: '0 auto 1rem' }} />
+        <p style={{ color: '#64748b' }}>Loading your fields…</p>
+      </div>
+    );
+  }
+
+  if (errMsg) {
+    return (
+      <div style={{ textAlign: 'center', padding: '3rem' }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚠️</div>
+        <p style={{ color: '#f87171', fontWeight: 700 }}>{errMsg}</p>
+      </div>
+    );
+  }
+
+  if (fields.length === 0) {
+    return (
+      <div style={{ textAlign: 'center', padding: '3rem' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏟️</div>
+        <h3 style={{ color: '#f1f5f9', fontWeight: 800, marginBottom: '0.5rem' }}>No Fields Yet</h3>
+        <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>You haven&apos;t listed any sports fields yet.</p>
+        <button onClick={() => navigate('/add-field')} className="btn-primary">
+          ➕ Add Your First Field
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+        <h3 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '1rem', margin: 0 }}>
+          🏟️ My Fields ({fields.length})
+        </h3>
+        <button onClick={() => navigate('/add-field')} className="btn-primary" style={{ padding: '0.45rem 1rem', fontSize: '0.83rem' }}>
+          ➕ Add Field
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {fields.map(f => {
+          const st    = STATUS_COLOR[f.status] || STATUS_COLOR.pending;
+          const sport = Array.isArray(f.sports) ? f.sports[0] : (f.sport || 'N/A');
+          return (
+            <div key={f._id} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '140px' }}>
+                <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '0.95rem', marginBottom: '0.2rem' }}>{f.name}</div>
+                <div style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'capitalize' }}>{sport} · {f.location?.city || 'N/A'}</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <span style={{ background: st.bg, color: st.color, border: `1px solid ${st.border}`, borderRadius: '9999px', padding: '0.2rem 0.65rem', fontSize: '0.74rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                  {f.status || 'pending'}
+                </span>
+                <span style={{ color: '#6ee7b7', fontWeight: 800, fontSize: '0.88rem' }}>
+                  ৳{(f.pricing?.hourly || 0).toLocaleString()}/hr
+                </span>
+                <button onClick={() => navigate(`/fields/${f._id}`)}
+                  style={{ background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.35)', color: '#a78bfa', borderRadius: '8px', padding: '0.3rem 0.7rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>
+                  View →
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+MyFieldsTab.propTypes = {
+  authFetch: PropTypes.func.isRequired,
+  navigate:  PropTypes.func.isRequired,
+};
+
 /* ── Profile ── */
 const Profile = () => {
   const navigate = useNavigate();
@@ -330,6 +437,7 @@ const Profile = () => {
     );
   }
 
+  const isOwner      = user.role === 'admin' || user.role === 'manager' || user.role === 'fieldOwner';
   const displayName  = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.email;
   const verifiedBg   = user.isVerified ? 'rgba(16,185,129,0.18)' : 'rgba(245,158,11,0.18)';
   const verifiedClr  = user.isVerified ? '#6ee7b7'               : '#fbbf24';
@@ -386,9 +494,10 @@ const Profile = () => {
 
           {/* Main Panel */}
           <div className="card" style={{ padding: '1.75rem' }}>
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.75rem', flexWrap: 'wrap' }}>
               <button onClick={() => setTab('info')}     style={tabStyle(tab === 'info')}>Profile Info</button>
               <button onClick={() => setTab('password')} style={tabStyle(tab === 'password')}>Change Password</button>
+              {isOwner && <button onClick={() => setTab('myFields')} style={tabStyle(tab === 'myFields')}>My Fields</button>}
             </div>
 
             {tab === 'info' && (
@@ -398,6 +507,9 @@ const Profile = () => {
             )}
             {tab === 'password' && (
               <PasswordForm pwForm={pwForm} saving={pwSaving} onChange={handlePwChange} onSubmit={handlePasswordSave} />
+            )}
+            {tab === 'myFields' && (
+              <MyFieldsTab authFetch={authFetch} navigate={navigate} />
             )}
           </div>
         </div>
