@@ -575,23 +575,138 @@ export const getFieldAvailability = asyncHandler(async (req, res) => {
 });
 
 export const searchFields = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Search fields endpoint', data: [] });
+  const { q, sport, city, minPrice, maxPrice } = req.query;
+  const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 12));
+
+  const query = { isActive: { $ne: false } };
+
+  if (q) {
+    query.$or = [
+      { name: { $regex: q, $options: 'i' } },
+      { description: { $regex: q, $options: 'i' } },
+      { sports: { $elemMatch: { $regex: q, $options: 'i' } } },
+      { 'location.city': { $regex: q, $options: 'i' } },
+      { 'location.address': { $regex: q, $options: 'i' } },
+    ];
+  }
+  if (sport) query.sports = { $elemMatch: { $regex: sport, $options: 'i' } };
+  if (city) query['location.city'] = { $regex: city, $options: 'i' };
+  if (minPrice) query['pricing.hourly'] = { ...query['pricing.hourly'], $gte: Number(minPrice) };
+  if (maxPrice) query['pricing.hourly'] = { ...query['pricing.hourly'], $lte: Number(maxPrice) };
+
+  const total = await Field.countDocuments(query);
+  const fields = await Field.find(query)
+    .select('-__v')
+    .sort({ 'rating.average': -1, createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  res.json({
+    success: true,
+    message: 'Search results retrieved successfully',
+    data: {
+      fields,
+      total,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    },
+  });
 });
 
 export const getNearbyFields = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get nearby fields endpoint', data: [] });
+  const { lat, lng, radius = 10 } = req.query;
+
+  const query = { isActive: { $ne: false } };
+
+  if (lat && lng) {
+    query['location.coordinates'] = {
+      $near: {
+        $geometry: { type: 'Point', coordinates: [Number(lng), Number(lat)] },
+        $maxDistance: Number(radius) * 1000,
+      },
+    };
+  }
+
+  const fields = await Field.find(query).select('-__v').limit(20);
+
+  res.json({
+    success: true,
+    message: 'Nearby fields retrieved successfully',
+    data: { fields, total: fields.length },
+  });
 });
 
 export const getFeaturedFields = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get featured fields endpoint', data: [] });
+  const limit = Math.min(20, Math.max(1, Number.parseInt(req.query.limit, 10) || 6));
+
+  const fields = await Field.find({ isActive: { $ne: false } })
+    .select('-__v')
+    .sort({ 'rating.average': -1, 'rating.count': -1 })
+    .limit(limit);
+
+  res.json({
+    success: true,
+    message: 'Featured fields retrieved successfully',
+    data: { fields },
+  });
 });
 
 export const getTopRatedFields = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get top rated fields endpoint', data: [] });
+  const limit = Math.min(20, Math.max(1, Number.parseInt(req.query.limit, 10) || 6));
+  const minRatings = Number.parseInt(req.query.minRatings, 10) || 1;
+
+  const fields = await Field.find({
+    isActive: { $ne: false },
+    'rating.count': { $gte: minRatings },
+  })
+    .select('-__v')
+    .sort({ 'rating.average': -1 })
+    .limit(limit);
+
+  res.json({
+    success: true,
+    message: 'Top rated fields retrieved successfully',
+    data: { fields },
+  });
 });
 
 export const getFieldsByOwner = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get fields by owner endpoint', data: [] });
+  const ownerId = req.params.ownerId || req.user.id;
+
+  if (ownerId !== req.user.id && req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to view these fields');
+  }
+
+  const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 12));
+
+  const total = await Field.countDocuments({ owner: ownerId });
+  const fields = await Field.find({ owner: ownerId })
+    .select('-__v')
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  res.json({
+    success: true,
+    message: 'Owner fields retrieved successfully',
+    data: {
+      fields,
+      total,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    },
+  });
 });
 
 export const toggleFieldStatus = asyncHandler(async (req, res) => {
