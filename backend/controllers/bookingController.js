@@ -292,10 +292,44 @@ export const getBookingById = asyncHandler(async (req, res) => {
 // @route   PUT /api/bookings/:id
 // @access  Private
 export const updateBooking = asyncHandler(async (req, res) => {
-  res.status(200).json({
+  const { id } = req.params;
+
+  const booking = await Booking.findById(id);
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
+
+  if (booking.user?.toString() !== req.user.id && req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to update this booking');
+  }
+
+  if (booking.status === 'cancelled' || booking.status === 'completed') {
+    res.status(400);
+    throw new Error(`Cannot update a ${booking.status} booking`);
+  }
+
+  const allowedFields = ['userNotes', 'participants'];
+  const updates = {};
+  allowedFields.forEach(field => {
+    if (req.body[field] !== undefined) updates[field] = req.body[field];
+  });
+
+  if (req.user.role === 'admin') {
+    if (req.body.status !== undefined) updates.status = req.body.status;
+    if (req.body.adminNotes !== undefined) updates.adminNotes = req.body.adminNotes;
+  }
+
+  const updatedBooking = await Booking.findByIdAndUpdate(id, updates, {
+    new: true,
+    runValidators: true,
+  }).populate('field', 'name location pricing');
+
+  res.json({
     success: true,
     message: 'Booking updated successfully',
-    data: { booking: { id: req.params.id } }
+    data: updatedBooking,
   });
 });
 
