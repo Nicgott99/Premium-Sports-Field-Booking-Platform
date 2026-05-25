@@ -16,42 +16,44 @@ import {
   submitContactMessage
 } from '../controllers/authController.js';
 
-import { protect, protectFirebase } from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/authMiddleware.js';
 import { validateRegister, validateLogin, validatePasswordChange } from '../middleware/validationMiddleware.js';
 
 const router = express.Router();
 
-// Rate limiters for sensitive endpoints
+const isDev = process.env.NODE_ENV !== 'production';
+
+// Rate limiters — relaxed in development so testing isn't blocked
 const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // 5 requests per hour
-  message: 'Too many registration attempts, please try again after an hour',
+  windowMs: 60 * 60 * 1000,
+  max: isDev ? 200 : 5,
+  message: { success: false, message: 'Too many registration attempts, please try again after an hour' },
   standardHeaders: true,
   legacyHeaders: false
 });
 
 const loginLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // 10 requests per hour
-  message: 'Too many login attempts, please try again after an hour',
+  windowMs: 60 * 60 * 1000,
+  max: isDev ? 500 : 10,
+  message: { success: false, message: 'Too many login attempts, please try again after an hour' },
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => req.method !== 'POST'
 });
 
 const passwordResetLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // 3 requests per hour per IP
-  message: 'Too many password reset attempts, please try again after an hour',
+  windowMs: 60 * 60 * 1000,
+  max: isDev ? 100 : 3,
+  message: { success: false, message: 'Too many password reset attempts, please try again after an hour' },
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => req.method !== 'POST'
 });
 
 const resendVerificationLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // 5 requests per hour
-  message: 'Too many verification email requests, please try again after an hour',
+  windowMs: 60 * 60 * 1000,
+  max: isDev ? 100 : 5,
+  message: { success: false, message: 'Too many verification email requests, please try again after an hour' },
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => req.method !== 'POST'
