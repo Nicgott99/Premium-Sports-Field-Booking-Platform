@@ -79,15 +79,114 @@ StatCard.propTypes = {
   icon:   PropTypes.string.isRequired,
 };
 
+/* ── FeaturedFieldCard ─────────────────────────────────────── */
+function FeaturedFieldCard({ field, navigate }) {
+  const img   = field.images?.[0]?.url;
+  const sport = Array.isArray(field.sports) ? field.sports[0] : (field.sport || '');
+  const city  = field.location?.city || '';
+  const price = field.pricing?.hourly || 0;
+  const avg   = field.rating?.average || 0;
+
+  return (
+    <div className="card featured-field-card" style={{ overflow: 'hidden', padding: 0 }}>
+      <div style={{ height: '175px', overflow: 'hidden', position: 'relative', background: 'linear-gradient(135deg,rgba(124,58,237,0.3),rgba(236,72,153,0.2))' }}>
+        {img
+          ? <img src={img} alt={field.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}>🏟️</div>
+        }
+        <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', background: 'rgba(0,0,0,0.62)', borderRadius: '9999px', padding: '0.2rem 0.6rem', fontSize: '0.74rem', fontWeight: 700, color: '#fcd34d' }}>
+          ⭐ {avg > 0 ? avg.toFixed(1) : 'New'}
+        </div>
+      </div>
+      <div style={{ padding: '1.25rem' }}>
+        <h3 style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '0.98rem', margin: '0 0 0.3rem' }}>{field.name}</h3>
+        <div style={{ color: '#64748b', fontSize: '0.81rem', marginBottom: '0.85rem', textTransform: 'capitalize' }}>
+          {sport}{city ? ` · ${city}` : ''}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <span style={{ color: '#6ee7b7', fontWeight: 800, fontSize: '1.05rem' }}>৳{price.toLocaleString()}</span>
+            <span style={{ color: '#64748b', fontSize: '0.78rem' }}>/hr</span>
+          </div>
+          <button onClick={() => navigate(`/fields/${field._id}`)} className="btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.82rem' }}>
+            Book Now
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+FeaturedFieldCard.propTypes = {
+  field: PropTypes.shape({
+    _id:      PropTypes.string.isRequired,
+    name:     PropTypes.string.isRequired,
+    images:   PropTypes.arrayOf(PropTypes.shape({ url: PropTypes.string })),
+    sports:   PropTypes.arrayOf(PropTypes.string),
+    sport:    PropTypes.string,
+    location: PropTypes.shape({ city: PropTypes.string }),
+    pricing:  PropTypes.shape({ hourly: PropTypes.number }),
+    rating:   PropTypes.shape({ average: PropTypes.number }),
+  }).isRequired,
+  navigate: PropTypes.func.isRequired,
+};
+
 /* ── Main component ────────────────────────────────────────── */
 const PremiumHome = () => {
   const navigate = useNavigate();
-  const [heroVisible, setHeroVisible] = useState(false);
+  const [heroVisible,     setHeroVisible]     = useState(false);
+  const [featuredFields,  setFeaturedFields]  = useState([]);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
 
   useEffect(() => {
     const t = setTimeout(() => setHeroVisible(true), 80);
     return () => clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    async function loadFeatured() {
+      try {
+        const res  = await fetch('/api/v1/fields/featured?limit=6');
+        const data = await res.json();
+        if (res.ok && data.success) setFeaturedFields(data.data?.fields || []);
+      } catch { /* silent */ }
+      finally { setFeaturedLoading(false); }
+    }
+    loadFeatured();
+  }, []);
+
+  const SKELETON_KEYS = ['sk1', 'sk2', 'sk3'];
+
+  const renderFeatured = () => {
+    if (featuredLoading) {
+      return (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: '1.25rem' }}>
+          {SKELETON_KEYS.map(k => (
+            <div key={k} className="card" style={{ overflow: 'hidden', padding: 0 }}>
+              <div style={{ height: '175px', background: 'rgba(255,255,255,0.04)' }} />
+              <div style={{ padding: '1.25rem' }}>
+                <div style={{ height: '14px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', marginBottom: '0.5rem', width: '70%' }} />
+                <div style={{ height: '12px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px', width: '50%' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    if (featuredFields.length > 0) {
+      return (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: '1.25rem' }}>
+          {featuredFields.map(f => <FeaturedFieldCard key={f._id} field={f} navigate={navigate} />)}
+        </div>
+      );
+    }
+    return (
+      <div style={{ textAlign: 'center', padding: '3rem' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏟️</div>
+        <p style={{ color: '#64748b', marginBottom: '1.25rem' }}>Featured fields coming soon.</p>
+        <button className="btn-primary" onClick={() => navigate('/fields')}>Browse All Fields</button>
+      </div>
+    );
+  };
 
   return (
     <div className="pg-bg" style={{ minHeight:'100vh' }}>
@@ -193,6 +292,22 @@ const PremiumHome = () => {
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:'1.25rem' }}>
             {STATS.map(s => <StatCard key={s.label} {...s} />)}
           </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          FEATURED FIELDS
+      ═══════════════════════════════════════════════════════ */}
+      <section style={{ padding: '5rem 1.5rem' }}>
+        <div style={{ maxWidth: '82rem', margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '3rem' }}>
+            <div>
+              <div className="section-tag">⭐ Top Venues</div>
+              <h2 className="section-heading">Featured Fields</h2>
+            </div>
+            <button className="btn-ghost" onClick={() => navigate('/fields')}>View All Fields →</button>
+          </div>
+          {renderFeatured()}
         </div>
       </section>
 
@@ -308,6 +423,13 @@ const PremiumHome = () => {
           transform: translateY(-4px);
           border-color: color-mix(in srgb, var(--feat-color) 33%, transparent) !important;
           box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 30px color-mix(in srgb, var(--feat-color) 13%, transparent) !important;
+        }
+        .featured-field-card {
+          transition: transform 250ms, box-shadow 250ms;
+        }
+        .featured-field-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 16px 40px rgba(0,0,0,0.45) !important;
         }
       `}</style>
     </div>
