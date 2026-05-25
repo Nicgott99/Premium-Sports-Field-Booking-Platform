@@ -1,110 +1,318 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
+/* ── Password helpers ── */
+const hasLen     = pw => pw.length >= 8;
+const hasLower   = pw => /[a-z]/.test(pw);
+const hasUpper   = pw => /[A-Z]/.test(pw);
+const hasNum     = pw => /\d/.test(pw);
+const hasSpecial = pw => /[@$!%*?&]/.test(pw);
+const PW_REQS = [
+  { fn: hasLen,     label: '8+ characters' },
+  { fn: hasLower,   label: 'Lowercase (a-z)' },
+  { fn: hasUpper,   label: 'Uppercase (A-Z)' },
+  { fn: hasNum,     label: 'Number (0-9)' },
+  { fn: hasSpecial, label: 'Special (@$!%*?&)' },
+];
+
+function pwStrength(pw) {
+  if (!pw) return { pct: 0, label: '', color: '#334155' };
+  const passed = PW_REQS.filter(r => r.fn(pw)).length;
+  if (passed <= 1) return { pct: 20,  label: 'Weak',       color: '#ef4444' };
+  if (passed === 2) return { pct: 40, label: 'Fair',       color: '#f59e0b' };
+  if (passed === 3) return { pct: 60, label: 'Good',       color: '#3b82f6' };
+  if (passed === 4) return { pct: 80, label: 'Strong',     color: '#8b5cf6' };
+  return               { pct: 100,   label: 'Very Strong', color: '#10b981' };
+}
+
+/* ── Toast ── */
+function ToastBar({ toasts, onRemove }) {
+  if (toasts.length === 0) return null;
+  return (
+    <div style={{ position: 'fixed', top: '5.5rem', right: '1.25rem', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '0.6rem', maxWidth: '340px' }}>
+      {toasts.map(t => {
+        const bg  = t.type === 'error' ? 'rgba(239,68,68,0.12)'   : 'rgba(16,185,129,0.12)';
+        const bdr = t.type === 'error' ? 'rgba(239,68,68,0.35)'   : 'rgba(16,185,129,0.35)';
+        const clr = t.type === 'error' ? '#f87171'                 : '#6ee7b7';
+        return (
+          <div key={t.id} style={{ background: bg, border: `1px solid ${bdr}`, borderRadius: '10px', padding: '0.7rem 1rem', color: clr, fontSize: '0.88rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', backdropFilter: 'blur(12px)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+            <span>{t.msg}</span>
+            <button onClick={() => onRemove(t.id)} style={{ background: 'none', border: 'none', color: clr, cursor: 'pointer', fontSize: '1rem', lineHeight: 1 }}>✕</button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+ToastBar.propTypes = {
+  toasts:   PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.number, msg: PropTypes.string, type: PropTypes.string })).isRequired,
+  onRemove: PropTypes.func.isRequired,
+};
+
+/* ── InfoRow ── */
+function InfoRow({ label, value }) {
+  if (!value) return null;
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '0.65rem', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: '0.65rem' }}>
+      <span style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>{label}</span>
+      <span style={{ color: '#e2e8f0', fontSize: '0.88rem', fontWeight: 600, textAlign: 'right', maxWidth: '220px', wordBreak: 'break-word', textTransform: 'capitalize' }}>{value}</span>
+    </div>
+  );
+}
+InfoRow.propTypes  = { label: PropTypes.string.isRequired, value: PropTypes.string };
+InfoRow.defaultProps = { value: '' };
+
+/* ── ProfileDisplay ── */
+function ProfileDisplay({ user }) {
+  const dob = user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : '';
+  const since = user.createdAt  ? new Date(user.createdAt).toLocaleDateString()  : '';
+  return (
+    <div>
+      <h3 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '1rem', marginBottom: '1.25rem' }}>📋 Profile Information</h3>
+      <InfoRow label="First Name"    value={user.firstName} />
+      <InfoRow label="Last Name"     value={user.lastName} />
+      <InfoRow label="Email"         value={user.email} />
+      <InfoRow label="Phone"         value={user.phone} />
+      <InfoRow label="Bio"           value={user.bio} />
+      <InfoRow label="Gender"        value={user.gender} />
+      <InfoRow label="Date of Birth" value={dob} />
+      <InfoRow label="Member Since"  value={since} />
+    </div>
+  );
+}
+ProfileDisplay.propTypes = {
+  user: PropTypes.shape({
+    firstName: PropTypes.string, lastName: PropTypes.string, email: PropTypes.string,
+    phone: PropTypes.string, bio: PropTypes.string, gender: PropTypes.string,
+    dateOfBirth: PropTypes.string, createdAt: PropTypes.string,
+  }).isRequired,
+};
+
+/* ── ProfileEditForm ── */
+function ProfileEditForm({ form, saving, onChange, onSubmit }) {
+  return (
+    <form onSubmit={onSubmit}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+        <div>
+          <label htmlFor="prof-fn" className="field-label">First Name</label>
+          <input id="prof-fn" type="text" name="firstName" value={form.firstName} onChange={onChange} className="input-field" />
+        </div>
+        <div>
+          <label htmlFor="prof-ln" className="field-label">Last Name</label>
+          <input id="prof-ln" type="text" name="lastName" value={form.lastName} onChange={onChange} className="input-field" />
+        </div>
+      </div>
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="prof-phone" className="field-label">Phone</label>
+        <input id="prof-phone" type="tel" name="phone" value={form.phone} onChange={onChange} className="input-field" placeholder="01XXXXXXXXX" />
+      </div>
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="prof-bio" className="field-label">Bio</label>
+        <textarea id="prof-bio" name="bio" value={form.bio} onChange={onChange} rows={3} className="input-field" style={{ resize: 'vertical' }} />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div>
+          <label htmlFor="prof-gender" className="field-label">Gender</label>
+          <select id="prof-gender" name="gender" value={form.gender} onChange={onChange} className="input-field">
+            <option value="">Prefer not to say</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="prof-dob" className="field-label">Date of Birth</label>
+          <input id="prof-dob" type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={onChange} className="input-field" />
+        </div>
+      </div>
+      <button type="submit" disabled={saving} className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+        {saving ? 'Saving…' : '💾 Save Changes'}
+      </button>
+    </form>
+  );
+}
+ProfileEditForm.propTypes = {
+  form: PropTypes.shape({ firstName: PropTypes.string, lastName: PropTypes.string, phone: PropTypes.string, bio: PropTypes.string, gender: PropTypes.string, dateOfBirth: PropTypes.string }).isRequired,
+  saving:   PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+};
+
+/* ── PwReqRow ── */
+function PwReqRow({ label, met }) {
+  const clr    = met ? '#6ee7b7' : '#64748b';
+  const mrkClr = met ? '#6ee7b7' : '#475569';
+  const mrk    = met ? '✓' : '○';
+  return (
+    <div style={{ fontSize: '0.72rem', color: clr, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+      <span style={{ color: mrkClr }}>{mrk}</span>
+      {label}
+    </div>
+  );
+}
+PwReqRow.propTypes = { label: PropTypes.string.isRequired, met: PropTypes.bool.isRequired };
+
+/* ── PasswordForm ── */
+function PasswordForm({ pwForm, saving, onChange, onSubmit }) {
+  const [showPw, setShowPw] = useState(false);
+  const strength = pwStrength(pwForm.newPassword);
+  const pwAllMet = PW_REQS.every(r => r.fn(pwForm.newPassword));
+  const matchClr = pwForm.newPassword === pwForm.confirmPw ? '#10b981' : '#ef4444';
+  const matchMsg = pwForm.newPassword === pwForm.confirmPw ? '✅ Passwords match' : '❌ Passwords do not match';
+
+  return (
+    <form onSubmit={onSubmit}>
+      <h3 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '1rem', marginBottom: '1.25rem' }}>🔒 Change Password</h3>
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="pw-current" className="field-label">Current Password</label>
+        <input id="pw-current" type="password" name="currentPassword" value={pwForm.currentPassword} onChange={onChange} className="input-field" placeholder="Enter current password" autoComplete="current-password" required />
+      </div>
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="pw-new" className="field-label">New Password</label>
+        <div style={{ position: 'relative' }}>
+          <input id="pw-new" type={showPw ? 'text' : 'password'} name="newPassword" value={pwForm.newPassword} onChange={onChange} className="input-field" placeholder="e.g. MyPass@123" autoComplete="new-password" style={{ paddingRight: '3rem' }} required />
+          <button type="button" onClick={() => setShowPw(v => !v)}
+            style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '1rem' }}>
+            {showPw ? '🙈' : '👁️'}
+          </button>
+        </div>
+        {pwForm.newPassword && (
+          <div style={{ marginTop: '0.6rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              <div style={{ flex: 1, height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '9999px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${strength.pct}%`, background: strength.color, borderRadius: '9999px', transition: 'width 300ms,background 300ms' }} />
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: strength.color, minWidth: '5rem' }}>{strength.label}</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem' }}>
+              {PW_REQS.map(r => <PwReqRow key={r.label} label={r.label} met={r.fn(pwForm.newPassword)} />)}
+            </div>
+          </div>
+        )}
+      </div>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <label htmlFor="pw-confirm" className="field-label">Confirm New Password</label>
+        <input id="pw-confirm" type="password" name="confirmPw" value={pwForm.confirmPw} onChange={onChange} className="input-field" placeholder="Re-enter new password" autoComplete="new-password" required />
+        {pwForm.confirmPw && (
+          <p style={{ fontSize: '0.8rem', marginTop: '0.3rem', color: matchClr }}>{matchMsg}</p>
+        )}
+      </div>
+      <button type="submit" disabled={saving || pwAllMet === false} className="btn-primary"
+        style={{ width: '100%', justifyContent: 'center', opacity: pwAllMet ? 1 : 0.6 }}>
+        {saving ? 'Changing Password…' : '🔒 Change Password'}
+      </button>
+    </form>
+  );
+}
+PasswordForm.propTypes = {
+  pwForm: PropTypes.shape({ currentPassword: PropTypes.string, newPassword: PropTypes.string, confirmPw: PropTypes.string }).isRequired,
+  saving:   PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+};
+
+/* ── Profile ── */
 const Profile = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    bio: '',
-    gender: '',
-    dateOfBirth: ''
-  });
+  const navigate = useNavigate();
+  const [user,     setUser]     = useState(null);
+  const [loading,  setLoading]  = useState(true);
+  const [editing,  setEditing]  = useState(false);
+  const [tab,      setTab]      = useState('info');
+  const [toasts,   setToasts]   = useState([]);
+  const [saving,   setSaving]   = useState(false);
+  const [pwSaving, setPwSaving] = useState(false);
+  const [form,   setForm]   = useState({ firstName: '', lastName: '', phone: '', bio: '', gender: '', dateOfBirth: '' });
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPw: '' });
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      globalThis.location.href = '/login';
-      return;
-    }
-
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch('/api/v1/auth/profile', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (response.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          globalThis.location.href = '/login';
-          return;
-        }
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Failed to load profile');
-
-        const userData = data.data?.user ?? data.data;
-        setUser(userData);
-        setFormData({
-          firstName: userData.firstName ?? '',
-          lastName: userData.lastName ?? '',
-          phone: userData.phone ?? '',
-          bio: userData.bio ?? '',
-          gender: userData.gender ?? '',
-          dateOfBirth: userData.dateOfBirth ? userData.dateOfBirth.split('T')[0] : ''
-        });
-      } catch (err) {
-        setError(err.message || 'Failed to load profile');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
+  const removeToast = useCallback(id => {
+    setToasts(prev => prev.filter(x => x.id !== id));
   }, []);
 
-  const handleInputChange = (e) => {
+  const toast = useCallback((msg, type = 'success') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, msg, type }]);
+    setTimeout(() => removeToast(id), 3800);
+  }, [removeToast]);
+
+  const authFetch = useCallback((url, opts = {}) => {
+    const token = localStorage.getItem('token');
+    return fetch(url, { ...opts, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...opts.headers } });
+  }, []);
+
+  const fetchProfile = useCallback(async () => {
+    try {
+      const res  = await authFetch('/api/v1/auth/profile');
+      if (res.status === 401) { navigate('/login'); return; }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to load profile');
+      const u = data.data?.user ?? data.data;
+      setUser(u);
+      setForm({ firstName: u.firstName ?? '', lastName: u.lastName ?? '', phone: u.phone ?? '', bio: u.bio ?? '', gender: u.gender ?? '', dateOfBirth: u.dateOfBirth ? u.dateOfBirth.split('T')[0] : '' });
+    } catch (err) {
+      toast(err.message || 'Failed to load profile', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [authFetch, navigate, toast]);
+
+  useEffect(() => { fetchProfile(); }, [fetchProfile]);
+
+  const handleFormChange = e => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
-    setSuccess('');
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async (e) => {
+  const handlePwChange = e => {
+    const { name, value } = e.target;
+    setPwForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = async e => {
     e.preventDefault();
     setSaving(true);
-    setError('');
-    setSuccess('');
-
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/v1/auth/profile', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Failed to update profile');
-
-      const updatedUser = data.data?.user ?? data.data;
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      setSuccess('Profile updated successfully!');
+      const res  = await authFetch('/api/v1/auth/profile', { method: 'PUT', body: JSON.stringify(form) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to update profile');
+      const u = data.data?.user ?? data.data;
+      setUser(u);
+      localStorage.setItem('user', JSON.stringify(u));
       setEditing(false);
+      toast('Profile updated successfully');
     } catch (err) {
-      setError(err.message || 'Failed to update profile');
+      toast(err.message || 'Failed to update profile', 'error');
     } finally {
       setSaving(false);
     }
   };
 
+  const handlePasswordSave = async e => {
+    e.preventDefault();
+    const allMet = PW_REQS.every(r => r.fn(pwForm.newPassword));
+    if (!allMet) { toast('New password does not meet strength requirements', 'error'); return; }
+    if (pwForm.newPassword !== pwForm.confirmPw) { toast('Passwords do not match', 'error'); return; }
+    setPwSaving(true);
+    try {
+      const res  = await authFetch('/api/v1/auth/change-password', { method: 'PUT', body: JSON.stringify({ currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to change password');
+      setPwForm({ currentPassword: '', newPassword: '', confirmPw: '' });
+      toast('Password changed successfully');
+    } catch (err) {
+      toast(err.message || 'Failed to change password', 'error');
+    } finally {
+      setPwSaving(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center premium-bg-pattern">
-        <div className="text-center">
-          <div className="text-8xl mb-6 animate-bounce">👤</div>
-          <h2 className="text-4xl font-bold premium-gradient-text mb-4">Loading Profile...</h2>
-          <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto"></div>
+      <div className="pg-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>👤</div>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 900, background: 'linear-gradient(135deg,#a78bfa,#f9a8d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '1.5rem' }}>Loading Profile…</h2>
+          <div className="spinner" style={{ width: '44px', height: '44px', margin: '0 auto' }} />
         </div>
       </div>
     );
@@ -112,217 +320,86 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center premium-bg-pattern">
-        <div className="text-center">
-          <div className="text-8xl mb-6">⚠️</div>
-          <h2 className="text-4xl font-bold premium-gradient-text mb-4">Profile Not Found</h2>
-          <p className="text-xl text-gray-300 mb-6">{error}</p>
-          <button onClick={() => globalThis.location.reload()} className="premium-btn">Retry</button>
+      <div className="pg-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f87171', marginBottom: '0.75rem' }}>Profile Not Found</h2>
+          <button onClick={fetchProfile} className="btn-primary">Retry</button>
         </div>
       </div>
     );
   }
 
-  const displayName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.email;
+  const displayName  = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.email;
+  const verifiedBg   = user.isVerified ? 'rgba(16,185,129,0.18)' : 'rgba(245,158,11,0.18)';
+  const verifiedClr  = user.isVerified ? '#6ee7b7'               : '#fbbf24';
+  const verifiedBdr  = user.isVerified ? 'rgba(16,185,129,0.4)'  : 'rgba(245,158,11,0.4)';
+  const verifiedText = user.isVerified ? '✅ Verified'           : '⚠️ Unverified';
+  const tabBase = { padding: '0.5rem 1.25rem', borderRadius: '8px', border: 'none', fontSize: '0.88rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' };
+  const tabStyle = active => ({ ...tabBase, background: active ? '#7c3aed' : 'rgba(255,255,255,0.06)', color: active ? '#fff' : '#94a3b8' });
 
   return (
-    <div className="min-h-screen pt-24 px-4 premium-bg-pattern">
-      <div className="max-w-4xl mx-auto">
+    <div className="pg-bg" style={{ minHeight: '100vh', paddingTop: '5.5rem', paddingBottom: '3rem' }}>
+      <ToastBar toasts={toasts} onRemove={removeToast} />
 
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-black premium-gradient-text mb-4">👤 My Profile</h1>
-          <p className="text-xl text-gray-300">Manage your account information</p>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 1.25rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>👤</div>
+          <h1 style={{ fontSize: '2.1rem', fontWeight: 900, background: 'linear-gradient(135deg,#a78bfa,#f9a8d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.4rem' }}>My Profile</h1>
+          <p style={{ color: '#64748b' }}>Manage your account information</p>
         </div>
 
-        {/* Alerts */}
-        {error && (
-          <div className="mb-6 px-4 py-3 bg-red-500/20 border border-red-500/40 rounded-xl text-red-400">
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="mb-6 px-4 py-3 bg-green-500/20 border border-green-500/40 rounded-xl text-green-400">
-            {success}
-          </div>
-        )}
+        <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Sidebar */}
+          <div className="card" style={{ padding: '1.75rem', textAlign: 'center' }}>
+            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg,#7c3aed,#ec4899)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', margin: '0 auto 1rem', boxShadow: '0 4px 20px rgba(124,58,237,0.45)' }}>
+              {user.avatar?.url ? <img src={user.avatar.url} alt="avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} /> : '👤'}
+            </div>
+            <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.05rem', marginBottom: '0.25rem' }}>{displayName}</h2>
+            <p style={{ color: '#64748b', fontSize: '0.83rem', marginBottom: '0.65rem' }}>{user.email}</p>
+            <div style={{ display: 'inline-block', padding: '0.2rem 0.65rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700, marginBottom: '1.25rem', background: verifiedBg, color: verifiedClr, border: `1px solid ${verifiedBdr}` }}>
+              {verifiedText}
+            </div>
 
-          {/* Profile Summary Card */}
-          <div className="premium-card text-center">
-            <div className="text-7xl mb-4">
-              {user.avatar?.url ? (
-                <img src={user.avatar.url} alt="avatar" className="w-24 h-24 rounded-full mx-auto object-cover" />
-              ) : '👤'}
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-1">{displayName}</h2>
-            <p className="text-gray-400 mb-2">{user.email}</p>
-            <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-4 ${
-              user.isVerified ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-            }`}>
-              {user.isVerified ? '✅ Verified' : '⚠️ Unverified'}
-            </div>
-            <div className="text-left space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Role:</span>
-                <span className="text-white capitalize">{user.role ?? 'user'}</span>
-              </div>
-              {user.phone && (
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Phone:</span>
-                  <span className="text-white">{user.phone}</span>
+            <div style={{ textAlign: 'left', borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1rem', marginBottom: '1.25rem' }}>
+              {[['Role', user.role ?? 'user'], ['Phone', user.phone], ['Gender', user.gender]].map(([k, v]) => v ? (
+                <div key={k} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span style={{ color: '#64748b', fontSize: '0.8rem' }}>{k}</span>
+                  <span style={{ color: '#e2e8f0', fontSize: '0.8rem', fontWeight: 600, textTransform: 'capitalize' }}>{v}</span>
                 </div>
-              )}
-              {user.gender && (
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Gender:</span>
-                  <span className="text-white capitalize">{user.gender}</span>
-                </div>
-              )}
+              ) : null)}
             </div>
-            <button
-              onClick={() => setEditing(!editing)}
-              className="mt-6 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition-all"
-            >
-              {editing ? 'Cancel Editing' : '✏️ Edit Profile'}
+
+            <button onClick={() => setEditing(prev => !prev)}
+              style={{ width: '100%', padding: '0.6rem', background: 'linear-gradient(135deg,#7c3aed,#ec4899)', border: 'none', color: '#fff', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.88rem', marginBottom: '0.5rem' }}>
+              {editing ? '✕ Cancel Edit' : '✏️ Edit Profile'}
             </button>
+
+            {[['📅', 'My Bookings', '/bookings'], ['📊', 'Dashboard', '/dashboard'], ['🏟️', 'Browse Fields', '/fields']].map(([ico, lbl, path]) => (
+              <button key={path} onClick={() => navigate(path)}
+                style={{ width: '100%', padding: '0.55rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8', borderRadius: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.84rem', marginTop: '0.4rem', textAlign: 'left', paddingLeft: '0.85rem' }}>
+                {ico} {lbl}
+              </button>
+            ))}
           </div>
 
-          {/* Edit Form */}
-          <div className="lg:col-span-2 premium-card">
-            <h3 className="text-2xl font-bold text-white mb-6">
-              {editing ? '✏️ Edit Information' : '📋 Profile Information'}
-            </h3>
+          {/* Main Panel */}
+          <div className="card" style={{ padding: '1.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.75rem' }}>
+              <button onClick={() => setTab('info')}     style={tabStyle(tab === 'info')}>Profile Info</button>
+              <button onClick={() => setTab('password')} style={tabStyle(tab === 'password')}>Change Password</button>
+            </div>
 
-            {editing ? (
-              <form onSubmit={handleSave} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="prof-firstName" className="block text-gray-400 text-sm mb-1">First Name</label>
-                    <input
-                      id="prof-firstName"
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl bg-black/30 text-white border border-purple-500/30 focus:border-purple-500 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="prof-lastName" className="block text-gray-400 text-sm mb-1">Last Name</label>
-                    <input
-                      id="prof-lastName"
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl bg-black/30 text-white border border-purple-500/30 focus:border-purple-500 focus:outline-none"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label htmlFor="prof-phone" className="block text-gray-400 text-sm mb-1">Phone</label>
-                  <input
-                    id="prof-phone"
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl bg-black/30 text-white border border-purple-500/30 focus:border-purple-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="prof-bio" className="block text-gray-400 text-sm mb-1">Bio</label>
-                  <textarea
-                    id="prof-bio"
-                    name="bio"
-                    value={formData.bio}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-xl bg-black/30 text-white border border-purple-500/30 focus:border-purple-500 focus:outline-none resize-vertical"
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="prof-gender" className="block text-gray-400 text-sm mb-1">Gender</label>
-                    <select
-                      id="prof-gender"
-                      name="gender"
-                      value={formData.gender}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl bg-black/30 text-white border border-purple-500/30 focus:border-purple-500 focus:outline-none"
-                    >
-                      <option value="">Prefer not to say</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="prof-dob" className="block text-gray-400 text-sm mb-1">Date of Birth</label>
-                    <input
-                      id="prof-dob"
-                      type="date"
-                      name="dateOfBirth"
-                      value={formData.dateOfBirth}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl bg-black/30 text-white border border-purple-500/30 focus:border-purple-500 focus:outline-none"
-                    />
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-xl transition-all disabled:opacity-50"
-                >
-                  {saving ? 'Saving...' : '💾 Save Changes'}
-                </button>
-              </form>
-            ) : (
-              <div className="space-y-4">
-                {[
-                  { label: 'First Name', value: user.firstName },
-                  { label: 'Last Name', value: user.lastName },
-                  { label: 'Email', value: user.email },
-                  { label: 'Phone', value: user.phone },
-                  { label: 'Bio', value: user.bio },
-                  { label: 'Gender', value: user.gender },
-                  { label: 'Date of Birth', value: user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : null }
-                ].filter(item => item.value).map((item) => (
-                  <div key={item.label} className="flex justify-between items-start py-3 border-b border-gray-700/50 last:border-0">
-                    <span className="text-gray-400">{item.label}:</span>
-                    <span className="text-white text-right max-w-xs capitalize">{item.value}</span>
-                  </div>
-                ))}
-              </div>
+            {tab === 'info' && (
+              editing
+                ? <ProfileEditForm form={form} saving={saving} onChange={handleFormChange} onSubmit={handleSave} />
+                : <ProfileDisplay user={user} />
+            )}
+            {tab === 'password' && (
+              <PasswordForm pwForm={pwForm} saving={pwSaving} onChange={handlePwChange} onSubmit={handlePasswordSave} />
             )}
           </div>
-        </div>
-
-        {/* Quick Links */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button
-            onClick={() => { globalThis.location.href = '/bookings'; }}
-            className="premium-card text-center hover:scale-105 transition-all cursor-pointer"
-          >
-            <div className="text-4xl mb-2">📅</div>
-            <h3 className="text-white font-semibold">My Bookings</h3>
-          </button>
-          <button
-            onClick={() => { globalThis.location.href = '/dashboard'; }}
-            className="premium-card text-center hover:scale-105 transition-all cursor-pointer"
-          >
-            <div className="text-4xl mb-2">📊</div>
-            <h3 className="text-white font-semibold">Dashboard</h3>
-          </button>
-          <button
-            onClick={() => { globalThis.location.href = '/fields'; }}
-            className="premium-card text-center hover:scale-105 transition-all cursor-pointer"
-          >
-            <div className="text-4xl mb-2">🏟️</div>
-            <h3 className="text-white font-semibold">Browse Fields</h3>
-          </button>
         </div>
       </div>
     </div>
