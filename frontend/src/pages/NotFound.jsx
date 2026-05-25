@@ -3,16 +3,41 @@ import { Link } from 'react-router-dom';
 
 const NotFound = () => {
   return (
-    <div className="min-h-screen pt-24 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-400 mb-8">
+    <div style={{ minHeight: '100vh', paddingTop: '6rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <h1 style={{
+          fontSize: '9rem',
+          fontWeight: '900',
+          lineHeight: 1,
+          marginBottom: '2rem',
+          background: 'linear-gradient(135deg, #f87171, #ec4899)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        }}>
           404
         </h1>
-        <h2 className="text-4xl font-bold text-white mb-6">Page Not Found</h2>
-        <p className="text-xl text-gray-300 mb-8">The page you're looking for doesn't exist.</p>
-        <Link 
-          to="/" 
-          className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-8 py-4 rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+        <h2 style={{ fontSize: '2.25rem', fontWeight: '700', color: '#fff', marginBottom: '1.5rem' }}>
+          Page Not Found
+        </h2>
+        <p style={{ fontSize: '1.125rem', color: 'rgba(255,255,255,0.6)', marginBottom: '2rem' }}>
+          The page you&apos;re looking for doesn&apos;t exist.
+        </p>
+        <Link
+          to="/"
+          style={{
+            display: 'inline-block',
+            background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
+            color: '#fff',
+            padding: '0.875rem 2.5rem',
+            borderRadius: '9999px',
+            fontWeight: '700',
+            fontSize: '1rem',
+            textDecoration: 'none',
+            transition: 'opacity 0.2s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
         >
           Go Home
         </Link>
