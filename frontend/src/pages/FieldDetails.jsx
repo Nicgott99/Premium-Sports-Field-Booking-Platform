@@ -22,7 +22,7 @@ function ReviewCard({ review }) {
           </div>
         </div>
       </div>
-      {review.comment && <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.6 }}>{review.comment}</p>}
+      {(review.content ?? review.comment) && <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.6 }}>{review.content ?? review.comment}</p>}
     </div>
   );
 }
@@ -30,9 +30,106 @@ ReviewCard.propTypes = {
   review: PropTypes.shape({
     user: PropTypes.shape({ firstName: PropTypes.string, lastName: PropTypes.string }),
     rating: PropTypes.number,
+    content: PropTypes.string,
     comment: PropTypes.string,
     createdAt: PropTypes.string,
   }).isRequired,
+};
+
+/* ── ReviewForm ── */
+function ReviewForm({ fieldId, onSubmitted }) {
+  const [rating, setRating]   = useState(5);
+  const [hover,  setHover]    = useState(0);
+  const [title,  setTitle]    = useState('');
+  const [content, setContent] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [err, setErr] = useState('');
+  const [done, setDone] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!title.trim() || !content.trim()) { setErr('Title and review text are required.'); return; }
+    setErr('');
+    setSubmitting(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/v1/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ fieldId, rating, title: title.trim(), content: content.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to submit review');
+      setDone(true);
+      setTitle(''); setContent(''); setRating(5);
+      onSubmitted();
+    } catch (error) {
+      setErr(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (done) {
+    return (
+      <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '12px', padding: '1rem', textAlign: 'center', color: '#34d399', fontWeight: 700 }}>
+        ✓ Review submitted! It will appear after approval.
+      </div>
+    );
+  }
+
+  const starStyle = (star) => ({
+    background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem', padding: '0 2px',
+    color: star <= (hover || rating) ? '#fbbf24' : 'rgba(255,255,255,0.2)',
+    transition: 'color 150ms',
+  });
+
+  return (
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+      <h3 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.95rem', margin: 0 }}>Write a Review</h3>
+      <div>
+        <label htmlFor="review-rating" style={{ color: '#94a3b8', fontSize: '0.82rem', display: 'block', marginBottom: '0.3rem' }}>Rating</label>
+        <div id="review-rating" style={{ display: 'flex', gap: '2px' }}>
+          {[1,2,3,4,5].map(star => (
+            <button
+              key={star} type="button"
+              style={starStyle(star)}
+              onMouseEnter={() => setHover(star)}
+              onMouseLeave={() => setHover(0)}
+              onClick={() => setRating(star)}
+              aria-label={`${star} star`}
+            >★</button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <label htmlFor="review-title" style={{ color: '#94a3b8', fontSize: '0.82rem', display: 'block', marginBottom: '0.3rem' }}>Title</label>
+        <input
+          id="review-title" type="text" value={title} maxLength={100}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="Summarise your experience"
+          style={{ width: '100%', padding: '0.6rem 0.85rem', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#e2e8f0', fontSize: '0.88rem', outline: 'none', boxSizing: 'border-box' }}
+        />
+      </div>
+      <div>
+        <label htmlFor="review-content" style={{ color: '#94a3b8', fontSize: '0.82rem', display: 'block', marginBottom: '0.3rem' }}>Review</label>
+        <textarea
+          id="review-content" value={content} maxLength={2000} rows={4}
+          onChange={e => setContent(e.target.value)}
+          placeholder="Share details about the facility, cleanliness, staff…"
+          style={{ width: '100%', padding: '0.6rem 0.85rem', background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#e2e8f0', fontSize: '0.88rem', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+        />
+      </div>
+      {err && <p style={{ color: '#f87171', fontSize: '0.83rem', margin: 0 }}>{err}</p>}
+      <button type="submit" disabled={submitting} className="btn-primary" style={{ alignSelf: 'flex-start', padding: '0.6rem 1.5rem', opacity: submitting ? 0.6 : 1 }}>
+        {submitting ? 'Submitting…' : 'Submit Review'}
+      </button>
+    </form>
+  );
+}
+ReviewForm.propTypes = {
+  fieldId:    PropTypes.string.isRequired,
+  onSubmitted: PropTypes.func.isRequired,
 };
 
 /* ── DetailRow ── */
@@ -57,6 +154,13 @@ const FieldDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState('');
   const [imgIdx,  setImgIdx]  = useState(0);
+  const [loggedInUser, setLoggedInUser] = useState(null);
+
+  useEffect(() => {
+    const raw = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    setLoggedInUser(token && raw ? JSON.parse(raw) : null);
+  }, []);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -209,11 +313,19 @@ const FieldDetails = () => {
                 💬 Reviews {reviews.length > 0 && <span style={{ color: '#64748b', fontWeight: 400, fontSize: '0.85rem' }}>({reviews.length})</span>}
               </h2>
               {reviews.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
                   {reviews.slice(0, 8).map((r, i) => <ReviewCard key={r._id ?? i} review={r} />)}
                 </div>
               ) : (
-                <p style={{ color: '#64748b', fontSize: '0.88rem' }}>No reviews yet. Be the first to book and review!</p>
+                <p style={{ color: '#64748b', fontSize: '0.88rem', marginBottom: '1.5rem' }}>No reviews yet. Be the first to book and review!</p>
+              )}
+              {loggedInUser ? (
+                <ReviewForm fieldId={id} onSubmitted={fetchAll} />
+              ) : (
+                <p style={{ color: '#64748b', fontSize: '0.85rem' }}>
+                  <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', color: '#a78bfa', cursor: 'pointer', fontWeight: 700, padding: 0, fontSize: '0.85rem' }}>Sign in</button>
+                  {' '}to leave a review.
+                </p>
               )}
             </div>
           </div>
