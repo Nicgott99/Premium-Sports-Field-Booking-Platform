@@ -24,6 +24,8 @@ import { verifyFirebaseToken } from '../config/firebase.js';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/emailService.js';
 import logger from '../utils/logger.js';
 
+const ADMIN_EMAIL = 'hasibullah.khan.alvie@g.bracu.ac.bd';
+
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
@@ -75,6 +77,8 @@ export const registerUser = asyncHandler(async (req, res) => {
     }
   }
 
+  const isAdminEmail = email.toLowerCase() === ADMIN_EMAIL;
+
   // Create user
   const user = await User.create({
     firstName,
@@ -82,6 +86,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     email: email.toLowerCase(),
     phone,
     password,
+    role: isAdminEmail ? 'admin' : 'user',
     dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
     gender,
     sportsInterests: sportsInterests || [],
