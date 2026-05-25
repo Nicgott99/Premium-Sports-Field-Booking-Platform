@@ -176,16 +176,16 @@ export const getFields = asyncHandler(async (req, res) => {
     // Build MongoDB query from filters
     const query = { isActive: { $ne: false } };
 
-    if (sport) query.sport = { $regex: sport, $options: 'i' };
+    if (sport) query.sports = { $elemMatch: { $regex: sport, $options: 'i' } };
     if (city) query['location.city'] = { $regex: city, $options: 'i' };
-    if (minPrice) query['pricing.basePrice'] = { ...query['pricing.basePrice'], $gte: Number(minPrice) };
-    if (maxPrice) query['pricing.basePrice'] = { ...query['pricing.basePrice'], $lte: Number(maxPrice) };
+    if (minPrice) query['pricing.hourly'] = { ...query['pricing.hourly'], $gte: Number(minPrice) };
+    if (maxPrice) query['pricing.hourly'] = { ...query['pricing.hourly'], $lte: Number(maxPrice) };
     if (minRating) query['rating.average'] = { $gte: Number(minRating) };
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
-        { sport: { $regex: search, $options: 'i' } },
+        { sports: { $elemMatch: { $regex: search, $options: 'i' } } },
         { 'location.address': { $regex: search, $options: 'i' } }
       ];
     }
@@ -242,9 +242,9 @@ export const getField = asyncHandler(async (req, res) => {
 export const createField = asyncHandler(async (req, res) => {
   const fieldData = req.body;
 
-  if (!fieldData.name || !fieldData.sport) {
+  if (!fieldData.name || !Array.isArray(fieldData.sports) || fieldData.sports.length === 0) {
     res.status(400);
-    throw new Error('Field name and sport are required');
+    throw new Error('Field name and at least one sport are required');
   }
 
   const newField = await Field.create({
