@@ -1,191 +1,135 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const TABS = [
+  { id: 'story',   label: '📖 Our Story' },
+  { id: 'mission', label: '🎯 Mission' },
+  { id: 'team',    label: '👥 Team' },
+  { id: 'values',  label: '💎 Values' },
+];
+
+const TEAM = [
+  { name: 'Alex Rahman',     role: 'CEO & Founder',      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300', bio: 'Sports enthusiast with 10+ years in tech. Built this platform to revolutionize sports booking.',        socials: ['💼', '🐦'] },
+  { name: 'Sarah Ahmed',     role: 'CTO',                image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300', bio: 'Full-stack developer passionate about creating seamless user experiences.',                          socials: ['💼', '💻'] },
+  { name: 'Mike Khan',       role: 'Head of Operations', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300', bio: 'Former sports facility manager, now ensuring smooth operations across all our partner venues.',     socials: ['💼', '📸'] },
+  { name: 'Lisa Chowdhury',  role: 'UX Designer',        image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300', bio: 'Design expert creating intuitive interfaces that make sports booking effortless.',                   socials: ['💼', '🎨'] },
+];
+
+const STATS = [
+  { number: '50,000+', label: 'Happy Users',       icon: '👥', color: 'linear-gradient(135deg,#60a5fa,#22d3ee)' },
+  { number: '1,200+',  label: 'Partner Fields',    icon: '🏟️', color: 'linear-gradient(135deg,#a78bfa,#ec4899)' },
+  { number: '25+',     label: 'Sports Supported',  icon: '⚽', color: 'linear-gradient(135deg,#34d399,#10b981)' },
+  { number: '8+',      label: 'Cities Covered',    icon: '🏙️', color: 'linear-gradient(135deg,#f97316,#fbbf24)' },
+];
+
+const MISSION_ITEMS = [
+  { icon: '🚀', title: 'Innovation',    desc: 'Continuously improving technology to enhance user experience' },
+  { icon: '🤝', title: 'Accessibility', desc: 'Making sports facilities available to people from all backgrounds' },
+  { icon: '🏆', title: 'Excellence',    desc: 'Partnering only with premium facilities that meet our high standards' },
+];
+
+const VALUES = [
+  { title: '🔒 Trust & Security',       desc: 'We prioritize user data security and maintain transparent, honest relationships with our users and partners.' },
+  { title: '🌟 Quality First',           desc: 'Every facility on our platform meets strict quality standards to ensure the best experience for our users.' },
+  { title: '🤝 Community Focus',         desc: 'We believe sports bring people together and actively foster a supportive community of athletes.' },
+  { title: '💡 Continuous Innovation',   desc: 'We constantly evolve our platform based on user feedback and emerging technologies.' },
+  { title: '🌍 Sustainability',          desc: 'We partner with eco-friendly facilities and promote sustainable sports practices.' },
+  { title: '⚡ Speed & Efficiency',      desc: 'We value your time and ensure our platform is fast, reliable, and easy to use.' },
+];
 
 const WorkingAbout = () => {
-  const [activeTab, setActiveTab] = useState('story');
+  const navigate   = useNavigate();
+  const [tab, setTab] = useState('story');
 
-  const teamMembers = [
-    {
-      name: 'Alex Rahman',
-      role: 'CEO & Founder',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300',
-      bio: 'Sports enthusiast with 10+ years in tech. Built this platform to revolutionize sports booking.',
-      social: { linkedin: '#', twitter: '#' }
-    },
-    {
-      name: 'Sarah Ahmed',
-      role: 'CTO',
-      image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300',
-      bio: 'Full-stack developer passionate about creating seamless user experiences.',
-      social: { linkedin: '#', github: '#' }
-    },
-    {
-      name: 'Mike Khan',
-      role: 'Head of Operations',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300',
-      bio: 'Former sports facility manager, now ensuring smooth operations across all our partner venues.',
-      social: { linkedin: '#', instagram: '#' }
-    },
-    {
-      name: 'Lisa Chowdhury',
-      role: 'UX Designer',
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300',
-      bio: 'Design expert creating intuitive interfaces that make sports booking effortless.',
-      social: { linkedin: '#', dribbble: '#' }
-    }
-  ];
-
-  const stats = [
-    { number: '50,000+', label: 'Happy Users', icon: '👥' },
-    { number: '1,200+', label: 'Partner Fields', icon: '🏟️' },
-    { number: '25+', label: 'Sports Supported', icon: '⚽' },
-    { number: '8+', label: 'Cities Covered', icon: '🏙️' }
-  ];
+  const tabBtn = active => ({
+    padding: '0.55rem 1.1rem', borderRadius: '10px', border: 'none', fontWeight: 700, cursor: 'pointer', fontSize: '0.88rem', transition: 'all 0.2s',
+    background: active ? 'linear-gradient(135deg,#7c3aed,#ec4899)' : 'transparent',
+    color: active ? '#fff' : '#94a3b8',
+  });
 
   return (
-    <div className="min-h-screen pt-24 px-4 premium-bg-pattern">
-      <div className="max-w-6xl mx-auto">
-        
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-6xl font-black premium-gradient-text mb-6">
-            About Premium Sports 🏆
+    <div className="pg-bg" style={{ minHeight: '100vh', paddingTop: '5.5rem', paddingBottom: '3rem' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.25rem' }}>
+
+        {/* Hero */}
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <div style={{ fontSize: '2.8rem', marginBottom: '0.75rem' }}>🏆</div>
+          <h1 style={{ fontSize: '2.4rem', fontWeight: 900, background: 'linear-gradient(135deg,#a78bfa,#f9a8d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.75rem' }}>
+            About Premium Sports
           </h1>
-          <p className="text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            We're revolutionizing how people discover, book, and enjoy sports facilities. 
-            Built by sports lovers, for sports lovers.
+          <p style={{ color: '#94a3b8', fontSize: '1.05rem', maxWidth: '600px', margin: '0 auto', lineHeight: 1.7 }}>
+            We're revolutionizing how people discover, book, and enjoy sports facilities — built by sports lovers, for sports lovers.
           </p>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex justify-center mb-12">
-          <div className="premium-card p-2">
-            <div className="flex space-x-2">
-              {[
-                { id: 'story', label: '📖 Our Story', icon: '📖' },
-                { id: 'mission', label: '🎯 Mission', icon: '🎯' },
-                { id: 'team', label: '👥 Team', icon: '👥' },
-                { id: 'values', label: '💎 Values', icon: '💎' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                    activeTab === tab.id
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+        {/* Tabs */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2.5rem' }}>
+          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '0.4rem', display: 'inline-flex', gap: '0.25rem', backdropFilter: 'blur(10px)' }}>
+            {TABS.map(t => (
+              <button key={t.id} onClick={() => setTab(t.id)} style={tabBtn(tab === t.id)}>{t.label}</button>
+            ))}
           </div>
         </div>
 
         {/* Tab Content */}
-        <div className="mb-16">
-          
-          {/* Our Story */}
-          {activeTab === 'story' && (
-            <div className="premium-card">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div style={{ marginBottom: '2.5rem' }}>
+
+          {/* Story */}
+          {tab === 'story' && (
+            <div className="card" style={{ padding: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', alignItems: 'center' }}>
                 <div>
-                  <h2 className="text-4xl font-bold text-white mb-6">📖 Our Story</h2>
-                  <div className="space-y-4 text-gray-300 text-lg leading-relaxed">
-                    <p>
-                      It all started in 2020 when our founder, Alex Rahman, struggled to find and book 
-                      a decent football field for his weekend games. The process was frustrating, 
-                      time-consuming, and often resulted in disappointment.
-                    </p>
-                    <p>
-                      That's when the idea struck: "What if there was a platform that made sports 
-                      booking as easy as ordering food online?" With this vision, Premium Sports 
-                      was born.
-                    </p>
-                    <p>
-                      Today, we've partnered with over 1,200 sports facilities across Bangladesh, 
-                      serving 50,000+ sports enthusiasts who share our passion for the game.
-                    </p>
-                  </div>
+                  <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.5rem', marginBottom: '1.25rem' }}>📖 Our Story</h2>
+                  {['It all started in 2020 when our founder, Alex Rahman, struggled to find and book a decent football field for his weekend games. The process was frustrating, time-consuming, and often resulted in disappointment.',
+                    'That\'s when the idea struck: "What if there was a platform that made sports booking as easy as ordering food online?" With this vision, Premium Sports was born.',
+                    'Today, we\'ve partnered with over 1,200 sports facilities across Bangladesh, serving 50,000+ sports enthusiasts who share our passion for the game.'].map(p => (
+                    <p key={p.slice(0, 30)} style={{ color: '#94a3b8', lineHeight: 1.75, fontSize: '0.93rem', marginBottom: '0.85rem' }}>{p}</p>
+                  ))}
                 </div>
-                <div className="text-center">
-                  <img 
-                    src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600" 
-                    alt="Sports field" 
-                    className="rounded-2xl shadow-2xl w-full"
-                  />
+                <div>
+                  <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600" alt="Sports field"
+                    style={{ width: '100%', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}
+                    onError={e => { e.currentTarget.style.display = 'none'; }} />
                 </div>
               </div>
             </div>
           )}
 
           {/* Mission */}
-          {activeTab === 'mission' && (
-            <div className="premium-card text-center">
-              <h2 className="text-4xl font-bold text-white mb-8">🎯 Our Mission</h2>
-              <div className="max-w-4xl mx-auto">
-                <p className="text-2xl text-gray-300 mb-12 leading-relaxed">
-                  To make sports accessible to everyone by providing a seamless platform 
-                  for discovering, booking, and enjoying premium sports facilities.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {[
-                    {
-                      icon: '🚀',
-                      title: 'Innovation',
-                      description: 'Continuously improving technology to enhance user experience'
-                    },
-                    {
-                      icon: '🤝',
-                      title: 'Accessibility',
-                      description: 'Making sports facilities available to people from all backgrounds'
-                    },
-                    {
-                      icon: '🏆',
-                      title: 'Excellence',
-                      description: 'Partnering only with premium facilities that meet our high standards'
-                    }
-                  ].map((item) => (
-                    <div key={item.title} className="bg-black/20 p-6 rounded-xl">
-                      <div className="text-4xl mb-4">{item.icon}</div>
-                      <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                      <p className="text-gray-300">{item.description}</p>
-                    </div>
-                  ))}
-                </div>
+          {tab === 'mission' && (
+            <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
+              <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.5rem', marginBottom: '1rem' }}>🎯 Our Mission</h2>
+              <p style={{ color: '#94a3b8', fontSize: '1rem', maxWidth: '680px', margin: '0 auto 2rem', lineHeight: 1.75 }}>
+                To make sports accessible to everyone by providing a seamless platform for discovering, booking, and enjoying premium sports facilities.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '1rem' }}>
+                {MISSION_ITEMS.map(m => (
+                  <div key={m.title} style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '1.5rem' }}>
+                    <div style={{ fontSize: '2.2rem', marginBottom: '0.65rem' }}>{m.icon}</div>
+                    <h3 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '1rem', marginBottom: '0.5rem' }}>{m.title}</h3>
+                    <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.65 }}>{m.desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
           {/* Team */}
-          {activeTab === 'team' && (
-            <div className="premium-card">
-              <h2 className="text-4xl font-bold text-white mb-8 text-center">👥 Meet Our Team</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {teamMembers.map((member) => (
-                  <div key={member.name} className="text-center bg-black/20 p-6 rounded-xl">
-                    <img 
-                      src={member.image} 
-                      alt={member.name}
-                      className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
-                    />
-                    <h3 className="text-xl font-bold text-white mb-2">{member.name}</h3>
-                    <p className="text-purple-400 font-semibold mb-3">{member.role}</p>
-                    <p className="text-gray-300 text-sm mb-4">{member.bio}</p>
-                    <div className="flex justify-center space-x-3">
-                      {Object.entries(member.social).map(([platform, url]) => (
-                        <button
-                          key={platform}
-                          onClick={() => alert(`${platform} profile would open here`)}
-                          className="text-gray-400 hover:text-white transition-colors"
-                        >
-                          {platform === 'linkedin' && '💼'}
-                          {platform === 'twitter' && '🐦'}
-                          {platform === 'github' && '💻'}
-                          {platform === 'instagram' && '📸'}
-                          {platform === 'dribbble' && '🎨'}
-                        </button>
+          {tab === 'team' && (
+            <div className="card" style={{ padding: '2rem' }}>
+              <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.5rem', textAlign: 'center', marginBottom: '1.75rem' }}>👥 Meet Our Team</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '1.25rem' }}>
+                {TEAM.map(m => (
+                  <div key={m.name} style={{ background: 'rgba(0,0,0,0.22)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '1.5rem', textAlign: 'center' }}>
+                    <img src={m.image} alt={m.name}
+                      style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 0.85rem', display: 'block', border: '2px solid rgba(124,58,237,0.5)' }}
+                      onError={e => { e.currentTarget.style.display = 'none'; }} />
+                    <h3 style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '0.95rem', marginBottom: '0.25rem' }}>{m.name}</h3>
+                    <p style={{ color: '#a78bfa', fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.65rem' }}>{m.role}</p>
+                    <p style={{ color: '#64748b', fontSize: '0.8rem', lineHeight: 1.6, marginBottom: '0.85rem' }}>{m.bio}</p>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                      {m.socials.map(s => (
+                        <span key={s} style={{ fontSize: '1.1rem', cursor: 'default' }}>{s}</span>
                       ))}
                     </div>
                   </div>
@@ -195,39 +139,14 @@ const WorkingAbout = () => {
           )}
 
           {/* Values */}
-          {activeTab === 'values' && (
-            <div className="premium-card">
-              <h2 className="text-4xl font-bold text-white mb-8 text-center">💎 Our Values</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[
-                  {
-                    title: '🔒 Trust & Security',
-                    description: 'We prioritize user data security and maintain transparent, honest relationships with our users and partners.'
-                  },
-                  {
-                    title: '🌟 Quality First',
-                    description: 'Every facility on our platform meets strict quality standards to ensure the best experience for our users.'
-                  },
-                  {
-                    title: '🤝 Community Focus',
-                    description: 'We believe sports bring people together and actively foster a supportive community of athletes.'
-                  },
-                  {
-                    title: '💡 Continuous Innovation',
-                    description: 'We constantly evolve our platform based on user feedback and emerging technologies.'
-                  },
-                  {
-                    title: '🌍 Sustainability',
-                    description: 'We partner with eco-friendly facilities and promote sustainable sports practices.'
-                  },
-                  {
-                    title: '⚡ Speed & Efficiency',
-                    description: 'We value your time and ensure our platform is fast, reliable, and easy to use.'
-                  }
-                ].map((value) => (
-                  <div key={value.title} className="bg-black/20 p-6 rounded-xl">
-                    <h3 className="text-2xl font-bold text-white mb-4">{value.title}</h3>
-                    <p className="text-gray-300 leading-relaxed">{value.description}</p>
+          {tab === 'values' && (
+            <div className="card" style={{ padding: '2rem' }}>
+              <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.5rem', textAlign: 'center', marginBottom: '1.75rem' }}>💎 Our Values</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: '1rem' }}>
+                {VALUES.map(v => (
+                  <div key={v.title} style={{ background: 'rgba(0,0,0,0.22)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '1.25rem' }}>
+                    <h3 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.95rem', marginBottom: '0.5rem' }}>{v.title}</h3>
+                    <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.65 }}>{v.desc}</p>
                   </div>
                 ))}
               </div>
@@ -235,42 +154,38 @@ const WorkingAbout = () => {
           )}
         </div>
 
-        {/* Statistics */}
-        <div className="premium-card mb-16">
-          <h2 className="text-4xl font-bold text-white mb-8 text-center">📈 Our Impact</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-4xl mb-3">{stat.icon}</div>
-                <div className="text-4xl font-black premium-gradient-text mb-2">{stat.number}</div>
-                <div className="text-white font-semibold">{stat.label}</div>
+        {/* Stats */}
+        <div className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+          <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.3rem', textAlign: 'center', marginBottom: '1.75rem' }}>📈 Our Impact</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '1.5rem' }}>
+            {STATS.map(s => (
+              <div key={s.label} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{s.icon}</div>
+                <div style={{ fontSize: '1.8rem', fontWeight: 900, background: s.color, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.25rem' }}>{s.number}</div>
+                <div style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.88rem' }}>{s.label}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Call to Action */}
-        <div className="premium-card text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">🚀 Join Our Journey</h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Whether you're a player looking for the perfect field or a facility owner 
-            wanting to reach more customers, we'd love to have you on board.
+        {/* CTA */}
+        <div className="card" style={{ padding: '2.5rem', textAlign: 'center' }}>
+          <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.5rem', marginBottom: '0.75rem' }}>🚀 Join Our Journey</h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.95rem', maxWidth: '520px', margin: '0 auto 2rem', lineHeight: 1.7 }}>
+            Whether you're a player looking for the perfect field or a facility owner wanting to reach more customers, we'd love to have you on board.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => { globalThis.location.href = '/register'; }}
-              className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-xl transition-all"
-            >
-              🏟️ Start Booking
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button onClick={() => navigate('/register')}
+              style={{ padding: '0.85rem 2rem', background: 'linear-gradient(135deg,#10b981,#059669)', border: 'none', color: '#fff', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
+              🏃 Get Started Free
             </button>
-            <button
-              onClick={() => { globalThis.location.href = '/contact'; }}
-              className="px-8 py-4 bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white font-bold rounded-xl transition-all"
-            >
-              🤝 Partner With Us
+            <button onClick={() => navigate('/contact')}
+              style={{ padding: '0.85rem 2rem', background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(124,58,237,0.4)', color: '#c4b5fd', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
+              📞 Contact Us
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
