@@ -2,6 +2,9 @@ import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 import { logAdminAction, logSecurityAlert } from '../utils/auditLogger.js';
 import { performHealthCheck, getMetrics } from '../utils/healthCheck.js';
+import User from '../models/User.js';
+import Field from '../models/Field.js';
+import Booking from '../models/Booking.js';
 
 /**
  * Admin Controller - Platform Administration & Moderation System
@@ -133,14 +136,31 @@ import { performHealthCheck, getMetrics } from '../utils/healthCheck.js';
  * @access Private/Admin
  */
 export const getDashboardStats = asyncHandler(async (req, res) => {
+  const [totalUsers, totalFields, totalBookings, revenueAgg, recentBookings, recentUsers] = await Promise.all([
+    User.countDocuments(),
+    Field.countDocuments({ isActive: true }),
+    Booking.countDocuments(),
+    Booking.aggregate([{ $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } }]),
+    Booking.find().sort({ createdAt: -1 }).limit(5).populate('field', 'name sport').populate('user', 'firstName lastName email'),
+    User.find().sort({ createdAt: -1 }).limit(5).select('firstName lastName email role createdAt'),
+  ]);
+
+  const totalRevenue = revenueAgg[0]?.total || 0;
+  const pendingBookings  = await Booking.countDocuments({ status: 'pending' });
+  const confirmedBookings = await Booking.countDocuments({ status: 'confirmed' });
+
   res.json({
     success: true,
-    message: 'Admin dashboard stats endpoint',
+    message: 'Admin dashboard stats',
     data: {
-      totalUsers: 0,
-      totalFields: 0,
-      totalBookings: 0,
-      totalRevenue: 0
+      totalUsers,
+      totalFields,
+      totalBookings,
+      totalRevenue,
+      pendingBookings,
+      confirmedBookings,
+      recentBookings,
+      recentUsers,
     }
   });
 });
@@ -160,7 +180,20 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
  */
 export const getUserManagement = asyncHandler(async (req, res) => {
   logger.info(`Admin ${req.user?.id} accessed user management`);
-  res.json({ success: true, message: 'User management endpoint', data: [] });
+  const page  = Math.max(1, Number.parseInt(req.query.page,  10) || 1);
+  const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
+  const search = req.query.search || '';
+
+  const query = search
+    ? { $or: [{ firstName: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }] }
+    : {};
+
+  const [users, total] = await Promise.all([
+    User.find(query).select('-password').sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    User.countDocuments(query),
+  ]);
+
+  res.json({ success: true, message: 'User management data', data: { users, total, page, limit } });
 });
 
 /**
@@ -178,7 +211,15 @@ export const getUserManagement = asyncHandler(async (req, res) => {
  */
 export const getFieldManagement = asyncHandler(async (req, res) => {
   logger.info(`Admin ${req.user?.id} accessed field management`);
-  res.json({ success: true, message: 'Field management endpoint', data: [] });
+  const page  = Math.max(1, Number.parseInt(req.query.page,  10) || 1);
+  const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
+
+  const [fields, total] = await Promise.all([
+    Field.find().populate('owner', 'firstName lastName email').sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    Field.countDocuments(),
+  ]);
+
+  res.json({ success: true, message: 'Field management data', data: { fields, total, page, limit } });
 });
 
 /**
@@ -195,7 +236,21 @@ export const getFieldManagement = asyncHandler(async (req, res) => {
  */
 export const getBookingManagement = asyncHandler(async (req, res) => {
   logger.info(`Admin ${req.user?.id} accessed booking management`);
-  res.json({ success: true, message: 'Booking management endpoint', data: [] });
+  const page   = Math.max(1, Number.parseInt(req.query.page,  10) || 1);
+  const limit  = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
+  const query  = req.query.status ? { status: req.query.status } : {};
+
+  const [bookings, total] = await Promise.all([
+    Booking.find(query)
+      .populate('field', 'name sport location')
+      .populate('user', 'firstName lastName email')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Booking.countDocuments(query),
+  ]);
+
+  res.json({ success: true, message: 'Booking management data', data: { bookings, total, page, limit } });
 });
 
 /**
