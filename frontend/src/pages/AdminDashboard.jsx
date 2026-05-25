@@ -319,12 +319,71 @@ BookingsTab.propTypes = {
   onPageChange: PropTypes.func.isRequired, onCancel: PropTypes.func.isRequired,
 };
 
+/* ── Tab: Pending Fields ── */
+const PendingFieldsTab = ({ fields, total, page, loading, onPageChange, onAction }) => (
+  <div>
+    <div style={{ marginBottom: '1.25rem' }}>
+      <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+        Pending Approval ({total})
+      </h2>
+      <p style={{ color: '#64748b', fontSize: '0.83rem', marginTop: '0.3rem' }}>Fields submitted by owners waiting for admin review</p>
+    </div>
+    <div className="card" style={{ overflow: 'auto' }}>
+      {loading && <div style={{ textAlign: 'center', padding: '3rem' }}><Spinner /></div>}
+      {!loading && (
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
+          <thead><tr>{['Field Name','Sports','Location','Owner','Submitted','Actions'].map(h => <th key={h} style={TH}>{h}</th>)}</tr></thead>
+          <tbody>
+            {fields.length === 0 && (
+              <tr><td colSpan={6} style={{ ...TD, textAlign: 'center', padding: '3.5rem' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>✅</div>
+                <div style={{ color: '#6ee7b7', fontWeight: 700 }}>All caught up — no pending fields</div>
+              </td></tr>
+            )}
+            {fields.map(f => (
+              <tr key={f._id}>
+                <td style={TD}><span style={{ fontWeight: 700, color: '#f1f5f9' }}>{f.name}</span></td>
+                <td style={TD}>{Array.isArray(f.sports) ? f.sports.join(', ') : (f.sport || '—')}</td>
+                <td style={TD}>{f.location?.city || f.location?.address || (typeof f.location === 'string' ? f.location : '—')}</td>
+                <td style={TD}>
+                  <div style={{ fontWeight: 600, color: '#e2e8f0' }}>{f.owner ? `${f.owner.firstName} ${f.owner.lastName}` : '—'}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{f.owner?.email}</div>
+                </td>
+                <td style={TD}>{fmtDate(f.createdAt)}</td>
+                <td style={TD}>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => onAction(f._id, 'approve')}
+                      style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(16,185,129,0.4)', background: 'rgba(16,185,129,0.08)', color: '#6ee7b7', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
+                      ✓ Approve
+                    </button>
+                    <button onClick={() => onAction(f._id, 'reject')}
+                      style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.08)', color: '#fca5a5', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
+                      ✕ Reject
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <PageNav page={page} total={total} limit={10} onChange={onPageChange} />
+    </div>
+  </div>
+);
+PendingFieldsTab.propTypes = {
+  fields: PropTypes.array.isRequired, total: PropTypes.number.isRequired,
+  page: PropTypes.number.isRequired, loading: PropTypes.bool.isRequired,
+  onPageChange: PropTypes.func.isRequired, onAction: PropTypes.func.isRequired,
+};
+
 /* ── Main AdminDashboard ── */
 const TABS = [
   { id: 'overview', label: '📊 Overview' },
   { id: 'users',    label: '👥 Users' },
   { id: 'fields',   label: '🏟️ Fields' },
   { id: 'bookings', label: '📅 Bookings' },
+  { id: 'pending',  label: '⏳ Pending Fields' },
 ];
 
 const AdminDashboard = () => {
@@ -353,6 +412,11 @@ const AdminDashboard = () => {
   const [bookingsPage, setBookingsPage]       = useState(1);
   const [bookingsStatus, setBookingsStatus]   = useState('');
   const [bkLoading, setBkLoading]             = useState(false);
+
+  const [pendingFields, setPendingFields]     = useState([]);
+  const [pendingTotal, setPendingTotal]       = useState(0);
+  const [pendingPage, setPendingPage]         = useState(1);
+  const [pdLoading, setPdLoading]             = useState(false);
 
   useEffect(() => { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t); }, []);
 
@@ -417,12 +481,23 @@ const AdminDashboard = () => {
     finally { setBkLoading(false); }
   }, []);
 
+  const loadPendingFields = useCallback(async (page) => {
+    setPdLoading(true);
+    try {
+      const res  = await authFetch(`/api/v1/admin/fields?page=${page}&limit=10&status=pending`);
+      const data = await res.json();
+      if (data.success) { setPendingFields(data.data?.fields || []); setPendingTotal(data.data?.total || 0); }
+    } catch { /* network error */ }
+    finally { setPdLoading(false); }
+  }, []);
+
   useEffect(() => {
     if (!adminUser) return;
     if (tab === 'overview') loadOverview();
     if (tab === 'users')    loadUsers(usersPage, usersQ);
     if (tab === 'fields')   loadFields(fieldsPage);
     if (tab === 'bookings') loadBookings(bookingsPage, bookingsStatus);
+    if (tab === 'pending')  loadPendingFields(pendingPage);
   }, [tab, adminUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const manageUser = async (userId, action) => {
@@ -438,8 +513,11 @@ const AdminDashboard = () => {
     try {
       const res  = await authFetch(`/api/v1/admin/fields/${fieldId}/${action}`, { method: 'PUT' });
       const data = await res.json();
-      if (data.success) { toast(`Field ${action}d`); loadFields(fieldsPage); }
-      else toast(data.message || `Failed to ${action}`, 'error');
+      if (data.success) {
+        toast(`Field ${action}d`);
+        loadFields(fieldsPage);
+        loadPendingFields(pendingPage);
+      } else toast(data.message || `Failed to ${action}`, 'error');
     } catch { toast('Network error', 'error'); }
   };
 
@@ -509,6 +587,14 @@ const AdminDashboard = () => {
             onStatusChange={s => { setBookingsStatus(s); setBookingsPage(1); loadBookings(1, s); }}
             onPageChange={p => { setBookingsPage(p); loadBookings(p, bookingsStatus); }}
             onCancel={cancelBooking}
+          />
+        )}
+
+        {tab === 'pending' && (
+          <PendingFieldsTab
+            fields={pendingFields} total={pendingTotal} page={pendingPage} loading={pdLoading}
+            onPageChange={p => { setPendingPage(p); loadPendingFields(p); }}
+            onAction={manageField}
           />
         )}
 
