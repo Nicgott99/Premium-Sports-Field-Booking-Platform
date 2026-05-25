@@ -213,10 +213,13 @@ export const getFieldManagement = asyncHandler(async (req, res) => {
   logger.info(`Admin ${req.user?.id} accessed field management`);
   const page  = Math.max(1, Number.parseInt(req.query.page,  10) || 1);
   const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
+  const statusParam = req.query.status;
+  const statusAliases = { pending: 'pending-approval' };
+  const query = statusParam ? { status: statusAliases[statusParam] ?? statusParam } : {};
 
   const [fields, total] = await Promise.all([
-    Field.find().populate('owner', 'firstName lastName email').sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
-    Field.countDocuments(),
+    Field.find(query).populate('owner', 'firstName lastName email').sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    Field.countDocuments(query),
   ]);
 
   res.json({ success: true, message: 'Field management data', data: { fields, total, page, limit } });
@@ -349,7 +352,9 @@ export const getAnalytics = asyncHandler(async (req, res) => {
  */
 export const manageUsers = asyncHandler(async (req, res) => {
   const adminId = req.user?.id;
-  const { userId, action, reason } = req.body;
+  const userId  = req.params.id;
+  const action  = req.params.action ?? req.body.action;
+  const { reason } = req.body;
 
   if (!userId || !action) {
     res.status(400);
@@ -362,9 +367,26 @@ export const manageUsers = asyncHandler(async (req, res) => {
     throw new Error(`Invalid action. Allowed: ${allowedActions.join(', ')}`);
   }
 
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
   logger.info(`Admin ${adminId} managing user ${userId} with action: ${action}`);
 
-  // Log admin action
+  const updateData = {};
+  if (['ban', 'suspend', 'deactivate'].includes(action)) {
+    updateData.isActive = false;
+  } else if (['restore', 'activate'].includes(action)) {
+    updateData.isActive = true;
+  } else if (action === 'verify') {
+    updateData.isVerified = true;
+    updateData.isActive = true;
+  }
+
+  await User.findByIdAndUpdate(userId, updateData);
+
   try {
     logAdminAction({
       adminId,
@@ -398,12 +420,38 @@ export const manageUsers = asyncHandler(async (req, res) => {
  */
 export const manageFields = asyncHandler(async (req, res) => {
   const adminId = req.user?.id;
-  const { fieldId } = req.params;
-  const { action, reason } = req.body;
+  const fieldId = req.params.id;
+  const action  = req.params.action ?? req.body.action;
+  const { reason } = req.body;
+
+  if (!fieldId || !action) {
+    res.status(400);
+    throw new Error('fieldId and action are required');
+  }
+
+  const field = await Field.findById(fieldId);
+  if (!field) {
+    res.status(404);
+    throw new Error('Field not found');
+  }
 
   logger.info(`Admin ${adminId} managing field ${fieldId} with action: ${action}`);
 
-  // Log admin action
+  const statusMap = {
+    approve:     'active',
+    activate:    'active',
+    reject:      'inactive',
+    deactivate:  'inactive',
+    suspend:     'suspended',
+    maintenance: 'maintenance',
+  };
+
+  if (statusMap[action]) {
+    await Field.findByIdAndUpdate(fieldId, { status: statusMap[action] });
+  } else if (action === 'remove' || action === 'delete') {
+    await Field.findByIdAndDelete(fieldId);
+  }
+
   try {
     logAdminAction({
       adminId,
@@ -417,7 +465,6 @@ export const manageFields = asyncHandler(async (req, res) => {
     logger.warn(`Audit logging failed: ${auditErr.message}`);
   }
 
-  // Log security alert if field is being rejected/removed
   if (['reject', 'remove', 'flag'].includes(action)) {
     try {
       logSecurityAlert({
@@ -449,13 +496,37 @@ export const manageFields = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - Booking not found
  */
 export const manageBookings = asyncHandler(async (req, res) => {
-  const adminId = req.user?.id;
-  const { bookingId } = req.params;
-  const { action, reason } = req.body;
+  const adminId   = req.user?.id;
+  const bookingId = req.params.id;
+  const action    = req.params.action ?? req.body.action;
+  const { reason } = req.body;
+
+  if (!bookingId || !action) {
+    res.status(400);
+    throw new Error('bookingId and action are required');
+  }
+
+  const booking = await Booking.findById(bookingId);
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
 
   logger.info(`Admin ${adminId} managing booking ${bookingId} with action: ${action}`);
 
-  // Log admin action
+  if (action === 'cancel') {
+    if (booking.status === 'cancelled') {
+      res.status(400);
+      throw new Error('Booking is already cancelled');
+    }
+    booking.status = 'cancelled';
+    booking.cancellation = { reason: reason || 'Admin cancelled', cancelledAt: new Date(), cancelledBy: adminId };
+    await booking.save();
+  } else if (action === 'confirm') {
+    booking.status = 'confirmed';
+    await booking.save();
+  }
+
   try {
     logAdminAction({
       adminId,

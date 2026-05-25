@@ -270,6 +270,13 @@ router.get('/security', securityMonitoring);
 router.get('/users', getUserManagement);
 
 /**
+ * @route PUT /api/admin/users/:id/:action
+ * @desc Manage user account with explicit action (ban, suspend, activate, verify, restore, deactivate)
+ * @access Admin
+ */
+router.put('/users/:id/:action', manageUsers);
+
+/**
  * @route PUT /api/admin/users/:id
  * @desc Manage user account (ban, suspend, etc.)
  * @access Admin
@@ -291,6 +298,13 @@ router.delete('/users/:id', manageUsers);
 router.get('/fields', getFieldManagement);
 
 /**
+ * @route PUT /api/admin/fields/:id/:action
+ * @desc Manage field with explicit action (approve, reject, suspend, deactivate, activate, remove)
+ * @access Admin
+ */
+router.put('/fields/:id/:action', manageFields);
+
+/**
  * @route PUT /api/admin/fields/:id
  * @desc Manage field (approve, reject, remove)
  * @access Admin
@@ -310,6 +324,13 @@ router.delete('/fields/:id', manageFields);
  * @access Admin
  */
 router.get('/bookings', getBookingManagement);
+
+/**
+ * @route PUT /api/admin/bookings/:id/:action
+ * @desc Manage booking with explicit action (cancel, confirm)
+ * @access Admin
+ */
+router.put('/bookings/:id/:action', manageBookings);
 
 /**
  * @route PUT /api/admin/bookings/:id

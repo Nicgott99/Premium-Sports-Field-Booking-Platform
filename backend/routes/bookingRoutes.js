@@ -5,6 +5,7 @@ import {
   getBookingById,
   updateBooking,
   cancelBooking,
+  confirmBooking,
   checkAvailability,
   getFieldCalendar,
   getBookingStats,
@@ -210,6 +211,14 @@ router.get('/', getUserBookings);
  * @param id - Booking ID
  */
 router.get('/:id', getBookingById);
+
+/**
+ * @route PUT /api/bookings/:id/confirm
+ * @desc Confirm a pending booking
+ * @access Private/Admin/FieldOwner
+ * @param id - Booking ID
+ */
+router.put('/:id/confirm', confirmBooking);
 
 /**
  * @route PUT /api/bookings/:id

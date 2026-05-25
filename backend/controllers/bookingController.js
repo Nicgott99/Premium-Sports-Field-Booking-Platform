@@ -484,3 +484,30 @@ export const getFieldCalendar = asyncHandler(async (req, res) => {
     data: { calendar: [] }
   });
 });
+
+// @desc    Confirm a pending booking
+// @route   PUT /api/bookings/:id/confirm
+// @access  Private/Admin/FieldOwner
+export const confirmBooking = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const booking = await Booking.findById(id);
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
+
+  if (booking.status !== 'pending') {
+    res.status(400);
+    throw new Error(`Cannot confirm a ${booking.status} booking`);
+  }
+
+  booking.status = 'confirmed';
+  await booking.save();
+
+  res.json({
+    success: true,
+    message: 'Booking confirmed successfully',
+    data: booking
+  });
+});
