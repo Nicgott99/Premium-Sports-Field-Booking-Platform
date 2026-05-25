@@ -98,6 +98,13 @@ const WorkingFields = () => {
   const [priceMax,        setPriceMax]       = useState(10000);
   const [sortBy,          setSortBy]         = useState('name');
   const [viewMode,        setViewMode]       = useState('grid');
+  const [pageUser,        setPageUser]       = useState(null);
+
+  useEffect(() => {
+    const raw = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    setPageUser(token && raw ? JSON.parse(raw) : null);
+  }, []);
 
   const fetchFields = useCallback(async () => {
     setLoading(true);
@@ -208,7 +215,15 @@ const WorkingFields = () => {
           <h1 style={{ fontSize: '2.4rem', fontWeight: 900, background: 'linear-gradient(135deg,#a78bfa,#f9a8d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.5rem' }}>
             Premium Sports Fields
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '1.05rem' }}>Discover and book the finest sports facilities</p>
+          <p style={{ color: '#94a3b8', fontSize: '1.05rem', marginBottom: '1.25rem' }}>Discover and book the finest sports facilities</p>
+          {(pageUser?.role === 'admin' || pageUser?.role === 'manager' || pageUser?.role === 'fieldOwner') && (
+            <button
+              onClick={() => navigate('/add-field')}
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#ec4899)', color: '#fff', border: 'none', borderRadius: '10px', padding: '0.65rem 1.5rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(124,58,237,0.4)' }}
+            >
+              ➕ Add New Field
+            </button>
+          )}
         </div>
 
         {/* Filters */}
