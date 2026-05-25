@@ -1,148 +1,164 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+const authFetch = (url, opts = {}) => {
+  const token = localStorage.getItem('token');
+  return fetch(url, { ...opts, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...opts.headers } });
+};
+
+const STATUS_STYLE = {
+  confirmed: { bg: 'rgba(16,185,129,0.15)', color: '#6ee7b7', border: 'rgba(16,185,129,0.3)' },
+  pending:   { bg: 'rgba(245,158,11,0.15)', color: '#fcd34d', border: 'rgba(245,158,11,0.3)' },
+  cancelled: { bg: 'rgba(239,68,68,0.15)',  color: '#fca5a5', border: 'rgba(239,68,68,0.3)'  },
+  completed: { bg: 'rgba(59,130,246,0.15)', color: '#93c5fd', border: 'rgba(59,130,246,0.3)' },
+};
+
+const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+const fmtTime = (t) => t ? new Date(t).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '—';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [userBookings, setUserBookings] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [user, setUser]           = useState(null);
+  const [bookings, setBookings]   = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [mounted, setMounted]     = useState(false);
 
-  useEffect(() => {
-    // Check if user is logged in
+  useEffect(() => { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t); }, []);
+
+  const load = useCallback(async () => {
     const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    if (!token || !userData) {
-      alert('Please login to access dashboard');
-      navigate('/login');
-      return;
-    }
-    setUser(JSON.parse(userData));
-    loadUserBookings();
+    const raw   = localStorage.getItem('user');
+    if (!token || !raw) { navigate('/login'); return; }
+    setUser(JSON.parse(raw));
+
+    try {
+      const res  = await authFetch('/api/v1/bookings?limit=6');
+      const data = await res.json();
+      if (res.ok && data.success) setBookings(data.data?.bookings || []);
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
   }, [navigate]);
 
-  const loadUserBookings = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/v1/bookings', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
-        setUserBookings(data.bookings);
-      }
-    } catch (error) {
-      console.error('Error loading bookings:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => { load(); }, [load]);
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 pt-24 px-4 flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="text-6xl mb-4">🔐</div>
-          <h2 className="text-2xl font-bold mb-4">Authentication Required</h2>
-          <p className="text-gray-300 mb-6">Please login to access your dashboard</p>
-          <button
-            onClick={() => navigate('/login')}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:scale-105 transition-all"
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (!user) return null;
+
+  const upcomingCount  = bookings.filter(b => b.status === 'confirmed').length;
+  const completedCount = bookings.filter(b => b.status === 'completed').length;
+  const totalSpent     = bookings.reduce((s, b) => s + (b.pricing?.totalAmount || 0), 0);
+
+  const QUICK = [
+    { icon: '🏟️', label: 'Browse Fields',  sub: 'Find and book a venue',      path: '/fields',    grad: 'linear-gradient(135deg,#7c3aed,#6d28d9)' },
+    { icon: '📅', label: 'My Bookings',    sub: 'View all reservations',       path: '/bookings',  grad: 'linear-gradient(135deg,#0891b2,#0e7490)' },
+    { icon: '👤', label: 'My Profile',     sub: 'Update account details',      path: '/profile',   grad: 'linear-gradient(135deg,#059669,#047857)' },
+    { icon: '📞', label: 'Contact Support', sub: 'Get help from our team',     path: '/contact',   grad: 'linear-gradient(135deg,#d97706,#b45309)' },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 pt-24 px-4">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-black text-white mb-2">👤 My Dashboard</h1>
-          <p className="text-gray-300 text-lg">Welcome back, {user.firstName}!</p>
-          {user.isAdmin && (
-            <div className="mt-4">
-              <button
-                onClick={() => navigate('/admin')}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:scale-105 transition-all"
-              >
-                👑 Go to Admin Dashboard
-              </button>
-            </div>
+    <div className="pg-bg" style={{ minHeight: '100vh', paddingTop: '5.5rem' }}>
+      {/* Orbs */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: '50vw', height: '50vw', borderRadius: '50%', background: 'radial-gradient(circle,rgba(124,58,237,0.14),transparent 70%)', filter: 'blur(80px)' }} />
+        <div style={{ position: 'absolute', bottom: '-5%', right: '-5%', width: '40vw', height: '40vw', borderRadius: '50%', background: 'radial-gradient(circle,rgba(236,72,153,0.12),transparent 70%)', filter: 'blur(80px)' }} />
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '82rem', margin: '0 auto', padding: '2rem 1.5rem 4rem', opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(20px)', transition: 'opacity .5s, transform .5s' }}>
+
+        {/* ── Welcome header ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
+          <div>
+            <p style={{ color: '#64748b', fontSize: '0.88rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.3rem' }}>Welcome back</p>
+            <h1 style={{ fontSize: 'clamp(1.6rem,3vw,2.2rem)', fontWeight: 900, color: '#f1f5f9', margin: 0 }}>
+              {user.firstName} {user.lastName} <span style={{ fontSize: '1.5rem' }}>👋</span>
+            </h1>
+          </div>
+          {user.role === 'admin' && (
+            <Link to="/admin" style={{ textDecoration: 'none', padding: '0.65rem 1.4rem', borderRadius: '10px', background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontWeight: 800, fontSize: '0.9rem', boxShadow: '0 4px 15px rgba(245,158,11,0.35)' }}>
+              👑 Admin Panel
+            </Link>
           )}
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <button
-            onClick={() => navigate('/booking')}
-            className="bg-black/30 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-blue-500/50 transition-all text-left"
-          >
-            <div className="text-4xl mb-4">🏟️</div>
-            <h3 className="text-xl font-bold text-white mb-2">Book a Field</h3>
-            <p className="text-gray-300">Reserve your next game session</p>
-          </button>
+        {/* ── Stat tiles ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
+          {[
+            { icon: '📅', label: 'Total Bookings',  value: bookings.length, color: '#a78bfa' },
+            { icon: '⏰', label: 'Upcoming',         value: upcomingCount,   color: '#6ee7b7' },
+            { icon: '✅', label: 'Completed',        value: completedCount,  color: '#93c5fd' },
+            { icon: '💰', label: 'Total Spent',      value: `৳${totalSpent.toLocaleString()}`, color: '#fcd34d' },
+          ].map(s => (
+            <div key={s.label} className="card" style={{ textAlign: 'center', padding: '1.75rem 1rem' }}>
+              <div style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{s.icon}</div>
+              <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: '0.35rem' }}>{s.value}</div>
+              <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
 
-          <button
-            onClick={() => navigate('/add-field')}
-            className="bg-black/30 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-green-500/50 transition-all text-left"
-          >
-            <div className="text-4xl mb-4">➕</div>
-            <h3 className="text-xl font-bold text-white mb-2">Add Your Field</h3>
-            <p className="text-gray-300">Submit your field for approval</p>
-          </button>
-
-          <div className="bg-black/30 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-            <div className="text-4xl mb-4">📊</div>
-            <h3 className="text-xl font-bold text-white mb-2">Your Stats</h3>
-            <p className="text-gray-300">{userBookings.length} total bookings</p>
+        {/* ── Quick actions ── */}
+        <div style={{ marginBottom: '2.5rem' }}>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#94a3b8', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Quick Actions</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '1rem' }}>
+            {QUICK.map(q => (
+              <Link key={q.path} to={q.path} className="quick-action-card" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: q.grad, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', flexShrink: 0 }}>{q.icon}</div>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '0.95rem' }}>{q.label}</div>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{q.sub}</div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
 
-        {/* Recent Bookings */}
-        <div className="bg-black/30 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-          <h2 className="text-2xl font-bold text-white mb-4">📅 Recent Bookings</h2>
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-gray-400">Loading bookings...</p>
+        {/* ── Recent bookings ── */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Recent Bookings</h2>
+            <Link to="/bookings" style={{ color: '#7c3aed', fontSize: '0.88rem', fontWeight: 700, textDecoration: 'none' }}>View All →</Link>
+          </div>
+
+          {loading && (
+            <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+              <div className="spinner" style={{ width: '36px', height: '36px', margin: '0 auto 1rem' }} />
+              <p style={{ color: '#64748b' }}>Loading bookings…</p>
             </div>
-          ) : userBookings.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-400 mb-4">No bookings yet</p>
-              <button
-                onClick={() => navigate('/booking')}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:scale-105 transition-all"
-              >
-                Make Your First Booking
-              </button>
+          )}
+          {!loading && bookings.length === 0 && (
+            <div className="card" style={{ textAlign: 'center', padding: '3.5rem' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
+              <h3 style={{ color: '#f1f5f9', fontWeight: 800, marginBottom: '0.5rem' }}>No bookings yet</h3>
+              <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Start by browsing premium fields near you.</p>
+              <Link to="/fields" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.7rem 1.5rem' }}>
+                🏟️ Browse Fields
+              </Link>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {userBookings.slice(0, 6).map(booking => (
-                <div key={booking._id} className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-white font-bold">{booking.field?.name}</h3>
-                  <p className="text-blue-300 text-sm">{booking.field?.type}</p>
-                  <p className="text-gray-300 text-sm">📅 {new Date(booking.date).toLocaleDateString()}</p>
-                  <p className="text-gray-300 text-sm">⏰ {booking.startTime} - {booking.endTime}</p>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      booking.status === 'confirmed' ? 'bg-green-500/20 text-green-300' :
-                      booking.status === 'cancelled' ? 'bg-red-500/20 text-red-300' :
-                      'bg-yellow-500/20 text-yellow-300'
-                    }`}>
-                      {booking.status.toUpperCase()}
-                    </span>
-                    <span className="text-green-400 font-bold">${booking.totalAmount}</span>
+          )}
+          {!loading && bookings.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {bookings.map(b => {
+                const st = STATUS_STYLE[b.status] || STATUS_STYLE.pending;
+                return (
+                  <div key={b._id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', padding: '1.25rem 1.5rem' }}>
+                    <div style={{ flex: 1, minWidth: '180px' }}>
+                      <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '1rem', marginBottom: '0.2rem' }}>
+                        {b.field?.name || 'Field'}
+                      </div>
+                      <div style={{ color: '#64748b', fontSize: '0.82rem' }}>
+                        {fmtDate(b.startTime)} · {fmtTime(b.startTime)} – {fmtTime(b.endTime)}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <span style={{ background: st.bg, color: st.color, border: `1px solid ${st.border}`, borderRadius: '9999px', padding: '0.25rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        {b.status}
+                      </span>
+                      <span style={{ fontWeight: 800, color: '#6ee7b7', fontSize: '0.95rem' }}>
+                        ৳{b.pricing?.totalAmount?.toLocaleString() || 0}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
