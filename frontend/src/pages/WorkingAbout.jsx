@@ -22,6 +22,15 @@ const STATS = [
   { number: '8+',      label: 'Cities Covered',    icon: '🏙️', color: 'linear-gradient(135deg,#f97316,#fbbf24)' },
 ];
 
+const MILESTONES = [
+  { year: '2020', icon: '💡', title: 'The Idea',         desc: 'Founded after our CEO struggled to book a football field — built an MVP in 3 months.' },
+  { year: '2021', icon: '🚀', title: 'Public Launch',    desc: 'Launched in Dhaka with 50 partner fields and 1,000 early users in the first week.' },
+  { year: '2022', icon: '🏙️', title: 'City Expansion',  desc: 'Expanded to Chittagong, Sylhet, and Rajshahi. Crossed 10,000 registered users.' },
+  { year: '2023', icon: '🏆', title: 'Premium Tier',     desc: 'Introduced tournament hosting, team features, and the field-owner dashboard.' },
+  { year: '2024', icon: '📱', title: 'Mobile & Scale',   desc: 'Surpassed 50,000 users, 1,200+ partner fields across 8 cities in Bangladesh.' },
+  { year: '2025', icon: '🌍', title: 'Going Regional',   desc: 'Expanding to South Asia — partnering with venues in Nepal, Sri Lanka, and India.' },
+];
+
 const MISSION_ITEMS = [
   { icon: '🚀', title: 'Innovation',    desc: 'Continuously improving technology to enhance user experience' },
   { icon: '🤝', title: 'Accessibility', desc: 'Making sports facilities available to people from all backgrounds' },
@@ -90,6 +99,28 @@ const WorkingAbout = () => {
                   <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600" alt="Sports field"
                     style={{ width: '100%', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}
                     onError={e => { e.currentTarget.style.display = 'none'; }} />
+                </div>
+              </div>
+
+              {/* Timeline */}
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: '2rem', paddingTop: '2rem' }}>
+                <h3 style={{ color: '#e2e8f0', fontWeight: 900, fontSize: '1.1rem', marginBottom: '1.5rem', textAlign: 'center' }}>🗓️ Our Milestones</h3>
+                <div style={{ position: 'relative', paddingLeft: '2rem' }}>
+                  <div style={{ position: 'absolute', left: '0.6rem', top: 0, bottom: 0, width: '2px', background: 'linear-gradient(to bottom,#7c3aed,#ec4899)', borderRadius: '2px' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    {MILESTONES.map(m => (
+                      <div key={m.year} style={{ position: 'relative', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+                        <div style={{ position: 'absolute', left: '-1.7rem', width: '24px', height: '24px', borderRadius: '50%', background: 'linear-gradient(135deg,#7c3aed,#ec4899)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', flexShrink: 0, boxShadow: '0 0 0 3px rgba(124,58,237,0.25)' }}>{m.icon}</div>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.25rem' }}>
+                            <span style={{ background: 'rgba(124,58,237,0.22)', color: '#c4b5fd', padding: '0.1rem 0.55rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 800 }}>{m.year}</span>
+                            <span style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '0.92rem' }}>{m.title}</span>
+                          </div>
+                          <p style={{ color: '#64748b', fontSize: '0.83rem', lineHeight: 1.6, margin: 0 }}>{m.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
