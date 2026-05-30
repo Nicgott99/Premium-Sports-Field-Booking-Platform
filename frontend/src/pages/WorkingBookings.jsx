@@ -126,7 +126,7 @@ GroupSection.propTypes = {
 };
 
 /* ── renderBookingCard ── */
-function renderBookingCard(booking, setDetailBooking, setCancelConfirm) {
+function renderBookingCard(booking, setDetailBooking, setCancelConfirm, navigate) {
   const bookingId  = booking._id || booking.id;
   const fieldName  = booking.field?.name ?? booking.fieldName ?? 'Unknown Field';
   const sport      = booking.sport ?? (Array.isArray(booking.field?.sports) ? booking.field.sports[0] : '') ?? '';
@@ -176,6 +176,12 @@ function renderBookingCard(booking, setDetailBooking, setCancelConfirm) {
           <button onClick={() => setCancelConfirm(booking)}
             style={{ padding: '0.45rem 1rem', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.35)', color: '#f87171', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}>
             Cancel
+          </button>
+        )}
+        {['completed', 'cancelled'].includes(booking.status) && (booking.field?._id ?? booking.field) && (
+          <button onClick={() => navigate(`/booking?field=${booking.field?._id ?? booking.field}`)}
+            style={{ padding: '0.45rem 1rem', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.35)', color: '#6ee7b7', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}>
+            🔄 Book Again
           </button>
         )}
       </div>
@@ -396,10 +402,10 @@ const WorkingBookings = () => {
             ) : (
               <>
                 <GroupSection title="Upcoming Bookings" icon="⏰" count={upcomingBookings.length} accent="#6ee7b7">
-                  {upcomingBookings.map(booking => renderBookingCard(booking, setDetailBooking, setCancelConfirm))}
+                  {upcomingBookings.map(booking => renderBookingCard(booking, setDetailBooking, setCancelConfirm, navigate))}
                 </GroupSection>
                 <GroupSection title="Past Bookings" icon="🗂️" count={pastBookings.length} accent="#a78bfa">
-                  {pastBookings.map(booking => renderBookingCard(booking, setDetailBooking, setCancelConfirm))}
+                  {pastBookings.map(booking => renderBookingCard(booking, setDetailBooking, setCancelConfirm, navigate))}
                 </GroupSection>
                 {upcomingBookings.length === 0 && pastBookings.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '3rem' }}>
@@ -412,7 +418,7 @@ const WorkingBookings = () => {
         ) : (
           <div style={{ marginBottom: '2rem' }}>
             {filteredBookings.length > 0
-              ? filteredBookings.map(booking => renderBookingCard(booking, setDetailBooking, setCancelConfirm))
+              ? filteredBookings.map(booking => renderBookingCard(booking, setDetailBooking, setCancelConfirm, navigate))
               : (
                 <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
                   <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📅</div>
