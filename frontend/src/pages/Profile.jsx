@@ -323,6 +323,7 @@ MyFieldsTab.propTypes = {
 const Profile = () => {
   const navigate = useNavigate();
   const [user,     setUser]     = useState(null);
+  const [stats,    setStats]    = useState(null);
   const [loading,  setLoading]  = useState(true);
   const [editing,  setEditing]  = useState(false);
   const [tab,      setTab]      = useState('info');
@@ -356,6 +357,12 @@ const Profile = () => {
       const u = data.data?.user ?? data.data;
       setUser(u);
       setForm({ firstName: u.firstName ?? '', lastName: u.lastName ?? '', phone: u.phone ?? '', bio: u.bio ?? '', gender: u.gender ?? '', dateOfBirth: u.dateOfBirth ? u.dateOfBirth.split('T')[0] : '' });
+      const userId = u._id ?? u.id;
+      if (userId) {
+        const sRes  = await authFetch(`/api/v1/users/${userId}/stats`);
+        const sData = await sRes.json();
+        if (sRes.ok && sData.success) setStats(sData.data);
+      }
     } catch (err) {
       toast(err.message || 'Failed to load profile', 'error');
     } finally {
@@ -437,7 +444,7 @@ const Profile = () => {
     );
   }
 
-  const isOwner      = user.role === 'admin' || user.role === 'manager' || user.role === 'fieldOwner';
+  const isOwner = user.role === 'admin' || user.role === 'manager' || user.role === 'fieldOwner';
   const displayName  = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.email;
   const verifiedBg   = user.isVerified ? 'rgba(16,185,129,0.18)' : 'rgba(245,158,11,0.18)';
   const verifiedClr  = user.isVerified ? '#6ee7b7'               : '#fbbf24';
@@ -451,11 +458,28 @@ const Profile = () => {
       <ToastBar toasts={toasts} onRemove={removeToast} />
 
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 1.25rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>👤</div>
           <h1 style={{ fontSize: '2.1rem', fontWeight: 900, background: 'linear-gradient(135deg,#a78bfa,#f9a8d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.4rem' }}>My Profile</h1>
           <p style={{ color: '#64748b' }}>Manage your account information</p>
         </div>
+
+        {stats && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(160px,1fr))', gap: '1rem', marginBottom: '1.75rem' }}>
+            {[
+              { icon: '📅', label: 'Total Bookings',  value: stats.totalBookings  ?? 0, color: '#a78bfa' },
+              { icon: '✅', label: 'Completed',        value: stats.completedBookings ?? 0, color: '#6ee7b7' },
+              { icon: '💰', label: 'Total Spent',      value: `৳${(stats.totalSpent ?? 0).toLocaleString()}`, color: '#fcd34d' },
+              ...(isOwner ? [{ icon: '🏟️', label: 'Fields Owned', value: stats.fieldsOwned ?? 0, color: '#f9a8d4' }] : []),
+            ].map(s => (
+              <div key={s.label} className="card" style={{ textAlign: 'center', padding: '1.25rem 0.75rem' }}>
+                <div style={{ fontSize: '1.4rem', marginBottom: '0.35rem' }}>{s.icon}</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: '0.25rem' }}>{s.value}</div>
+                <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
