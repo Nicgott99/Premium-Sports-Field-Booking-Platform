@@ -136,6 +136,7 @@ const PremiumHome = () => {
   const [heroVisible,     setHeroVisible]     = useState(false);
   const [featuredFields,  setFeaturedFields]  = useState([]);
   const [featuredLoading, setFeaturedLoading] = useState(true);
+  const [liveStats,       setLiveStats]       = useState({ fields: 500, bookings: 12000 });
 
   useEffect(() => {
     const t = setTimeout(() => setHeroVisible(true), 80);
@@ -145,9 +146,17 @@ const PremiumHome = () => {
   useEffect(() => {
     async function loadFeatured() {
       try {
-        const res  = await fetch('/api/v1/fields/featured?limit=6');
-        const data = await res.json();
-        if (res.ok && data.success) setFeaturedFields(data.data?.fields || []);
+        const [fRes, sRes] = await Promise.all([
+          fetch('/api/v1/fields/featured?limit=6'),
+          fetch('/api/v1/fields?limit=1'),
+        ]);
+        const [fData, sData] = await Promise.all([fRes.json(), sRes.json()]);
+        if (fRes.ok && fData.success) setFeaturedFields(fData.data?.fields || []);
+        if (sRes.ok && sData.success) {
+          const totalFields   = sData.data?.total   ?? sData.total   ?? 500;
+          const totalBookings = sData.data?.bookings ?? 12000;
+          setLiveStats({ fields: totalFields, bookings: totalBookings });
+        }
       } catch { /* silent */ }
       finally { setFeaturedLoading(false); }
     }
@@ -290,7 +299,12 @@ const PremiumHome = () => {
       <section style={{ padding:'4rem 1.5rem' }}>
         <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:'1.25rem' }}>
-            {STATS.map(s => <StatCard key={s.label} {...s} />)}
+            {[
+              { ...STATS[0], value: liveStats.fields },
+              { ...STATS[1], value: Math.round(liveStats.bookings / 1000) },
+              STATS[2],
+              STATS[3],
+            ].map(s => <StatCard key={s.label} {...s} />)}
           </div>
         </div>
       </section>
