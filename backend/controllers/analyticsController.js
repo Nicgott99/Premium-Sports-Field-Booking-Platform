@@ -1,5 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
+import User from '../models/User.js';
+import Field from '../models/Field.js';
+import Booking from '../models/Booking.js';
 
 /**
  * Analytics & Reporting Controller
@@ -118,10 +121,29 @@ import logger from '../utils/logger.js';
  */
 export const getPlatformAnalytics = asyncHandler(async (req, res) => {
   logger.info(`Fetching platform analytics by user: ${req.user?.id}`);
+
+  const [totalUsers, totalFields, totalBookings, revenueAgg, activeFields, pendingBookings] = await Promise.all([
+    User.countDocuments(),
+    Field.countDocuments(),
+    Booking.countDocuments(),
+    Booking.aggregate([{ $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } }]),
+    Field.countDocuments({ status: 'active' }),
+    Booking.countDocuments({ status: 'pending' }),
+  ]);
+
+  const totalRevenue = revenueAgg[0]?.total ?? 0;
+
   res.status(200).json({
     success: true,
     message: 'Platform analytics retrieved successfully',
-    data: { analytics: {} }
+    data: {
+      totalUsers,
+      totalFields,
+      activeFields,
+      totalBookings,
+      pendingBookings,
+      totalRevenue,
+    }
   });
 });
 
@@ -138,10 +160,27 @@ export const getPlatformAnalytics = asyncHandler(async (req, res) => {
  */
 export const getBookingAnalytics = asyncHandler(async (req, res) => {
   logger.info(`Fetching booking analytics by user: ${req.user?.id}`);
+
+  const statusAgg = await Booking.aggregate([
+    { $group: { _id: '$status', count: { $sum: 1 } } },
+  ]);
+
+  const byStatus = {};
+  statusAgg.forEach(row => { byStatus[row._id] = row.count; });
+
+  const last7Days = await Booking.aggregate([
+    { $match: { createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } } },
+    { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+    { $sort: { _id: 1 } },
+  ]);
+
+  const total = Object.values(byStatus).reduce((s, v) => s + v, 0);
+  const cancellationRate = total > 0 ? Math.round(((byStatus.cancelled ?? 0) / total) * 100) : 0;
+
   res.status(200).json({
     success: true,
     message: 'Booking analytics retrieved successfully',
-    data: { analytics: {} }
+    data: { byStatus, last7Days, total, cancellationRate }
   });
 });
 
@@ -157,10 +196,27 @@ export const getBookingAnalytics = asyncHandler(async (req, res) => {
  */
 export const getUserAnalytics = asyncHandler(async (req, res) => {
   logger.info(`Fetching user analytics by user: ${req.user?.id}`);
+
+  const roleAgg = await User.aggregate([
+    { $group: { _id: '$role', count: { $sum: 1 } } },
+  ]);
+
+  const byRole = {};
+  roleAgg.forEach(row => { byRole[row._id] = row.count; });
+
+  const last30Days = await User.aggregate([
+    { $match: { createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } } },
+    { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+    { $sort: { _id: 1 } },
+  ]);
+
+  const totalUsers = Object.values(byRole).reduce((s, v) => s + v, 0);
+  const newUsersLast30 = last30Days.reduce((s, d) => s + d.count, 0);
+
   res.status(200).json({
     success: true,
     message: 'User analytics retrieved successfully',
-    data: { analytics: {} }
+    data: { byRole, last30Days, totalUsers, newUsersLast30 }
   });
 });
 
