@@ -232,10 +232,27 @@ export const getUserAnalytics = asyncHandler(async (req, res) => {
  */
 export const getRevenueAnalytics = asyncHandler(async (req, res) => {
   logger.info(`Fetching revenue analytics by user: ${req.user?.id}`);
+
+  const [totalAgg, monthlyAgg, refundAgg] = await Promise.all([
+    Booking.aggregate([
+      { $match: { status: { $in: ['confirmed', 'completed'] } } },
+      { $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } },
+    ]),
+    Booking.aggregate([
+      { $match: { createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }, status: { $in: ['confirmed', 'completed'] } } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, revenue: { $sum: '$pricing.totalAmount' } } },
+      { $sort: { _id: 1 } },
+    ]),
+    Booking.countDocuments({ status: 'cancelled' }),
+  ]);
+
+  const totalRevenue   = totalAgg[0]?.total   ?? 0;
+  const monthlyRevenue = monthlyAgg.reduce((s, d) => s + d.revenue, 0);
+
   res.status(200).json({
     success: true,
     message: 'Revenue analytics retrieved successfully',
-    data: { analytics: {} }
+    data: { totalRevenue, monthlyRevenue, last30Days: monthlyAgg, cancelledBookings: refundAgg }
   });
 });
 
@@ -250,10 +267,27 @@ export const getRevenueAnalytics = asyncHandler(async (req, res) => {
  * @throws {Error} 403 - User not admin
  */
 export const getFieldAnalytics = asyncHandler(async (req, res) => {
+  const [statusAgg, topFields] = await Promise.all([
+    Field.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]),
+    Booking.aggregate([
+      { $group: { _id: '$field', bookingCount: { $sum: 1 }, revenue: { $sum: '$pricing.totalAmount' } } },
+      { $sort: { bookingCount: -1 } },
+      { $limit: 10 },
+      { $lookup: { from: 'fields', localField: '_id', foreignField: '_id', as: 'field' } },
+      { $unwind: '$field' },
+      { $project: { bookingCount: 1, revenue: 1, 'field.name': 1, 'field.sport': 1 } },
+    ]),
+  ]);
+
+  const byStatus = {};
+  statusAgg.forEach(row => { byStatus[row._id] = row.count; });
+
   res.status(200).json({
     success: true,
     message: 'Field analytics retrieved successfully',
-    data: { analytics: {} }
+    data: { byStatus, topFields }
   });
 });
 
