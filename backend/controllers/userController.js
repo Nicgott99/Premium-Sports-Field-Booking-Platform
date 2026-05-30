@@ -365,7 +365,31 @@ export const getFollowing = asyncHandler(async (req, res) => {
 });
 
 export const searchUsers = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Search users endpoint', data: [] });
+  const q     = req.query.q || req.query.search || '';
+  const role  = req.query.role || '';
+  const page  = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+
+  if (q?.length < 2) {
+    res.status(400);
+    throw new Error('Search query must be at least 2 characters');
+  }
+
+  const query = {
+    $or: [
+      { firstName: { $regex: q, $options: 'i' } },
+      { lastName:  { $regex: q, $options: 'i' } },
+      { email:     { $regex: q, $options: 'i' } },
+    ],
+  };
+  if (role) query.role = role;
+
+  const [users, total] = await Promise.all([
+    User.find(query).select('-password').sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    User.countDocuments(query),
+  ]);
+
+  res.json({ success: true, message: 'Search results', data: { users, total, page, limit } });
 });
 
 export const getNearbyUsers = asyncHandler(async (req, res) => {
