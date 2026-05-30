@@ -1,5 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
+import User from '../models/User.js';
+import Booking from '../models/Booking.js';
+import Field from '../models/Field.js';
 
 /**
  * User Management Controller - Comprehensive User Account Operations
@@ -110,7 +113,27 @@ import logger from '../utils/logger.js';
  */
 export const getUsers = asyncHandler(async (req, res) => {
   logger.info('Fetching all users');
-  res.json({ success: true, message: 'Get users endpoint', data: [] });
+  const page   = Math.max(1, Number.parseInt(req.query.page,  10) || 1);
+  const limit  = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
+  const search = req.query.search || '';
+  const role   = req.query.role   || '';
+
+  const query = {};
+  if (search) {
+    query.$or = [
+      { firstName: { $regex: search, $options: 'i' } },
+      { lastName:  { $regex: search, $options: 'i' } },
+      { email:     { $regex: search, $options: 'i' } },
+    ];
+  }
+  if (role) query.role = role;
+
+  const [users, total] = await Promise.all([
+    User.find(query).select('-password').sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    User.countDocuments(query),
+  ]);
+
+  res.json({ success: true, message: 'Users retrieved successfully', data: { users, total, page, limit } });
 });
 
 /**
@@ -124,15 +147,20 @@ export const getUsers = asyncHandler(async (req, res) => {
  */
 export const getUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  
-  // Validate user ID format (MongoDB ObjectId)
-  if (!id || id.length !== 24) {
+
+  if (id?.length !== 24) {
     res.status(400);
     throw new Error('Invalid user ID format');
   }
-  
+
+  const user = await User.findById(id).select('-password');
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
   logger.info(`Fetching user: ${id}`);
-  res.json({ success: true, message: 'Get user endpoint', data: {} });
+  res.json({ success: true, message: 'User retrieved successfully', data: user });
 });
 
 /**
@@ -172,7 +200,26 @@ export const deleteUser = asyncHandler(async (req, res) => {
  * @returns {Object} User stats including bookings, teams, reviews, and activity
  */
 export const getUserStats = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get user stats endpoint', data: {} });
+  const userId = req.params.id || req.user?.id;
+
+  const [bookingAgg, fieldCount] = await Promise.all([
+    Booking.aggregate([
+      { $match: { user: userId } },
+      { $group: { _id: '$status', count: { $sum: 1 }, spent: { $sum: '$pricing.totalAmount' } } },
+    ]),
+    Field.countDocuments({ owner: userId }),
+  ]);
+
+  const stats = { totalBookings: 0, confirmedBookings: 0, cancelledBookings: 0, completedBookings: 0, totalSpent: 0, fieldsOwned: fieldCount };
+  bookingAgg.forEach(row => {
+    stats.totalBookings += row.count;
+    stats.totalSpent   += row.spent ?? 0;
+    if (row._id === 'confirmed')  stats.confirmedBookings  = row.count;
+    if (row._id === 'cancelled')  stats.cancelledBookings  = row.count;
+    if (row._id === 'completed')  stats.completedBookings  = row.count;
+  });
+
+  res.json({ success: true, message: 'User stats retrieved successfully', data: stats });
 });
 
 /**
@@ -183,7 +230,20 @@ export const getUserStats = asyncHandler(async (req, res) => {
  * @returns {Object} Array of user's bookings with details
  */
 export const getUserBookings = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get user bookings endpoint', data: [] });
+  const userId = req.params.id || req.user?.id;
+  const page   = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit  = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+
+  const [bookings, total] = await Promise.all([
+    Booking.find({ user: userId })
+      .populate('field', 'name location sport pricing')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Booking.countDocuments({ user: userId }),
+  ]);
+
+  res.json({ success: true, message: 'User bookings retrieved successfully', data: { bookings, total, page, limit } });
 });
 
 /**
@@ -194,7 +254,16 @@ export const getUserBookings = asyncHandler(async (req, res) => {
  * @returns {Object} Array of user's owned fields
  */
 export const getUserFields = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get user fields endpoint', data: [] });
+  const userId = req.params.id || req.user?.id;
+  const page   = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit  = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+
+  const [fields, total] = await Promise.all([
+    Field.find({ owner: userId }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    Field.countDocuments({ owner: userId }),
+  ]);
+
+  res.json({ success: true, message: 'User fields retrieved successfully', data: { fields, total, page, limit } });
 });
 
 /**
