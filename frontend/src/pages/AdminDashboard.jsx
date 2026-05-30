@@ -177,17 +177,29 @@ const UsersTab = ({ users, total, page, loading, query, onQueryChange, onSearch,
                 <td style={TD}><StatusPill status={u.role || 'user'} /></td>
                 <td style={TD}>{fmtDate(u.createdAt)}</td>
                 <td style={TD}>
-                  <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    {u.status !== 'suspended' && u.role !== 'admin' && (
+                  <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    {u.role !== 'admin' && u.isActive !== false && (
                       <button onClick={() => onAction(u._id, 'suspend')}
-                        style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.08)', color: '#fca5a5', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
+                        style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(245,158,11,0.4)', background: 'rgba(245,158,11,0.08)', color: '#fcd34d', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
                         Suspend
                       </button>
                     )}
-                    {u.status === 'suspended' && (
+                    {u.role !== 'admin' && u.isActive !== false && (
+                      <button onClick={() => onAction(u._id, 'ban')}
+                        style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.08)', color: '#fca5a5', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
+                        Ban
+                      </button>
+                    )}
+                    {u.isActive === false && (
                       <button onClick={() => onAction(u._id, 'activate')}
                         style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(16,185,129,0.4)', background: 'rgba(16,185,129,0.08)', color: '#6ee7b7', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
                         Activate
+                      </button>
+                    )}
+                    {!u.isVerified && u.role !== 'admin' && (
+                      <button onClick={() => onAction(u._id, 'verify')}
+                        style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(59,130,246,0.4)', background: 'rgba(59,130,246,0.08)', color: '#93c5fd', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
+                        Verify
                       </button>
                     )}
                   </div>
@@ -262,7 +274,7 @@ FieldsTab.propTypes = {
 };
 
 /* ── Tab: Bookings ── */
-const BookingsTab = ({ bookings, total, page, statusFilter, loading, onStatusChange, onPageChange, onCancel }) => (
+const BookingsTab = ({ bookings, total, page, statusFilter, loading, onStatusChange, onPageChange, onCancel, onConfirm }) => (
   <div>
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
       <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Bookings ({total})</h2>
@@ -296,12 +308,20 @@ const BookingsTab = ({ bookings, total, page, statusFilter, loading, onStatusCha
                 <td style={{ ...TD, color: '#6ee7b7', fontWeight: 700 }}>৳{b.pricing?.totalAmount?.toLocaleString() || 0}</td>
                 <td style={TD}><StatusPill status={b.status} /></td>
                 <td style={TD}>
-                  {b.status === 'confirmed' && (
-                    <button onClick={() => onCancel(b._id)}
-                      style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.08)', color: '#fca5a5', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
-                      Cancel
-                    </button>
-                  )}
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    {b.status === 'pending' && (
+                      <button onClick={() => onConfirm(b._id)}
+                        style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(16,185,129,0.4)', background: 'rgba(16,185,129,0.08)', color: '#6ee7b7', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
+                        Confirm
+                      </button>
+                    )}
+                    {(b.status === 'pending' || b.status === 'confirmed') && (
+                      <button onClick={() => onCancel(b._id)}
+                        style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.08)', color: '#fca5a5', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -317,6 +337,7 @@ BookingsTab.propTypes = {
   page: PropTypes.number.isRequired, statusFilter: PropTypes.string.isRequired,
   loading: PropTypes.bool.isRequired, onStatusChange: PropTypes.func.isRequired,
   onPageChange: PropTypes.func.isRequired, onCancel: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
 };
 
 /* ── Tab: Pending Fields ── */
@@ -530,6 +551,15 @@ const AdminDashboard = () => {
     } catch { toast('Network error', 'error'); }
   };
 
+  const confirmBooking = async (bookingId) => {
+    try {
+      const res  = await authFetch(`/api/v1/admin/bookings/${bookingId}/confirm`, { method: 'PUT' });
+      const data = await res.json();
+      if (data.success) { toast('Booking confirmed'); loadBookings(bookingsPage, bookingsStatus); }
+      else toast(data.message || 'Confirm failed', 'error');
+    } catch { toast('Network error', 'error'); }
+  };
+
   if (!adminUser) return null;
 
   return (
@@ -587,6 +617,7 @@ const AdminDashboard = () => {
             onStatusChange={s => { setBookingsStatus(s); setBookingsPage(1); loadBookings(1, s); }}
             onPageChange={p => { setBookingsPage(p); loadBookings(p, bookingsStatus); }}
             onCancel={cancelBooking}
+            onConfirm={confirmBooking}
           />
         )}
 
