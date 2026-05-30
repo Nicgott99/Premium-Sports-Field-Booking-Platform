@@ -174,8 +174,33 @@ export const getUser = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - User not found
  */
 export const updateUser = asyncHandler(async (req, res) => {
-  logger.info(`Updating user: ${req.params.id}`);
-  res.json({ success: true, message: 'Update user endpoint' });
+  const { id } = req.params;
+  logger.info(`Updating user: ${id}`);
+
+  const user = await User.findById(id);
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  if (req.user?.id !== id && req.user?.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to update this user');
+  }
+
+  const allowed = ['firstName', 'lastName', 'phone', 'bio', 'location', 'sports'];
+  const updates = {};
+  allowed.forEach(field => {
+    if (req.body[field] !== undefined) updates[field] = req.body[field];
+  });
+
+  if (req.user?.role === 'admin' && req.body.role !== undefined) {
+    updates.role = req.body.role;
+  }
+
+  const updated = await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true }).select('-password');
+
+  res.json({ success: true, message: 'User updated successfully', data: updated });
 });
 
 /**
@@ -188,8 +213,24 @@ export const updateUser = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - User not found
  */
 export const deleteUser = asyncHandler(async (req, res) => {
-  logger.info(`Deleting user: ${req.params.id}`);
-  res.json({ success: true, message: 'Delete user endpoint' });
+  const { id } = req.params;
+  logger.info(`Deleting user: ${id}`);
+
+  if (req.user?.id !== id && req.user?.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to delete this user');
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  await Booking.deleteMany({ user: id });
+  await User.findByIdAndDelete(id);
+
+  res.json({ success: true, message: 'User account deleted successfully', data: { userId: id } });
 });
 
 /**
