@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 const SPORTS = ['Football', 'Basketball', 'Tennis', 'Cricket', 'Badminton', 'Swimming', 'Baseball', 'Volleyball'];
+const SPORT_ICONS = { Football: '⚽', Basketball: '🏀', Tennis: '🎾', Cricket: '🏏', Badminton: '🏸', Swimming: '🏊', Baseball: '⚾', Volleyball: '🏐' };
 const CITIES  = ['Dhaka', 'Chittagong', 'Sylhet', 'Rajshahi', 'Khulna', 'Barisal', 'Rangpur', 'Mymensingh'];
 
 /* ── FieldCard ── */
@@ -40,7 +41,14 @@ function FieldCard({ field, onBook, onDetails }) {
       </div>
       <div style={{ padding: '1.1rem 1.25rem 1.25rem' }}>
         <h3 style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.35rem' }}>{fieldName}</h3>
-        <p style={{ color: '#94a3b8', fontSize: '0.83rem', marginBottom: '0.2rem' }}>📍 {location}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem', flexWrap: 'wrap' }}>
+          <span style={{ color: '#94a3b8', fontSize: '0.83rem' }}>📍 {location}</span>
+          {field.totalBookings > 0 && (
+            <span style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', color: '#6ee7b7', fontSize: '0.7rem', fontWeight: 700, padding: '0.1rem 0.45rem', borderRadius: '999px' }}>
+              {field.totalBookings} bookings
+            </span>
+          )}
+        </div>
         <p style={{ color: '#94a3b8', fontSize: '0.83rem', marginBottom: '0.55rem' }}>🏅 {sport}</p>
         {field.description && (
           <p style={{ color: '#64748b', fontSize: '0.77rem', marginBottom: '0.65rem', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
@@ -80,6 +88,7 @@ FieldCard.propTypes = {
     amenities: PropTypes.arrayOf(PropTypes.string), features: PropTypes.arrayOf(PropTypes.string),
     operatingHours: PropTypes.shape({ open: PropTypes.string, close: PropTypes.string }),
     openTime: PropTypes.string, closeTime: PropTypes.string, isActive: PropTypes.bool, description: PropTypes.string,
+    totalBookings: PropTypes.number,
   }).isRequired,
   onBook: PropTypes.func.isRequired,
   onDetails: PropTypes.func.isRequired,
@@ -224,6 +233,20 @@ const WorkingFields = () => {
               ➕ Add New Field
             </button>
           )}
+        </div>
+
+        {/* Sport quick-filter chips */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.25rem', justifyContent: 'center' }}>
+          <button onClick={() => setSelectedSport('')}
+            style={{ padding: '0.45rem 1.1rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.83rem', cursor: 'pointer', border: '1px solid', transition: 'all .18s', background: selectedSport ? 'rgba(255,255,255,0.04)' : 'linear-gradient(135deg,#7c3aed,#ec4899)', color: selectedSport ? '#94a3b8' : '#fff', borderColor: selectedSport ? 'rgba(255,255,255,0.1)' : 'transparent' }}>
+            🏟️ All Sports
+          </button>
+          {SPORTS.map(s => (
+            <button key={s} onClick={() => setSelectedSport(selectedSport === s ? '' : s)}
+              style={{ padding: '0.45rem 1.1rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.83rem', cursor: 'pointer', border: '1px solid', transition: 'all .18s', background: selectedSport === s ? 'linear-gradient(135deg,#7c3aed,#ec4899)' : 'rgba(255,255,255,0.04)', color: selectedSport === s ? '#fff' : '#94a3b8', borderColor: selectedSport === s ? 'transparent' : 'rgba(255,255,255,0.1)' }}>
+              {SPORT_ICONS[s] ?? '🏅'} {s}
+            </button>
+          ))}
         </div>
 
         {/* Filters */}
