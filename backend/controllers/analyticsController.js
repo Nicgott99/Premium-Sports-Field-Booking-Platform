@@ -295,10 +295,31 @@ export const getFieldAnalytics = asyncHandler(async (req, res) => {
 // @route   GET /api/analytics/dashboard
 // @access  Private/Admin
 export const getDashboardData = asyncHandler(async (req, res) => {
+  const [totalUsers, totalFields, totalBookings, revenueAgg, pendingBookings, activeFields, recentBookings] = await Promise.all([
+    User.countDocuments(),
+    Field.countDocuments(),
+    Booking.countDocuments(),
+    Booking.aggregate([{ $match: { status: { $in: ['confirmed', 'completed'] } } }, { $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } }]),
+    Booking.countDocuments({ status: 'pending' }),
+    Field.countDocuments({ status: 'active' }),
+    Booking.find().sort({ createdAt: -1 }).limit(5).populate('field', 'name').populate('user', 'firstName lastName'),
+  ]);
+
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const [newUsersWeek, newBookingsWeek] = await Promise.all([
+    User.countDocuments({ createdAt: { $gte: weekAgo } }),
+    Booking.countDocuments({ createdAt: { $gte: weekAgo } }),
+  ]);
+
   res.status(200).json({
     success: true,
     message: 'Dashboard data retrieved successfully',
-    data: { dashboard: {} }
+    data: {
+      totalUsers, totalFields, activeFields, totalBookings, pendingBookings,
+      totalRevenue: revenueAgg[0]?.total ?? 0,
+      newUsersWeek, newBookingsWeek,
+      recentBookings,
+    }
   });
 });
 
