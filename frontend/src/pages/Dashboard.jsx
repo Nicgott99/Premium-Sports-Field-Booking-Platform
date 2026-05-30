@@ -20,6 +20,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser]           = useState(null);
   const [bookings, setBookings]   = useState([]);
+  const [stats, setStats]         = useState(null);
   const [loading, setLoading]     = useState(true);
   const [mounted, setMounted]     = useState(false);
 
@@ -32,9 +33,15 @@ const Dashboard = () => {
     setUser(JSON.parse(raw));
 
     try {
-      const res  = await authFetch('/api/v1/bookings?limit=6');
-      const data = await res.json();
-      if (res.ok && data.success) setBookings(data.data?.bookings || []);
+      const parsed = JSON.parse(raw);
+      const [bRes, sRes] = await Promise.all([
+        authFetch('/api/v1/bookings?limit=6'),
+        authFetch(`/api/v1/users/${parsed._id ?? parsed.id}/stats`),
+      ]);
+      const bData = await bRes.json();
+      const sData = await sRes.json();
+      if (bRes.ok && bData.success) setBookings(bData.data?.bookings || []);
+      if (sRes.ok && sData.success) setStats(sData.data);
     } catch { /* ignore */ }
     finally { setLoading(false); }
   }, [navigate]);
@@ -43,9 +50,11 @@ const Dashboard = () => {
 
   if (!user) return null;
 
-  const upcomingCount  = bookings.filter(b => b.status === 'confirmed').length;
-  const completedCount = bookings.filter(b => b.status === 'completed').length;
-  const totalSpent     = bookings.reduce((s, b) => s + (b.pricing?.totalAmount || 0), 0);
+  const upcomingCount  = stats?.confirmedBookings  ?? bookings.filter(b => b.status === 'confirmed').length;
+  const completedCount = stats?.completedBookings  ?? bookings.filter(b => b.status === 'completed').length;
+  const totalSpent     = stats?.totalSpent         ?? bookings.reduce((s, b) => s + (b.pricing?.totalAmount || 0), 0);
+  const totalBookings  = stats?.totalBookings      ?? bookings.length;
+  const fieldsOwned    = stats?.fieldsOwned        ?? 0;
 
   const isOwner = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'fieldOwner';
 
@@ -85,10 +94,11 @@ const Dashboard = () => {
         {/* ── Stat tiles ── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
           {[
-            { icon: '📅', label: 'Total Bookings',  value: bookings.length, color: '#a78bfa' },
+            { icon: '📅', label: 'Total Bookings',  value: totalBookings,   color: '#a78bfa' },
             { icon: '⏰', label: 'Upcoming',         value: upcomingCount,   color: '#6ee7b7' },
             { icon: '✅', label: 'Completed',        value: completedCount,  color: '#93c5fd' },
             { icon: '💰', label: 'Total Spent',      value: `৳${totalSpent.toLocaleString()}`, color: '#fcd34d' },
+            ...(isOwner ? [{ icon: '🏟️', label: 'Fields Owned', value: fieldsOwned, color: '#f9a8d4' }] : []),
           ].map(s => (
             <div key={s.label} className="card" style={{ textAlign: 'center', padding: '1.75rem 1rem' }}>
               <div style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{s.icon}</div>
