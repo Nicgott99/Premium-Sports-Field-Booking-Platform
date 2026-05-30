@@ -197,12 +197,11 @@ export const createReview = asyncHandler(async (req, res) => {
 export const getFieldReviews = asyncHandler(async (req, res) => {
   const { fieldId } = req.params;
   
-  // Validate field ID format
-  if (!fieldId || fieldId.length !== 24) {
+  if (fieldId?.length !== 24) {
     res.status(400);
     throw new Error('Invalid field ID format');
   }
-  
+
   const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
   const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
 
@@ -274,12 +273,35 @@ export const getUserReviews = asyncHandler(async (req, res) => {
  * @throws {Error} 403 - User not authorized to update review
  */
 export const updateReview = asyncHandler(async (req, res) => {
-  logger.info(`Updating review: ${req.params.id} for user: ${req.user?.id}`);
-  res.status(200).json({
-    success: true,
-    message: 'Review updated successfully',
-    data: { review: { id: req.params.id } }
-  });
+  const { id } = req.params;
+  const userId  = req.user?.id;
+
+  const review = await Review.findById(id);
+  if (!review) {
+    res.status(404);
+    throw new Error('Review not found');
+  }
+
+  if (review.user?.toString() !== userId && req.user?.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to update this review');
+  }
+
+  const { rating, comment, title } = req.body;
+  if (rating !== undefined) {
+    const r = Number(rating);
+    if (!Number.isInteger(r) || r < 1 || r > 5) {
+      res.status(400);
+      throw new Error('Rating must be an integer between 1 and 5');
+    }
+    review.rating = r;
+  }
+  if (comment !== undefined) review.content = comment;
+  if (title   !== undefined) review.title   = title;
+
+  const updated = await review.save();
+  logger.info(`Review updated: ${id} by user: ${userId}`);
+  res.status(200).json({ success: true, message: 'Review updated successfully', data: updated });
 });
 
 /**
@@ -294,10 +316,24 @@ export const updateReview = asyncHandler(async (req, res) => {
  * @throws {Error} 403 - User not authorized to delete review
  */
 export const deleteReview = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Review deleted successfully'
-  });
+  const { id } = req.params;
+  const userId  = req.user?.id;
+
+  const review = await Review.findById(id);
+  if (!review) {
+    res.status(404);
+    throw new Error('Review not found');
+  }
+
+  if (review.user?.toString() !== userId && req.user?.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to delete this review');
+  }
+
+  await Review.findByIdAndDelete(id);
+
+  logger.info(`Review deleted: ${id} by user: ${userId}`);
+  res.status(200).json({ success: true, message: 'Review deleted successfully', data: { reviewId: id } });
 });
 
 // @desc    Like review
