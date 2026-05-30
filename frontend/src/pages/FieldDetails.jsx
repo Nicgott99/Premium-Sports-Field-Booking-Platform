@@ -145,6 +145,19 @@ function DetailRow({ label, value }) {
 DetailRow.propTypes = { label: PropTypes.string.isRequired, value: PropTypes.string };
 DetailRow.defaultProps = { value: '' };
 
+const AMENITY_ICONS = {
+  parking: '🅿️', wifi: '📶', changing_rooms: '🚿', showers: '🚿', lockers: '🔒',
+  lighting: '💡', floodlights: '💡', cafeteria: '🍽️', canteen: '🍽️', equipment: '⚽',
+  first_aid: '🏥', security: '🔐', wheelchair: '♿', air_conditioning: '❄️',
+  scoreboard: '📊', spectator_stands: '🏟️', toilets: '🚻', water: '💧',
+  referee: '🏁', coaching: '👨‍🏫',
+};
+
+const amenityIcon = (name) => {
+  const key = name.toLowerCase().replaceAll(' ', '_');
+  return AMENITY_ICONS[key] ?? '✓';
+};
+
 /* ── FieldDetails ── */
 const FieldDetails = () => {
   const { id }   = useParams();
@@ -296,13 +309,16 @@ const FieldDetails = () => {
             {amenities.length > 0 && (
               <div className="card" style={{ padding: '1.5rem' }}>
                 <h2 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '1rem', marginBottom: '1rem' }}>🏆 Amenities</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: '0.5rem' }}>
-                  {amenities.map(a => (
-                    <div key={a} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#94a3b8', fontSize: '0.85rem' }}>
-                      <span style={{ color: '#10b981', fontWeight: 700 }}>✓</span>
-                      <span style={{ textTransform: 'capitalize' }}>{typeof a === 'string' ? a.replaceAll('_', ' ') : a}</span>
-                    </div>
-                  ))}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: '0.6rem' }}>
+                  {amenities.map(a => {
+                    const label = typeof a === 'string' ? a.replaceAll('_', ' ') : String(a);
+                    return (
+                      <div key={a} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.18)', borderRadius: '8px', padding: '0.4rem 0.7rem' }}>
+                        <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>{amenityIcon(label)}</span>
+                        <span style={{ color: '#c4b5fd', fontSize: '0.78rem', fontWeight: 600, textTransform: 'capitalize' }}>{label}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -335,8 +351,16 @@ const FieldDetails = () => {
 
             {/* Price + CTA */}
             <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
-              <div style={{ fontSize: '2rem', fontWeight: 900, background: 'linear-gradient(135deg,#a78bfa,#f9a8d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.25rem' }}>৳{price.toLocaleString()}</div>
-              <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '1.25rem' }}>per hour</p>
+              <div style={{ fontSize: '2rem', fontWeight: 900, background: 'linear-gradient(135deg,#a78bfa,#f9a8d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.1rem' }}>৳{price.toLocaleString()}</div>
+              <p style={{ color: '#64748b', fontSize: '0.82rem', marginBottom: '0.75rem' }}>per hour (standard)</p>
+              {field.pricing?.peak > 0 && (
+                <p style={{ color: '#fcd34d', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+                  ⚡ Peak: ৳{Number(field.pricing.peak).toLocaleString()}/hr
+                </p>
+              )}
+              <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '8px', padding: '0.55rem 0.75rem', marginBottom: '1.25rem' }}>
+                <span style={{ color: '#34d399', fontSize: '0.78rem', fontWeight: 700 }}>✓ Free cancellation 24h before</span>
+              </div>
               <button onClick={() => navigate(`/booking?field=${id}`)} className="btn-primary"
                 style={{ width: '100%', justifyContent: 'center', fontSize: '0.95rem', padding: '0.85rem', marginBottom: '0.65rem' }}>
                 🎯 Book This Field
