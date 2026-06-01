@@ -256,20 +256,35 @@ export const deleteTeam = asyncHandler(async (req, res) => {
 // @route   POST /api/teams/:id/join
 // @access  Private
 export const joinTeam = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Joined team successfully'
+  const userId = req.user?.id;
+  const team   = await Team.findById(req.params.id);
+  if (!team) { res.status(404); throw new Error('Team not found'); }
+  if (team.members.some(m => m.user?.toString() === userId)) {
+    res.status(409); throw new Error('You are already a member of this team');
+  }
+  if (team.members.length >= (team.maxMembers || 22)) {
+    res.status(400); throw new Error('Team is at maximum capacity');
+  }
+  await Team.findByIdAndUpdate(req.params.id, {
+    $push: { members: { user: userId, role: 'player', joinedAt: new Date() } }
   });
+  logger.info(`User ${userId} joined team ${req.params.id}`);
+  res.status(200).json({ success: true, message: 'Joined team successfully', data: { teamId: req.params.id } });
 });
 
 // @desc    Leave team
 // @route   POST /api/teams/:id/leave
 // @access  Private
 export const leaveTeam = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Left team successfully'
-  });
+  const userId = req.user?.id;
+  const team   = await Team.findById(req.params.id);
+  if (!team) { res.status(404); throw new Error('Team not found'); }
+  if (team.captain?.toString() === userId) {
+    res.status(400); throw new Error('Captain cannot leave — transfer ownership or delete the team first');
+  }
+  await Team.findByIdAndUpdate(req.params.id, { $pull: { members: { user: userId } } });
+  logger.info(`User ${userId} left team ${req.params.id}`);
+  res.status(200).json({ success: true, message: 'Left team successfully', data: { teamId: req.params.id } });
 });
 
 // @desc    Invite to team
@@ -357,9 +372,12 @@ export const acceptTeamInvite = asyncHandler(async (req, res) => {
 // @route   GET /api/teams/:id/members
 // @access  Private
 export const getTeamMembers = asyncHandler(async (req, res) => {
+  const team = await Team.findById(req.params.id)
+    .populate('members.user', 'firstName lastName avatar email');
+  if (!team) { res.status(404); throw new Error('Team not found'); }
   res.status(200).json({
     success: true,
     message: 'Team members retrieved successfully',
-    data: { members: [] }
+    data: { members: team.members, total: team.members.length }
   });
 });
