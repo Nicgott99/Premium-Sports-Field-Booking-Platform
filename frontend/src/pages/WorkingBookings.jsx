@@ -41,41 +41,60 @@ StatTile.propTypes = { icon: PropTypes.string.isRequired, value: PropTypes.numbe
 /* ── DetailModal ── */
 function DetailModal({ booking, onClose }) {
   if (!booking) return null;
-  const fieldName = booking.field?.name ?? booking.fieldName ?? 'N/A';
-  const sport     = booking.sport ?? 'N/A';
-  const price     = booking.pricing?.totalAmount ?? booking.price ?? 'N/A';
-  const location  = booking.field?.location?.address ?? booking.location ?? 'N/A';
-  const timeSlot  = booking.timeSlot ?? `${booking.startTime ?? ''} – ${booking.endTime ?? ''}`;
+
+  const fieldName  = booking.field?.name ?? booking.fieldName ?? 'N/A';
+  const sport      = booking.sport ?? booking.field?.sports?.[0] ?? 'N/A';
+  const totalPrice = booking.pricing?.totalAmount ?? booking.price ?? 0;
+  const basePrice  = booking.pricing?.basePrice   ?? 0;
+  const city       = booking.field?.location?.city    ?? '';
+  const address    = booking.field?.location?.address ?? booking.location ?? 'N/A';
+  const locText    = [address, city].filter(Boolean).join(', ');
+  const startDt    = booking.startTime ? new Date(booking.startTime) : null;
+  const endDt      = booking.endTime   ? new Date(booking.endTime)   : null;
+  const dateStr    = startDt ? startDt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : (booking.date ?? 'N/A');
+  const timeStr    = startDt && endDt
+    ? `${startDt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} – ${endDt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+    : (booking.timeSlot ?? 'N/A');
+  const rating     = booking.field?.rating?.average ?? 0;
+  const st         = getStatusStyle(booking.status);
+
+  const durationSuffix = booking.duration > 1 ? 's' : '';
+  const durationLabel  = booking.duration ? `${booking.duration} hour${durationSuffix}` : 'N/A';
+  const basePriceRow  = basePrice > 0 ? [['💵 Base Price', `৳${basePrice.toLocaleString()}`]] : [];
+
   const rows = [
-    ['Field',     fieldName],
-    ['Sport',     sport],
-    ['Date',      booking.date ?? 'N/A'],
-    ['Time',      timeSlot],
-    ['Location',  location],
-    ['Price',     `৳${price}`],
-    ['Slots',     booking.duration ? `${booking.duration}h` : 'N/A'],
-    ['Status',    (booking.status ?? 'N/A').toUpperCase()],
-    ['Booking ID', booking._id ?? booking.id ?? 'N/A'],
+    ['📍 Location',   locText],
+    ['📅 Date',       dateStr],
+    ['⏰ Time',       timeStr],
+    ['⏱️ Duration',   durationLabel],
+    ...basePriceRow,
+    ['💰 Total Paid', `৳${totalPrice.toLocaleString()}`],
+    ['🆔 Booking ID', (booking._id ?? booking.id ?? 'N/A').slice(-12)],
   ];
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)', zIndex: 9000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-      <div style={{ background: 'rgba(15,15,25,0.96)', border: '1px solid rgba(124,58,237,0.3)', borderRadius: '20px', padding: '2rem', maxWidth: '440px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.6)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+      <div style={{ background: 'rgba(15,15,25,0.97)', border: '1px solid rgba(124,58,237,0.3)', borderRadius: '20px', padding: '2rem', maxWidth: '460px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.6)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
           <div>
-            <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>📋</div>
-            <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.2rem', margin: 0 }}>Booking Details</h2>
+            <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.25rem', margin: '0 0 0.2rem' }}>{fieldName}</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <span style={{ background: 'rgba(124,58,237,0.2)', color: '#c4b5fd', padding: '0.15rem 0.55rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'capitalize' }}>{sport}</span>
+              {rating > 0 && <span style={{ color: '#fbbf24', fontSize: '0.8rem', fontWeight: 700 }}>⭐ {rating.toFixed(1)}</span>}
+              <span style={{ background: st.bg, color: st.color, border: `1px solid ${st.bdr}`, padding: '0.15rem 0.55rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>{booking.status}</span>
+            </div>
           </div>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#94a3b8', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1.5rem' }}>
           {rows.map(([k, v]) => (
-            <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
-              <span style={{ color: '#64748b', fontSize: '0.83rem', fontWeight: 600 }}>{k}</span>
-              <span style={{ color: '#e2e8f0', fontSize: '0.88rem', fontWeight: 700, textAlign: 'right', maxWidth: '220px', wordBreak: 'break-all' }}>{v}</span>
+            <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.45rem' }}>
+              <span style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>{k}</span>
+              <span style={{ color: '#e2e8f0', fontSize: '0.87rem', fontWeight: 700, textAlign: 'right', maxWidth: '220px', wordBreak: 'break-word' }}>{v}</span>
             </div>
           ))}
         </div>
-        <button onClick={onClose} className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '1.5rem' }}>Close</button>
+        <button onClick={onClose} className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>Close</button>
       </div>
     </div>
   );
@@ -83,9 +102,15 @@ function DetailModal({ booking, onClose }) {
 DetailModal.propTypes = {
   booking: PropTypes.shape({
     _id: PropTypes.string, id: PropTypes.string,
-    field: PropTypes.shape({ name: PropTypes.string, location: PropTypes.shape({ address: PropTypes.string }) }),
+    field: PropTypes.shape({
+      name: PropTypes.string,
+      sports: PropTypes.arrayOf(PropTypes.string),
+      rating: PropTypes.shape({ average: PropTypes.number }),
+      location: PropTypes.shape({ address: PropTypes.string, city: PropTypes.string }),
+    }),
     fieldName: PropTypes.string, sport: PropTypes.string,
-    pricing: PropTypes.shape({ totalAmount: PropTypes.number }), price: PropTypes.number,
+    pricing: PropTypes.shape({ totalAmount: PropTypes.number, basePrice: PropTypes.number }),
+    price: PropTypes.number,
     location: PropTypes.string, timeSlot: PropTypes.string, startTime: PropTypes.string, endTime: PropTypes.string,
     date: PropTypes.string, duration: PropTypes.number, status: PropTypes.string,
   }),
