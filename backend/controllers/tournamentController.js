@@ -1,4 +1,6 @@
 import asyncHandler from 'express-async-handler';
+import logger from '../utils/logger.js';
+import Tournament from '../models/Tournament.js';
 
 /**
  * Tournament Controller - Sports Tournament Management
@@ -138,22 +140,60 @@ import asyncHandler from 'express-async-handler';
  * @access  Private/Admin
  */
 export const createTournament = asyncHandler(async (req, res) => {
-  res.status(201).json({
-    success: true,
-    message: 'Tournament created successfully',
-    data: { id: 'placeholder-tournament-id' }
+  const { name, description, sport, format, startDate, endDate, registrationDeadline, maxTeams, entryFee, skillLevel } = req.body;
+  const organizerId = req.user?.id;
+
+  if (!name || !sport || !format || !startDate || !endDate || !registrationDeadline || !maxTeams) {
+    res.status(400);
+    throw new Error('name, sport, format, startDate, endDate, registrationDeadline and maxTeams are required');
+  }
+
+  const city = req.body.city || req.body.location?.city || 'Dhaka';
+
+  const tournament = await Tournament.create({
+    name,
+    description,
+    organizer: organizerId,
+    sport,
+    format,
+    startDate: new Date(startDate),
+    endDate:   new Date(endDate),
+    registrationDeadline: new Date(registrationDeadline),
+    maxTeams:  Number(maxTeams),
+    entryFee:  entryFee  ? Number(entryFee)  : 0,
+    skillLevel: skillLevel || 'intermediate',
+    location: { city },
+    status: 'upcoming',
   });
+
+  logger.info(`Tournament created: ${tournament._id} by user ${organizerId}`);
+  res.status(201).json({ success: true, message: 'Tournament created successfully', data: tournament });
 });
 
 // @desc    Get all tournaments
 // @route   GET /api/tournaments
 // @access  Public
 export const getTournaments = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Tournaments retrieved successfully',
-    data: { tournaments: [] }
-  });
+  const page   = Math.max(1, Number.parseInt(req.query.page,  10) || 1);
+  const limit  = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+  const status = req.query.status || '';
+  const sport  = req.query.sport  || '';
+
+  const query = {};
+  if (status) query.status = status;
+  if (sport)  query.sport  = sport;
+
+  const [tournaments, total] = await Promise.all([
+    Tournament.find(query)
+      .populate('organizer', 'firstName lastName')
+      .sort({ startDate: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Tournament.countDocuments(query),
+  ]);
+
+  logger.info(`Fetched ${tournaments.length} tournaments`);
+  res.status(200).json({ success: true, message: 'Tournaments retrieved successfully', data: { tournaments, total, page, limit } });
 });
 
 // @desc    Get tournament by ID
