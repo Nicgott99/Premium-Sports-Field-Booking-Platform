@@ -338,9 +338,51 @@ export const exportAnalytics = asyncHandler(async (req, res) => {
 // @route   POST /api/analytics/custom
 // @access  Private/Admin
 export const getCustomAnalytics = asyncHandler(async (req, res) => {
+  const { startDate, endDate, metric } = req.body;
+
+  if (!startDate || !endDate) {
+    res.status(400);
+    throw new Error('startDate and endDate are required');
+  }
+
+  const start = new Date(startDate);
+  const end   = new Date(endDate);
+
+  if (end <= start) {
+    res.status(400);
+    throw new Error('endDate must be after startDate');
+  }
+
+  const dateFilter = { createdAt: { $gte: start, $lte: end } };
+
+  const results = {};
+
+  if (!metric || metric === 'bookings') {
+    results.bookings = await Booking.aggregate([
+      { $match: dateFilter },
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 }, revenue: { $sum: '$pricing.totalAmount' } } },
+      { $sort: { _id: 1 } },
+    ]);
+  }
+
+  if (!metric || metric === 'users') {
+    results.users = await User.aggregate([
+      { $match: dateFilter },
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]);
+  }
+
+  if (!metric || metric === 'fields') {
+    results.fields = await Field.aggregate([
+      { $match: dateFilter },
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]);
+  }
+
   res.status(200).json({
     success: true,
     message: 'Custom analytics retrieved successfully',
-    data: { analytics: {} }
+    data: { analytics: results, startDate, endDate, metric: metric || 'all' }
   });
 });
