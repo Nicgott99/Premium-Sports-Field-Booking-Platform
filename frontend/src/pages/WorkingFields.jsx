@@ -3,11 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 const SPORTS = ['Football', 'Basketball', 'Tennis', 'Cricket', 'Badminton', 'Swimming', 'Baseball', 'Volleyball'];
+
+const PAGE_SIZE     = 12;
+const getFavorites  = () => { try { return JSON.parse(localStorage.getItem('favoriteFields') || '[]'); } catch { return []; } };
+const saveFavorites = (ids) => localStorage.setItem('favoriteFields', JSON.stringify(ids));
 const SPORT_ICONS = { Football: '⚽', Basketball: '🏀', Tennis: '🎾', Cricket: '🏏', Badminton: '🏸', Swimming: '🏊', Baseball: '⚾', Volleyball: '🏐' };
 const CITIES  = ['Dhaka', 'Chittagong', 'Sylhet', 'Rajshahi', 'Khulna', 'Barisal', 'Rangpur', 'Mymensingh'];
 
 /* ── FieldCard ── */
-function FieldCard({ field, onBook, onDetails }) {
+function FieldCard({ field, onBook, onDetails, isFav, onToggleFav }) {
   const fieldId    = field._id || field.id;
   const fieldName  = field.name ?? 'Unknown Field';
   const locRaw     = field.location;
@@ -35,9 +39,15 @@ function FieldCard({ field, onBook, onDetails }) {
           <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,rgba(124,58,237,0.35),rgba(59,130,246,0.25))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem' }}>🏟️</div>
         )}
         <div style={{ position: 'absolute', top: '0.7rem', right: '0.7rem', background: 'rgba(0,0,0,0.72)', padding: '0.2rem 0.55rem', borderRadius: '999px', color: '#fbbf24', fontSize: '0.78rem', fontWeight: 700 }}>⭐ {rating}</div>
-        <div style={{ position: 'absolute', top: '0.7rem', left: '0.7rem', background: availBg, padding: '0.2rem 0.55rem', borderRadius: '999px', color: '#fff', fontSize: '0.73rem', fontWeight: 700 }}>
-          {isAvail ? 'Available' : 'Unavailable'}
+        <div style={{ position: 'absolute', top: '0.7rem', left: '0.7rem', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+          <div style={{ background: availBg, padding: '0.2rem 0.55rem', borderRadius: '999px', color: '#fff', fontSize: '0.73rem', fontWeight: 700 }}>
+            {isAvail ? 'Available' : 'Unavailable'}
+          </div>
         </div>
+        <button type="button" onClick={() => onToggleFav(fieldId)}
+          style={{ position: 'absolute', top: '0.6rem', right: '2.6rem', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', color: isFav ? '#f87171' : 'rgba(255,255,255,0.6)', transition: 'color .2s' }}>
+          {isFav ? '❤️' : '🤍'}
+        </button>
       </div>
       <div style={{ padding: '1.1rem 1.25rem 1.25rem' }}>
         <h3 style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.35rem' }}>{fieldName}</h3>
@@ -90,8 +100,10 @@ FieldCard.propTypes = {
     openTime: PropTypes.string, closeTime: PropTypes.string, isActive: PropTypes.bool, description: PropTypes.string,
     totalBookings: PropTypes.number,
   }).isRequired,
-  onBook: PropTypes.func.isRequired,
-  onDetails: PropTypes.func.isRequired,
+  onBook:       PropTypes.func.isRequired,
+  onDetails:    PropTypes.func.isRequired,
+  isFav:        PropTypes.bool.isRequired,
+  onToggleFav:  PropTypes.func.isRequired,
 };
 
 /* ── Filter / sort helpers (outside component to keep cognitive complexity low) ── */
@@ -137,12 +149,20 @@ const WorkingFields = () => {
   const [pageUser,        setPageUser]       = useState(null);
   const [currentPage,     setCurrentPage]    = useState(1);
   const [totalCount,      setTotalCount]     = useState(0);
-  const PAGE_SIZE = 12;
+  const [favorites,       setFavorites]      = useState(getFavorites);
 
   useEffect(() => {
     const raw = localStorage.getItem('user');
     const token = localStorage.getItem('token');
     setPageUser(token && raw ? JSON.parse(raw) : null);
+  }, []);
+
+  const toggleFavorite = useCallback((fieldId) => {
+    setFavorites(prev => {
+      const next = prev.includes(fieldId) ? prev.filter(id => id !== fieldId) : [...prev, fieldId];
+      saveFavorites(next);
+      return next;
+    });
   }, []);
 
   const fetchFields = useCallback(async (page = 1) => {
@@ -163,7 +183,7 @@ const WorkingFields = () => {
     } finally {
       setLoading(false);
     }
-  }, [PAGE_SIZE]);
+  }, []);
 
   useEffect(() => { fetchFields(1); }, [fetchFields]);
 
@@ -345,7 +365,7 @@ const WorkingFields = () => {
         {filteredFields.length > 0 ? (
           <div style={viewMode === 'grid' ? gridStyle : listStyle}>
             {filteredFields.map(field => (
-              <FieldCard key={field._id || field.id} field={field} onBook={handleBook} onDetails={handleDetails} />
+              <FieldCard key={field._id || field.id} field={field} onBook={handleBook} onDetails={handleDetails} isFav={favorites.includes(field._id || field.id)} onToggleFav={toggleFavorite} />
             ))}
           </div>
         ) : (
