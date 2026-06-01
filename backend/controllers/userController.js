@@ -483,7 +483,32 @@ export const getNearbyUsers = asyncHandler(async (req, res) => {
 });
 
 export const reportUser = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Report user endpoint' });
+  const reporterId  = req.user?.id;
+  const reportedId  = req.params.id;
+  const { reason, details } = req.body;
+
+  if (!reason) {
+    res.status(400);
+    throw new Error('Reason is required');
+  }
+
+  const [reporter, reported] = await Promise.all([
+    User.findById(reporterId).select('firstName lastName'),
+    User.findById(reportedId).select('firstName lastName'),
+  ]);
+
+  if (!reported) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  logger.warn(`User ${reporterId} (${reporter?.firstName}) reported user ${reportedId} (${reported.firstName}): ${reason}`);
+
+  res.json({
+    success: true,
+    message: 'Report submitted successfully. Our team will review it.',
+    data: { reportedUserId: reportedId, reason, submittedAt: new Date() }
+  });
 });
 
 export const blockUser = asyncHandler(async (req, res) => {
