@@ -373,8 +373,22 @@ const FieldDetails = () => {
 
             {/* Hours mini-card */}
             <div className="card" style={{ padding: '1.25rem' }}>
-              <h3 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.9rem', marginBottom: '0.75rem' }}>🕒 Operating Hours</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Open daily: <strong style={{ color: '#e2e8f0' }}>{openTime} – {closeTime}</strong></p>
+              <h3 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.9rem', marginBottom: '0.85rem' }}>🕒 Operating Hours</h3>
+              {(['Mon','Tue','Wed','Thu','Fri','Sat','Sun']).map((day, idx) => {
+                const todayIdx = (new Date().getDay() + 6) % 7;
+                const isToday  = idx === todayIdx;
+                const oh       = field.operatingHours?.schedule?.[day] ?? { open: openTime, close: closeTime };
+                return (
+                  <div key={day} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.3rem 0', borderBottom: idx < 6 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: isToday ? 800 : 600, color: isToday ? '#a78bfa' : '#64748b' }}>
+                      {isToday ? '▶ ' : ''}{day}
+                    </span>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: isToday ? '#e2e8f0' : '#94a3b8' }}>
+                      {oh.open} – {oh.close}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Owner */}
