@@ -255,20 +255,46 @@ export const deleteTournament = asyncHandler(async (req, res) => {
 // @route   POST /api/tournaments/:id/register
 // @access  Private
 export const registerForTournament = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Registered for tournament successfully'
-  });
+  const { id } = req.params;
+  const userId  = req.user?.id;
+
+  const tournament = await Tournament.findById(id);
+  if (!tournament) {
+    res.status(404);
+    throw new Error('Tournament not found');
+  }
+  if (tournament.status !== 'upcoming') {
+    res.status(400);
+    throw new Error('Registration is closed for this tournament');
+  }
+  if (tournament.registeredTeams.length >= tournament.maxTeams) {
+    res.status(400);
+    throw new Error('Tournament is already full');
+  }
+  if (tournament.registeredTeams.some(t => t.toString() === userId)) {
+    res.status(409);
+    throw new Error('Already registered for this tournament');
+  }
+
+  await Tournament.findByIdAndUpdate(id, { $addToSet: { registeredTeams: userId } });
+  logger.info(`User ${userId} registered for tournament ${id}`);
+  res.status(200).json({ success: true, message: 'Registered for tournament successfully', data: { tournamentId: id } });
 });
 
 // @desc    Get tournament participants
 // @route   GET /api/tournaments/:id/participants
 // @access  Private/Admin
 export const getTournamentParticipants = asyncHandler(async (req, res) => {
+  const tournament = await Tournament.findById(req.params.id)
+    .populate('registeredTeams', 'name logo players');
+  if (!tournament) {
+    res.status(404);
+    throw new Error('Tournament not found');
+  }
   res.status(200).json({
     success: true,
     message: 'Tournament participants retrieved successfully',
-    data: { participants: [] }
+    data: { participants: tournament.registeredTeams, total: tournament.registeredTeams.length }
   });
 });
 
@@ -297,9 +323,26 @@ export const updateMatchResult = asyncHandler(async (req, res) => {
 // @route   GET /api/tournaments/:id/leaderboard
 // @access  Public
 export const getTournamentLeaderboard = asyncHandler(async (req, res) => {
+  const tournament = await Tournament.findById(req.params.id)
+    .populate('registeredTeams', 'name logo');
+  if (!tournament) {
+    res.status(404);
+    throw new Error('Tournament not found');
+  }
+
+  const leaderboard = (tournament.registeredTeams ?? []).map((team, idx) => ({
+    rank: idx + 1,
+    team: { id: team._id, name: team.name, logo: team.logo },
+    points: 0,
+    played: 0,
+    won: 0,
+    drawn: 0,
+    lost: 0,
+  }));
+
   res.status(200).json({
     success: true,
     message: 'Tournament leaderboard retrieved successfully',
-    data: { leaderboard: [] }
+    data: { leaderboard, tournamentId: req.params.id, status: tournament.status }
   });
 });
