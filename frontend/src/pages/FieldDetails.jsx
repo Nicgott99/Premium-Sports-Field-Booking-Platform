@@ -242,11 +242,22 @@ const FieldDetails = () => {
     <div className="pg-bg" style={{ minHeight: '100vh', paddingTop: '5.5rem', paddingBottom: '3rem' }}>
       <div style={{ maxWidth: '1060px', margin: '0 auto', padding: '0 1.25rem' }}>
 
-        {/* Back */}
-        <button onClick={() => navigate('/fields')}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, marginBottom: '1.5rem', padding: 0 }}>
-          ← Back to Fields
-        </button>
+        {/* Back + Share row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+          <button onClick={() => navigate('/fields')}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, padding: 0 }}>
+            ← Back to Fields
+          </button>
+          <button
+            onClick={() => {
+              navigator.clipboard?.writeText(globalThis.location.href).then(() => {
+                globalThis.alert('Link copied to clipboard!');
+              }).catch(() => {});
+            }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.3)', color: '#a78bfa', borderRadius: '9px', padding: '0.4rem 0.9rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer' }}>
+            🔗 Share
+          </button>
+        </div>
 
         {/* Hero image */}
         <div style={{ position: 'relative', width: '100%', height: '280px', borderRadius: '18px', overflow: 'hidden', marginBottom: '1.75rem', background: 'linear-gradient(135deg,rgba(124,58,237,0.3),rgba(59,130,246,0.2))' }}>
