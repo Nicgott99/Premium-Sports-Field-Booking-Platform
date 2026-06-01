@@ -478,10 +478,30 @@ export const getBookingStats = asyncHandler(async (req, res) => {
 // @route   GET /api/bookings/calendar/:fieldId
 // @access  Public
 export const getFieldCalendar = asyncHandler(async (req, res) => {
+  const { fieldId } = req.params;
+  const monthStr    = req.query.month || new Date().toISOString().slice(0, 7);
+
+  const [year, month] = monthStr.split('-').map(Number);
+  const startOfMonth  = new Date(year, month - 1, 1);
+  const endOfMonth    = new Date(year, month, 0, 23, 59, 59);
+
+  const bookings = await Booking.find({
+    field:  fieldId,
+    status: { $in: ['pending', 'confirmed'] },
+    startTime: { $gte: startOfMonth, $lte: endOfMonth },
+  }).select('startTime endTime status');
+
+  const calendar = bookings.map(b => ({
+    date:      new Date(b.startTime).toISOString().split('T')[0],
+    startTime: b.startTime,
+    endTime:   b.endTime,
+    status:    b.status,
+  }));
+
   res.status(200).json({
     success: true,
     message: 'Field calendar retrieved successfully',
-    data: { calendar: [] }
+    data: { calendar, month: monthStr, total: calendar.length }
   });
 });
 
