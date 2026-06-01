@@ -51,6 +51,13 @@ const FEATURES = [
   { icon:'🏆', title:'Loyalty Rewards',  desc:'Earn points with every booking. Redeem for free sessions and exclusive perks.', color:'#f87171', bg:'rgba(248,113,113,0.12)' },
 ];
 
+const TESTIMONIALS = [
+  { name: 'Rafique Islam',   sport: '⚽ Football',    text: 'Booked my team\'s weekly match in under 2 minutes. The field was exactly as advertised — floodlit, premium turf.', avatar: '🧑' },
+  { name: 'Priya Sharma',    sport: '🎾 Tennis',      text: 'Finally a platform that shows real availability. No more calling around. I use it every week!',                     avatar: '👩' },
+  { name: 'Tanvir Ahmed',    sport: '🏀 Basketball',  text: 'The QR check-in is brilliant. Just scan at the gate and you\'re in. Zero hassle, premium experience.',             avatar: '🧑' },
+  { name: 'Nusrat Jahan',    sport: '🏸 Badminton',   text: 'Found a court near my office with parking and changing rooms. The verified venues give you peace of mind.',         avatar: '👩' },
+];
+
 const HOW = [
   { step:'01', title:'Create Account', desc:'Sign up in seconds with email verification for maximum security.', icon:'👤' },
   { step:'02', title:'Find Your Field', desc:'Browse premium venues by sport, location, date and price range.', icon:'🔍' },
@@ -374,6 +381,35 @@ const PremiumHome = () => {
                 <div style={{ fontSize:'0.72rem', fontWeight:700, color:'#7c3aed', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'0.5rem' }}>Step {h.step}</div>
                 <h3 style={{ fontWeight:800, fontSize:'1.1rem', color:'#f1f5f9', marginBottom:'0.5rem' }}>{h.title}</h3>
                 <p style={{ color:'#64748b', fontSize:'0.88rem', lineHeight:1.6, margin:0 }}>{h.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          TESTIMONIALS
+      ═══════════════════════════════════════════════════════ */}
+      <section style={{ padding:'5rem 1.5rem' }}>
+        <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:'3rem' }}>
+            <div className="section-tag">💬 What Players Say</div>
+            <h2 className="section-heading">Loved by Athletes</h2>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))', gap:'1.25rem' }}>
+            {TESTIMONIALS.map(t => (
+              <div key={t.name} className="card" style={{ padding:'1.5rem' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', marginBottom:'1rem' }}>
+                  <div style={{ width:'42px', height:'42px', borderRadius:'50%', background:'linear-gradient(135deg,#7c3aed,#ec4899)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem', flexShrink:0 }}>{t.avatar}</div>
+                  <div>
+                    <div style={{ color:'#f1f5f9', fontWeight:800, fontSize:'0.9rem' }}>{t.name}</div>
+                    <div style={{ color:'#7c3aed', fontSize:'0.75rem', fontWeight:700 }}>{t.sport}</div>
+                  </div>
+                  <div style={{ marginLeft:'auto', color:'#fbbf24', fontSize:'0.85rem' }}>★★★★★</div>
+                </div>
+                <p style={{ color:'#94a3b8', fontSize:'0.87rem', lineHeight:1.65, margin:0, fontStyle:'italic' }}>
+                  &ldquo;{t.text}&rdquo;
+                </p>
               </div>
             ))}
           </div>
