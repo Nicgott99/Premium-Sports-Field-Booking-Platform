@@ -138,6 +138,49 @@ FeaturedFieldCard.propTypes = {
 };
 
 /* ── Main component ────────────────────────────────────────── */
+const NewsletterSection = () => {
+  const [email,      setEmail]      = useState('');
+  const [submitted,  setSubmitted]  = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setSubmitting(true);
+    await new Promise(r => setTimeout(r, 600));
+    setSubmitted(true);
+    setSubmitting(false);
+  };
+
+  return (
+    <section style={{ padding:'4rem 1.5rem', background:'rgba(124,58,237,0.06)', borderTop:'1px solid rgba(124,58,237,0.15)', borderBottom:'1px solid rgba(124,58,237,0.15)' }}>
+      <div style={{ maxWidth:'50rem', margin:'0 auto', textAlign:'center' }}>
+        <div style={{ fontSize:'2rem', marginBottom:'0.75rem' }}>📬</div>
+        <h2 style={{ fontSize:'clamp(1.4rem,3vw,2rem)', fontWeight:900, color:'#f1f5f9', marginBottom:'0.5rem' }}>Stay in the Game</h2>
+        <p style={{ color:'#64748b', marginBottom:'1.75rem', fontSize:'0.95rem' }}>
+          Get field opening alerts, tournament news, and exclusive deals — weekly.
+        </p>
+        {submitted ? (
+          <div style={{ background:'rgba(16,185,129,0.12)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'14px', padding:'1rem 2rem', color:'#34d399', fontWeight:700, display:'inline-block' }}>
+            ✓ You&apos;re subscribed! We&apos;ll be in touch.
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display:'flex', gap:'0.75rem', maxWidth:'440px', margin:'0 auto', flexWrap:'wrap', justifyContent:'center' }}>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="your@email.com" required className="input-field"
+              style={{ flex:1, minWidth:'220px', fontSize:'0.9rem' }} />
+            <button type="submit" disabled={submitting} className="btn-primary"
+              style={{ padding:'0.7rem 1.4rem', fontSize:'0.9rem', flexShrink:0 }}>
+              {submitting ? <><span className="spinner" style={{ width:'16px', height:'16px' }} /> Joining…</> : '🚀 Subscribe'}
+            </button>
+          </form>
+        )}
+        <p style={{ color:'#334155', fontSize:'0.75rem', marginTop:'0.85rem' }}>No spam. Unsubscribe anytime.</p>
+      </div>
+    </section>
+  );
+};
+
 const PremiumHome = () => {
   const navigate = useNavigate();
   const [heroVisible,     setHeroVisible]     = useState(false);
@@ -415,6 +458,8 @@ const PremiumHome = () => {
           </div>
         </div>
       </section>
+
+      <NewsletterSection />
 
       {/* ═══════════════════════════════════════════════════════
           CTA
