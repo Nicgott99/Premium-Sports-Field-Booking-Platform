@@ -150,8 +150,17 @@ OverviewTab.propTypes = {
 };
 OverviewTab.defaultProps = { data: null };
 
+const actBtnStyle = (border, bgBase, bgActive, color, key, acting) => ({
+  padding: '0.28rem 0.65rem', borderRadius: '7px', fontSize: '0.73rem', fontWeight: 700,
+  border: `1px solid ${border}`,
+  background: acting === key ? bgActive : bgBase,
+  color,
+  cursor: acting ? 'not-allowed' : 'pointer',
+  opacity: acting && acting !== key ? 0.5 : 1,
+});
+
 /* ── Tab: Users ── */
-const UsersTab = ({ users, total, page, loading, query, onQueryChange, onSearch, onPageChange, onAction }) => (
+const UsersTab = ({ users, total, page, loading, query, onQueryChange, onSearch, onPageChange, onAction, acting }) => (
   <div>
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
       <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Users ({total})</h2>
@@ -179,27 +188,27 @@ const UsersTab = ({ users, total, page, loading, query, onQueryChange, onSearch,
                 <td style={TD}>
                   <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                     {u.role !== 'admin' && u.isActive !== false && (
-                      <button onClick={() => onAction(u._id, 'suspend')}
-                        style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(245,158,11,0.4)', background: 'rgba(245,158,11,0.08)', color: '#fcd34d', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
-                        Suspend
+                      <button onClick={() => onAction(u._id, 'suspend')} disabled={!!acting}
+                        style={actBtnStyle('rgba(245,158,11,0.4)','rgba(245,158,11,0.08)','rgba(245,158,11,0.2)','#fcd34d',`${u._id}:suspend`,acting)}>
+                        {acting === `${u._id}:suspend` ? '…' : 'Suspend'}
                       </button>
                     )}
                     {u.role !== 'admin' && u.isActive !== false && (
-                      <button onClick={() => onAction(u._id, 'ban')}
-                        style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.08)', color: '#fca5a5', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
-                        Ban
+                      <button onClick={() => onAction(u._id, 'ban')} disabled={!!acting}
+                        style={actBtnStyle('rgba(239,68,68,0.4)','rgba(239,68,68,0.08)','rgba(239,68,68,0.2)','#fca5a5',`${u._id}:ban`,acting)}>
+                        {acting === `${u._id}:ban` ? '…' : 'Ban'}
                       </button>
                     )}
                     {u.isActive === false && (
-                      <button onClick={() => onAction(u._id, 'activate')}
-                        style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(16,185,129,0.4)', background: 'rgba(16,185,129,0.08)', color: '#6ee7b7', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
-                        Activate
+                      <button onClick={() => onAction(u._id, 'activate')} disabled={!!acting}
+                        style={actBtnStyle('rgba(16,185,129,0.4)','rgba(16,185,129,0.08)','rgba(16,185,129,0.2)','#6ee7b7',`${u._id}:activate`,acting)}>
+                        {acting === `${u._id}:activate` ? '…' : 'Activate'}
                       </button>
                     )}
                     {!u.isVerified && u.role !== 'admin' && (
-                      <button onClick={() => onAction(u._id, 'verify')}
-                        style={{ padding: '0.28rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(59,130,246,0.4)', background: 'rgba(59,130,246,0.08)', color: '#93c5fd', cursor: 'pointer', fontSize: '0.73rem', fontWeight: 700 }}>
-                        Verify
+                      <button onClick={() => onAction(u._id, 'verify')} disabled={!!acting}
+                        style={actBtnStyle('rgba(59,130,246,0.4)','rgba(59,130,246,0.08)','rgba(59,130,246,0.2)','#93c5fd',`${u._id}:verify`,acting)}>
+                        {acting === `${u._id}:verify` ? '…' : 'Verify'}
                       </button>
                     )}
                   </div>
@@ -218,8 +227,9 @@ UsersTab.propTypes = {
   page: PropTypes.number.isRequired, loading: PropTypes.bool.isRequired,
   query: PropTypes.string.isRequired, onQueryChange: PropTypes.func.isRequired,
   onSearch: PropTypes.func.isRequired, onPageChange: PropTypes.func.isRequired,
-  onAction: PropTypes.func.isRequired,
+  onAction: PropTypes.func.isRequired, acting: PropTypes.string,
 };
+UsersTab.defaultProps = { acting: null };
 
 /* ── Tab: Fields ── */
 const FieldsTab = ({ fields, total, page, loading, onPageChange, onAction }) => (
@@ -577,13 +587,20 @@ const AdminDashboard = () => {
     if (tab === 'pending')    loadPendingFields(pendingPage);
   }, [tab, adminUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const [userActing, setUserActing] = useState(null);
+
   const manageUser = async (userId, action) => {
+    setUserActing(`${userId}:${action}`);
     try {
       const res  = await authFetch(`/api/v1/admin/users/${userId}/${action}`, { method: 'PUT' });
       const data = await res.json();
-      if (data.success) { toast(`User ${action}d`); loadUsers(usersPage, usersQ); }
-      else toast(data.message || `Failed to ${action}`, 'error');
+      if (data.success) {
+        const labels = { ban: 'banned', suspend: 'suspended', activate: 'activated', verify: 'verified', restore: 'restored', deactivate: 'deactivated' };
+        toast(`User ${labels[action] ?? `${action}d`} successfully`);
+        loadUsers(usersPage, usersQ);
+      } else toast(data.message || `Failed to ${action} user`, 'error');
     } catch { toast('Network error', 'error'); }
+    finally { setUserActing(null); }
   };
 
   const manageField = async (fieldId, action) => {
@@ -656,6 +673,7 @@ const AdminDashboard = () => {
             onSearch={() => { setUsersPage(1); loadUsers(1, usersQ); }}
             onPageChange={p => { setUsersPage(p); loadUsers(p, usersQ); }}
             onAction={manageUser}
+            acting={userActing}
           />
         )}
 
