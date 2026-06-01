@@ -159,12 +159,22 @@ export const createTeam = asyncHandler(async (req, res) => {
  * @throws {Error} 500 - Database error
  */
 export const getUserTeams = asyncHandler(async (req, res) => {
-  logger.info(`Fetching teams for user: ${req.user?.id}`);
-  res.status(200).json({
-    success: true,
-    message: 'User teams retrieved successfully',
-    data: { teams: [] }
-  });
+  const userId = req.user?.id;
+  const page   = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit  = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+
+  const [teams, total] = await Promise.all([
+    Team.find({ 'members.user': userId })
+      .select('name sport logo description members captain createdAt')
+      .populate('captain', 'firstName lastName')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Team.countDocuments({ 'members.user': userId }),
+  ]);
+
+  logger.info(`Fetching teams for user: ${userId}`);
+  res.status(200).json({ success: true, message: 'User teams retrieved successfully', data: { teams, total, page, limit } });
 });
 
 /**
@@ -178,12 +188,17 @@ export const getUserTeams = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - Team not found
  */
 export const getTeamById = asyncHandler(async (req, res) => {
+  const team = await Team.findById(req.params.id)
+    .populate('captain', 'firstName lastName avatar')
+    .populate('members.user', 'firstName lastName avatar');
+
+  if (!team) {
+    res.status(404);
+    throw new Error('Team not found');
+  }
+
   logger.info(`Fetching team details: ${req.params.id}`);
-  res.status(200).json({
-    success: true,
-    message: 'Team retrieved successfully',
-    data: { team: { id: req.params.id } }
-  });
+  res.status(200).json({ success: true, message: 'Team retrieved successfully', data: team });
 });
 
 /**
