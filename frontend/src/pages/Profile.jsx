@@ -295,16 +295,25 @@ function MyFieldsTab({ authFetch, navigate }) {
                 <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '0.95rem', marginBottom: '0.2rem' }}>{f.name}</div>
                 <div style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'capitalize' }}>{sport} · {f.location?.city || 'N/A'}</div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                 <span style={{ background: st.bg, color: st.color, border: `1px solid ${st.border}`, borderRadius: '9999px', padding: '0.2rem 0.65rem', fontSize: '0.74rem', fontWeight: 700, textTransform: 'uppercase' }}>
                   {f.status || 'pending'}
                 </span>
                 <span style={{ color: '#6ee7b7', fontWeight: 800, fontSize: '0.88rem' }}>
-                  ৳{(f.pricing?.hourly || 0).toLocaleString()}/hr
+                  ৳{(f.pricing?.hourly || f.pricing?.basePrice || 0).toLocaleString()}/hr
                 </span>
+                {f.bookingCount > 0 && (
+                  <span style={{ color: '#fcd34d', fontSize: '0.78rem', fontWeight: 700 }}>
+                    📅 {f.bookingCount} bookings
+                  </span>
+                )}
                 <button onClick={() => navigate(`/fields/${f._id}`)}
                   style={{ background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.35)', color: '#a78bfa', borderRadius: '8px', padding: '0.3rem 0.7rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>
                   View →
+                </button>
+                <button onClick={() => navigate(`/add-field?edit=${f._id}`)}
+                  style={{ background: 'rgba(59,130,246,0.14)', border: '1px solid rgba(59,130,246,0.3)', color: '#93c5fd', borderRadius: '8px', padding: '0.3rem 0.7rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>
+                  Edit
                 </button>
               </div>
             </div>
