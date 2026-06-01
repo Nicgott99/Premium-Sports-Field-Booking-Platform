@@ -37,6 +37,7 @@ const WorkingContact = () => {
   const [loading,   setLoading]   = useState(false);
   const [submitted, setSubmitted] = useState(null);
   const [error,     setError]     = useState('');
+  const [openFaq,   setOpenFaq]   = useState(null);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -210,12 +211,23 @@ const WorkingContact = () => {
         <div className="card" style={{ padding: '2rem' }}>
           <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.2rem', textAlign: 'center', marginBottom: '1.75rem' }}>❓ Frequently Asked Questions</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: '1rem' }}>
-            {FAQS.map(faq => (
-              <div key={faq.q} style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '1.25rem' }}>
-                <h4 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.92rem', marginBottom: '0.55rem' }}>{faq.q}</h4>
-                <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.6 }}>{faq.a}</p>
+            {FAQS.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+              <div key={faq.q} style={{ background: 'rgba(0,0,0,0.2)', border: `1px solid ${isOpen ? 'rgba(124,58,237,0.4)' : 'rgba(255,255,255,0.06)'}`, borderRadius: '12px', overflow: 'hidden', transition: 'border-color .2s' }}>
+                <button type="button" onClick={() => setOpenFaq(isOpen ? null : idx)}
+                  style={{ width: '100%', padding: '1rem 1.25rem', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', textAlign: 'left', gap: '0.75rem' }}>
+                  <h4 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.92rem', margin: 0 }}>{faq.q}</h4>
+                  <span style={{ color: isOpen ? '#a78bfa' : '#64748b', fontSize: '1rem', flexShrink: 0, transition: 'transform .2s', transform: isOpen ? 'rotate(45deg)' : 'none' }}>＋</span>
+                </button>
+                {isOpen && (
+                  <div style={{ padding: '0 1.25rem 1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                    <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.65, margin: '0.75rem 0 0' }}>{faq.a}</p>
+                  </div>
+                )}
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
 
