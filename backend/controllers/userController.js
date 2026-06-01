@@ -507,7 +507,41 @@ export const cancelSubscription = asyncHandler(async (req, res) => {
 });
 
 export const getUserAnalytics = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get user analytics endpoint', data: {} });
+  const userId = req.params.id || req.user?.id;
+
+  const [statusAgg, monthlyAgg, sportAgg, teamCount] = await Promise.all([
+    Booking.aggregate([
+      { $match: { user: userId } },
+      { $group: { _id: '$status', count: { $sum: 1 }, spent: { $sum: '$pricing.totalAmount' } } },
+    ]),
+    Booking.aggregate([
+      { $match: { user: userId, createdAt: { $gte: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000) } } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, count: { $sum: 1 }, spent: { $sum: '$pricing.totalAmount' } } },
+      { $sort: { _id: 1 } },
+    ]),
+    Booking.aggregate([
+      { $match: { user: userId } },
+      { $group: { _id: '$sport', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 },
+    ]),
+    Team.countDocuments({ 'members.user': userId }),
+  ]);
+
+  const byStatus = {};
+  let totalBookings = 0;
+  let totalSpent = 0;
+  statusAgg.forEach(row => {
+    byStatus[row._id] = { count: row.count, spent: row.spent ?? 0 };
+    totalBookings += row.count;
+    totalSpent    += row.spent ?? 0;
+  });
+
+  res.json({
+    success: true,
+    message: 'User analytics retrieved successfully',
+    data: { totalBookings, totalSpent, byStatus, monthlyTrend: monthlyAgg, topSports: sportAgg, teamsJoined: teamCount }
+  });
 });
 
 export const exportUserData = asyncHandler(async (req, res) => {
