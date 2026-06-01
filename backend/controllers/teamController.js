@@ -216,12 +216,17 @@ export const getTeamById = asyncHandler(async (req, res) => {
  * @throws {Error} 403 - User not authorized as team captain
  */
 export const updateTeam = asyncHandler(async (req, res) => {
-  logger.info(`Updating team: ${req.params.id} by user: ${req.user?.id}`);
-  res.status(200).json({
-    success: true,
-    message: 'Team updated successfully',
-    data: { team: { id: req.params.id } }
-  });
+  const team = await Team.findById(req.params.id);
+  if (!team) { res.status(404); throw new Error('Team not found'); }
+  if (team.captain?.toString() !== req.user?.id && req.user?.role !== 'admin') {
+    res.status(403); throw new Error('Only the captain can update the team');
+  }
+  const allowed = ['name', 'description', 'sport', 'maxMembers', 'skillLevel', 'visibility'];
+  const updates = {};
+  allowed.forEach(f => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
+  const updated = await Team.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
+  logger.info(`Team ${req.params.id} updated by user: ${req.user?.id}`);
+  res.status(200).json({ success: true, message: 'Team updated successfully', data: updated });
 });
 
 /**
@@ -237,10 +242,14 @@ export const updateTeam = asyncHandler(async (req, res) => {
  * @throws {Error} 409 - Cannot delete team with active tournaments
  */
 export const deleteTeam = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Team deleted successfully'
-  });
+  const team = await Team.findById(req.params.id);
+  if (!team) { res.status(404); throw new Error('Team not found'); }
+  if (team.captain?.toString() !== req.user?.id && req.user?.role !== 'admin') {
+    res.status(403); throw new Error('Only the captain can delete the team');
+  }
+  await Team.findByIdAndDelete(req.params.id);
+  logger.info(`Team ${req.params.id} deleted by user: ${req.user?.id}`);
+  res.status(200).json({ success: true, message: 'Team deleted successfully', data: { teamId: req.params.id } });
 });
 
 // @desc    Join team
