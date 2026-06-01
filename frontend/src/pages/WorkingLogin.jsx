@@ -132,9 +132,14 @@ const WorkingLogin = () => {
             ))}
           </div>
 
-          <p style={{ textAlign: 'center', color: '#475569', fontSize: '0.87rem', margin: 0 }}>
+          <p style={{ textAlign: 'center', color: '#475569', fontSize: '0.87rem', margin: '0 0 0.6rem' }}>
             No account?{' '}
             <Link to="/register" style={{ color: '#a78bfa', fontWeight: 700, textDecoration: 'none' }}>Create one free</Link>
+          </p>
+          <p style={{ textAlign: 'center', margin: 0 }}>
+            <Link to="/fields" style={{ color: '#475569', fontWeight: 600, textDecoration: 'none', fontSize: '0.83rem' }}>
+              🔍 Browse fields without signing in →
+            </Link>
           </p>
         </div>
 
