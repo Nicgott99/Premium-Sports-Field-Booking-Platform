@@ -200,32 +200,55 @@ export const getTournaments = asyncHandler(async (req, res) => {
 // @route   GET /api/tournaments/:id
 // @access  Public
 export const getTournamentById = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Tournament retrieved successfully',
-    data: { tournament: { id: req.params.id } }
-  });
+  const tournament = await Tournament.findById(req.params.id)
+    .populate('organizer', 'firstName lastName email')
+    .populate('registeredTeams', 'name logo');
+  if (!tournament) {
+    res.status(404);
+    throw new Error('Tournament not found');
+  }
+  logger.info(`Fetched tournament: ${req.params.id}`);
+  res.status(200).json({ success: true, message: 'Tournament retrieved successfully', data: tournament });
 });
 
 // @desc    Update tournament
 // @route   PUT /api/tournaments/:id
 // @access  Private/Admin
 export const updateTournament = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Tournament updated successfully',
-    data: { tournament: { id: req.params.id } }
-  });
+  const tournament = await Tournament.findById(req.params.id);
+  if (!tournament) {
+    res.status(404);
+    throw new Error('Tournament not found');
+  }
+  if (tournament.organizer?.toString() !== req.user?.id && req.user?.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to update this tournament');
+  }
+  const allowed = ['name', 'description', 'startDate', 'endDate', 'registrationDeadline', 'maxTeams', 'entryFee', 'skillLevel', 'status'];
+  const updates = {};
+  allowed.forEach(f => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
+
+  const updated = await Tournament.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
+  logger.info(`Tournament updated: ${req.params.id}`);
+  res.status(200).json({ success: true, message: 'Tournament updated successfully', data: updated });
 });
 
 // @desc    Delete tournament
 // @route   DELETE /api/tournaments/:id
 // @access  Private/Admin
 export const deleteTournament = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Tournament deleted successfully'
-  });
+  const tournament = await Tournament.findById(req.params.id);
+  if (!tournament) {
+    res.status(404);
+    throw new Error('Tournament not found');
+  }
+  if (tournament.organizer?.toString() !== req.user?.id && req.user?.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to delete this tournament');
+  }
+  await Tournament.findByIdAndDelete(req.params.id);
+  logger.info(`Tournament deleted: ${req.params.id} by ${req.user?.id}`);
+  res.status(200).json({ success: true, message: 'Tournament deleted successfully', data: { tournamentId: req.params.id } });
 });
 
 // @desc    Register for tournament
