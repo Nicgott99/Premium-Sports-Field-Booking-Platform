@@ -203,6 +203,19 @@ const WorkingAbout = () => {
           </div>
         </div>
 
+        {/* Careers banner */}
+        <div style={{ background: 'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(236,72,153,0.1))', border: '1px solid rgba(124,58,237,0.3)', borderRadius: '16px', padding: '1.5rem 2rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <p style={{ color: '#fcd34d', fontWeight: 800, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.25rem' }}>🌟 We&apos;re Hiring</p>
+            <p style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Join the Premium Sports Team</p>
+            <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>Remote-friendly roles in Engineering, Design, and Operations</p>
+          </div>
+          <button onClick={() => navigate('/contact')}
+            style={{ padding: '0.7rem 1.5rem', background: 'linear-gradient(135deg,#7c3aed,#ec4899)', border: 'none', color: '#fff', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.88rem', flexShrink: 0 }}>
+            View Openings →
+          </button>
+        </div>
+
         {/* CTA */}
         <div className="card" style={{ padding: '2.5rem', textAlign: 'center' }}>
           <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.5rem', marginBottom: '0.75rem' }}>🚀 Join Our Journey</h2>
