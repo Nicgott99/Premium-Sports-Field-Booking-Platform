@@ -161,8 +161,13 @@ const WorkingContact = () => {
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>
-                  <label htmlFor="ct-message" className="field-label">💬 Message *</label>
-                  <textarea id="ct-message" name="message" value={form.message} onChange={handleChange} placeholder="Tell us how we can help you…" rows={6} className="input-field" style={{ resize: 'vertical' }} required />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                    <label htmlFor="ct-message" className="field-label" style={{ margin: 0 }}>💬 Message *</label>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: form.message.length > 900 ? '#f87171' : '#64748b' }}>
+                      {form.message.length}/1000
+                    </span>
+                  </div>
+                  <textarea id="ct-message" name="message" value={form.message} onChange={handleChange} placeholder="Tell us how we can help you…" rows={6} maxLength={1000} className="input-field" style={{ resize: 'vertical' }} required />
                 </div>
 
                 <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.95rem', opacity: loading ? 0.75 : 1 }}>
