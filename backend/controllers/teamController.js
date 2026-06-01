@@ -368,6 +368,38 @@ export const acceptTeamInvite = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Search teams
+// @route   GET /api/teams/search
+// @access  Public
+export const searchTeams = asyncHandler(async (req, res) => {
+  const q     = req.query.q || '';
+  const sport = req.query.sport || '';
+  const page  = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+
+  if (q?.length < 2 && !sport) {
+    res.status(400);
+    throw new Error('Provide at least 2 characters or a sport filter');
+  }
+
+  const query = {};
+  if (q) query.name = { $regex: q, $options: 'i' };
+  if (sport) query.sport = sport;
+
+  const [teams, total] = await Promise.all([
+    Team.find(query)
+      .select('name sport logo description members captain')
+      .populate('captain', 'firstName lastName')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Team.countDocuments(query),
+  ]);
+
+  logger.info(`Search teams: q="${q}", sport="${sport}" → ${total} results`);
+  res.status(200).json({ success: true, message: 'Teams found', data: { teams, total, page, limit } });
+});
+
 // @desc    Get team members
 // @route   GET /api/teams/:id/members
 // @access  Private
