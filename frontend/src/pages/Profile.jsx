@@ -523,6 +523,20 @@ const Profile = () => {
                 {ico} {lbl}
               </button>
             ))}
+
+            {/* Danger zone */}
+            <div style={{ borderTop: '1px solid rgba(239,68,68,0.15)', paddingTop: '1rem', marginTop: '1rem' }}>
+              <p style={{ color: '#64748b', fontSize: '0.73rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>Danger Zone</p>
+              <button
+                onClick={() => {
+                  if (globalThis.confirm('Are you sure you want to delete your account? This cannot be undone.')) {
+                    toast('Account deletion requested — please contact support.', 'error');
+                  }
+                }}
+                style={{ width: '100%', padding: '0.5rem', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171', borderRadius: '9px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                🗑️ Delete Account
+              </button>
+            </div>
           </div>
 
           {/* Main Panel */}
