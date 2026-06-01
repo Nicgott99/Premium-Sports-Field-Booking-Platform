@@ -248,7 +248,21 @@ const AddField = () => {
                 <textarea id="af-desc" className="input-field" rows={4} placeholder="Describe the field, surface quality, facilities..." required value={form.description} onChange={e => setField('description', e.target.value)} style={{ resize: 'vertical' }} />
               </div>
               <div style={FLD}>
-                <p style={TAG}>Sports Offered *</p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+                  <p style={{ ...TAG, margin: 0 }}>Sports Offered *</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    {form.sports.length > 0 && (
+                      <span style={{ background: 'rgba(124,58,237,0.22)', color: '#c4b5fd', padding: '0.15rem 0.6rem', borderRadius: '999px', fontSize: '0.73rem', fontWeight: 800 }}>
+                        {form.sports.length} selected
+                      </span>
+                    )}
+                    <button type="button"
+                      onClick={() => setField('sports', form.sports.length === SPORTS_LIST.length ? [] : SPORTS_LIST.map(s => s.id))}
+                      style={{ background: 'none', border: 'none', color: '#7c3aed', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', padding: 0 }}>
+                      {form.sports.length === SPORTS_LIST.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                  </div>
+                </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {SPORTS_LIST.map(s => (
                     <OptionBtn key={s.id} id={s.id} label={s.label} selected={form.sports.includes(s.id)} onToggle={toggleSport} />
