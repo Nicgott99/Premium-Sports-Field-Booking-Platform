@@ -340,7 +340,31 @@ export const getUserTeams = asyncHandler(async (req, res) => {
  * @returns {Object} Updated preference settings
  */
 export const updateUserPreferences = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Update user preferences endpoint' });
+  const userId = req.params.id || req.user?.id;
+
+  if (req.user?.id !== userId && req.user?.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to update these preferences');
+  }
+
+  const allowed = ['notifications', 'privacy', 'language', 'timezone'];
+  const prefs   = {};
+  allowed.forEach(k => {
+    if (req.body[k] !== undefined) prefs[`preferences.${k}`] = req.body[k];
+  });
+
+  if (Object.keys(prefs).length === 0) {
+    res.status(400);
+    throw new Error('No valid preference fields provided');
+  }
+
+  const updated = await User.findByIdAndUpdate(userId, prefs, { new: true, runValidators: true }).select('-password');
+  if (!updated) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  res.json({ success: true, message: 'User preferences updated', data: updated.preferences });
 });
 
 /**
@@ -351,7 +375,34 @@ export const updateUserPreferences = asyncHandler(async (req, res) => {
  * @returns {Object} Updated location data
  */
 export const updateUserLocation = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Update user location endpoint' });
+  const userId = req.params.id || req.user?.id;
+  const { address, city, country, lng, lat } = req.body;
+
+  if (req.user?.id !== userId && req.user?.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to update this location');
+  }
+
+  const locationUpdate = {};
+  if (address)  locationUpdate['location.address']  = address;
+  if (city)     locationUpdate['location.city']     = city;
+  if (country)  locationUpdate['location.country']  = country;
+  if (lng !== undefined && lat !== undefined) {
+    locationUpdate['location.coordinates'] = [Number(lng), Number(lat)];
+  }
+
+  if (Object.keys(locationUpdate).length === 0) {
+    res.status(400);
+    throw new Error('No location fields provided');
+  }
+
+  const updated = await User.findByIdAndUpdate(userId, locationUpdate, { new: true }).select('location');
+  if (!updated) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  res.json({ success: true, message: 'User location updated', data: updated.location });
 });
 
 export const uploadAvatar = asyncHandler(async (req, res) => {
