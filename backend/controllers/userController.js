@@ -3,6 +3,7 @@ import logger from '../utils/logger.js';
 import User from '../models/User.js';
 import Booking from '../models/Booking.js';
 import Field from '../models/Field.js';
+import Team from '../models/Team.js';
 
 /**
  * User Management Controller - Comprehensive User Account Operations
@@ -315,7 +316,20 @@ export const getUserFields = asyncHandler(async (req, res) => {
  * @returns {Object} Array of user's teams with role information
  */
 export const getUserTeams = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get user teams endpoint', data: [] });
+  const userId = req.params.id || req.user?.id;
+  const page   = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit  = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+
+  const [teams, total] = await Promise.all([
+    Team.find({ 'members.user': userId })
+      .select('name sport logo description members')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Team.countDocuments({ 'members.user': userId }),
+  ]);
+
+  res.json({ success: true, message: 'User teams retrieved successfully', data: { teams, total, page, limit } });
 });
 
 /**
@@ -393,7 +407,28 @@ export const searchUsers = asyncHandler(async (req, res) => {
 });
 
 export const getNearbyUsers = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get nearby users endpoint', data: [] });
+  const { lng, lat } = req.query;
+  const radius = Math.min(50000, Math.max(1000, Number(req.query.radius) || 10000));
+  const limit  = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
+
+  if (!lng || !lat) {
+    res.status(400);
+    throw new Error('lng and lat query parameters are required');
+  }
+
+  const users = await User.find({
+    'location.coordinates': {
+      $near: {
+        $geometry:    { type: 'Point', coordinates: [Number(lng), Number(lat)] },
+        $maxDistance: radius,
+      }
+    },
+    _id: { $ne: req.user?.id },
+  })
+    .select('firstName lastName avatar sports location.city')
+    .limit(limit);
+
+  res.json({ success: true, message: 'Nearby users retrieved successfully', data: { users, total: users.length } });
 });
 
 export const reportUser = asyncHandler(async (req, res) => {
