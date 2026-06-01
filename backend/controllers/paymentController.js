@@ -6,6 +6,7 @@ import { withTimeout, TIMEOUT_PRESETS } from '../utils/requestTimeout.js';
 import { logPaymentEvent, logAdminAction } from '../utils/auditLogger.js';
 import { scheduleWebhookRetry, getRetryAttempts } from '../utils/webhookRetry.js';
 import { processRefundRequest, verifyRefundEligibility } from '../utils/refundManagement.js';
+import Payment from '../models/Payment.js';
 
 // Validate Stripe API key before initializing
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -441,11 +442,28 @@ export const handleWebhook = asyncHandler(async (req, res) => {
  * @throws {Error} 500 - Database error
  */
 export const getPaymentHistory = asyncHandler(async (req, res) => {
-  logger.info(`Fetching payment history for user: ${req.user?.id}`);
+  const userId  = req.user?.id;
+  const page    = Math.max(1, Number.parseInt(req.query.page,  10) || 1);
+  const limit   = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
+  const status  = req.query.status || '';
+
+  const query = { user: userId };
+  if (status) query.status = status;
+
+  const [payments, total] = await Promise.all([
+    Payment.find(query)
+      .populate('booking', 'startTime field')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Payment.countDocuments(query),
+  ]);
+
+  logger.info(`Fetching payment history for user: ${userId} — ${total} records`);
   res.status(200).json({
     success: true,
     message: 'Payment history retrieved successfully',
-    data: { payments: [] }
+    data: { payments, total, page, limit }
   });
 });
 
