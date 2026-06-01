@@ -27,16 +27,18 @@ ToastBar.propTypes = {
 };
 
 /* ── StatTile ── */
-function StatTile({ icon, value, label, color }) {
+function StatTile({ icon, value, label, color, active, onClick }) {
   return (
-    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '1.25rem', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
+    <button type="button" onClick={onClick}
+      style={{ background: active ? 'rgba(124,58,237,0.18)' : 'rgba(255,255,255,0.04)', border: `1px solid ${active ? 'rgba(124,58,237,0.45)' : 'rgba(255,255,255,0.08)'}`, borderRadius: '14px', padding: '1.25rem', textAlign: 'center', backdropFilter: 'blur(10px)', cursor: onClick ? 'pointer' : 'default', transition: 'all .2s', width: '100%' }}>
       <div style={{ fontSize: '2rem', marginBottom: '0.4rem' }}>{icon}</div>
       <div style={{ fontSize: '1.9rem', fontWeight: 900, background: color, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.2rem' }}>{value}</div>
-      <div style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600 }}>{label}</div>
-    </div>
+      <div style={{ color: active ? '#a78bfa' : '#94a3b8', fontSize: '0.85rem', fontWeight: 700 }}>{label}</div>
+    </button>
   );
 }
-StatTile.propTypes = { icon: PropTypes.string.isRequired, value: PropTypes.number.isRequired, label: PropTypes.string.isRequired, color: PropTypes.string.isRequired };
+StatTile.propTypes = { icon: PropTypes.string.isRequired, value: PropTypes.number.isRequired, label: PropTypes.string.isRequired, color: PropTypes.string.isRequired, active: PropTypes.bool, onClick: PropTypes.func };
+StatTile.defaultProps = { active: false, onClick: null };
 
 /* ── DetailModal ── */
 function DetailModal({ booking, onClose }) {
@@ -370,10 +372,10 @@ const WorkingBookings = () => {
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          <StatTile icon="📊" value={totalCount}    label="Total"     color="linear-gradient(135deg,#60a5fa,#22d3ee)" />
-          <StatTile icon="⏰" value={upcomingCount}  label="Upcoming"  color="linear-gradient(135deg,#34d399,#10b981)" />
-          <StatTile icon="✅" value={completedCount} label="Completed" color="linear-gradient(135deg,#a78bfa,#8b5cf6)" />
-          <StatTile icon="❌" value={cancelledCount} label="Cancelled" color="linear-gradient(135deg,#f87171,#ec4899)" />
+          <StatTile icon="📊" value={totalCount}    label="Total"     color="linear-gradient(135deg,#60a5fa,#22d3ee)" active={filter === 'all'}       onClick={() => { setFilter('all');       setViewMode('list'); }} />
+          <StatTile icon="⏰" value={upcomingCount}  label="Upcoming"  color="linear-gradient(135deg,#34d399,#10b981)" active={filter === 'upcoming'}   onClick={() => { setFilter('upcoming');  setViewMode('list'); }} />
+          <StatTile icon="✅" value={completedCount} label="Completed" color="linear-gradient(135deg,#a78bfa,#8b5cf6)" active={filter === 'completed'}  onClick={() => { setFilter('completed'); setViewMode('list'); }} />
+          <StatTile icon="❌" value={cancelledCount} label="Cancelled" color="linear-gradient(135deg,#f87171,#ec4899)" active={filter === 'cancelled'}  onClick={() => { setFilter('cancelled'); setViewMode('list'); }} />
         </div>
 
         {/* Filters + view toggle */}
