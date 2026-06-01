@@ -94,6 +94,33 @@ FieldCard.propTypes = {
   onDetails: PropTypes.func.isRequired,
 };
 
+/* ── Filter / sort helpers (outside component to keep cognitive complexity low) ── */
+function fieldMatchesFilters(field, lc, sport, city, priceMax) {
+  const name   = (field.name   ?? '').toLowerCase();
+  const locRaw = field.location;
+  const locStr = (typeof locRaw === 'string' ? locRaw : (locRaw?.address ?? '')).toLowerCase();
+  const desc   = (field.description ?? '').toLowerCase();
+  const fSport = field.sport ?? field.sports?.[0] ?? '';
+  const fCity  = typeof locRaw === 'object' ? (locRaw?.city ?? '') : '';
+  const price  = field.pricing?.basePrice ?? field.price ?? 0;
+
+  return (
+    (!lc || name.includes(lc) || locStr.includes(lc) || desc.includes(lc)) &&
+    (!sport || fSport === sport) &&
+    (!city  || fCity  === city)  &&
+    price <= priceMax
+  );
+}
+
+function compareFields(a, b, sortBy) {
+  const priceA = a.pricing?.basePrice ?? a.price ?? 0;
+  const priceB = b.pricing?.basePrice ?? b.price ?? 0;
+  if (sortBy === 'price')      return priceA - priceB;
+  if (sortBy === 'rating')     return (b.rating?.average ?? b.rating ?? 0) - (a.rating?.average ?? a.rating ?? 0);
+  if (sortBy === 'popularity') return (b.totalBookings ?? b.bookings ?? 0) - (a.totalBookings ?? a.bookings ?? 0);
+  return (a.name ?? '').localeCompare(b.name ?? '');
+}
+
 /* ── WorkingFields ── */
 const WorkingFields = () => {
   const navigate = useNavigate();
@@ -108,6 +135,9 @@ const WorkingFields = () => {
   const [sortBy,          setSortBy]         = useState('name');
   const [viewMode,        setViewMode]       = useState('grid');
   const [pageUser,        setPageUser]       = useState(null);
+  const [currentPage,     setCurrentPage]    = useState(1);
+  const [totalCount,      setTotalCount]     = useState(0);
+  const PAGE_SIZE = 12;
 
   useEffect(() => {
     const raw = localStorage.getItem('user');
@@ -115,54 +145,33 @@ const WorkingFields = () => {
     setPageUser(token && raw ? JSON.parse(raw) : null);
   }, []);
 
-  const fetchFields = useCallback(async () => {
+  const fetchFields = useCallback(async (page = 1) => {
     setLoading(true);
     setError('');
     try {
-      const res  = await fetch('/api/v1/fields?limit=50');
+      const res  = await fetch(`/api/v1/fields?limit=${PAGE_SIZE}&page=${page}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to load fields');
-      const list = data.data?.fields ?? data.data ?? [];
+      const list  = data.data?.fields ?? data.data ?? [];
+      const total = data.data?.total  ?? data.total ?? list.length;
       setFields(list);
       setFilteredFields(list);
+      setTotalCount(total);
+      setCurrentPage(page);
     } catch (err) {
       setError(err.message || 'Failed to load fields');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [PAGE_SIZE]);
 
-  useEffect(() => { fetchFields(); }, [fetchFields]);
+  useEffect(() => { fetchFields(1); }, [fetchFields]);
 
   useEffect(() => {
-    const lc = searchTerm.toLowerCase();
-    let filtered = fields.filter(field => {
-      const name   = field.name ?? '';
-      const locRaw = field.location;
-      const locStr = typeof locRaw === 'string' ? locRaw : (locRaw?.address ?? '');
-      const desc   = field.description ?? '';
-      const sport  = field.sport ?? field.sports?.[0] ?? '';
-      const city   = typeof locRaw === 'object' ? (locRaw?.city ?? '') : '';
-      const price  = field.pricing?.basePrice ?? field.price ?? 0;
-
-      const matchSearch = name.toLowerCase().includes(lc) || locStr.toLowerCase().includes(lc) || desc.toLowerCase().includes(lc);
-      const matchSport  = !selectedSport || sport === selectedSport;
-      const matchCity   = !selectedCity  || city  === selectedCity;
-      const matchPrice  = price <= priceMax;
-      return matchSearch && matchSport && matchCity && matchPrice;
-    });
-
-    filtered.sort((a, b) => {
-      const priceA = a.pricing?.basePrice ?? a.price ?? 0;
-      const priceB = b.pricing?.basePrice ?? b.price ?? 0;
-      switch (sortBy) {
-        case 'price':      return priceA - priceB;
-        case 'rating':     return (b.rating?.average ?? b.rating ?? 0) - (a.rating?.average ?? a.rating ?? 0);
-        case 'popularity': return (b.totalBookings ?? b.bookings ?? 0) - (a.totalBookings ?? a.bookings ?? 0);
-        default:           return (a.name ?? '').localeCompare(b.name ?? '');
-      }
-    });
-
+    const lc       = searchTerm.toLowerCase();
+    const filtered = fields
+      .filter(f => fieldMatchesFilters(f, lc, selectedSport, selectedCity, priceMax))
+      .sort((a, b) => compareFields(a, b, sortBy));
     setFilteredFields(filtered);
   }, [fields, searchTerm, selectedSport, selectedCity, priceMax, sortBy]);
 
@@ -197,7 +206,7 @@ const WorkingFields = () => {
           <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⚠️</div>
           <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#f87171', marginBottom: '0.75rem' }}>Failed to Load Fields</h2>
           <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>{error}</p>
-          <button onClick={fetchFields} className="btn-primary">Try Again</button>
+          <button onClick={() => fetchFields(1)} className="btn-primary">Try Again</button>
         </div>
       </div>
     );
@@ -345,6 +354,27 @@ const WorkingFields = () => {
             <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f1f5f9', marginBottom: '0.5rem' }}>No Fields Found</h3>
             <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Try adjusting your search criteria</p>
             <button onClick={clearFilters} className="btn-primary">Clear All Filters</button>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalCount > PAGE_SIZE && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', marginTop: '2.5rem' }}>
+            <button
+              disabled={currentPage === 1}
+              onClick={() => fetchFields(currentPage - 1)}
+              style={{ padding: '0.5rem 1.25rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: currentPage === 1 ? '#334155' : '#94a3b8', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: '0.88rem' }}>
+              ← Prev
+            </button>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>
+              Page {currentPage} of {Math.ceil(totalCount / PAGE_SIZE)}
+            </span>
+            <button
+              disabled={currentPage >= Math.ceil(totalCount / PAGE_SIZE)}
+              onClick={() => fetchFields(currentPage + 1)}
+              style={{ padding: '0.5rem 1.25rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: currentPage >= Math.ceil(totalCount / PAGE_SIZE) ? '#334155' : '#94a3b8', cursor: currentPage >= Math.ceil(totalCount / PAGE_SIZE) ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: '0.88rem' }}>
+              Next →
+            </button>
           </div>
         )}
       </div>
