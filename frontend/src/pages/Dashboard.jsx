@@ -6,6 +6,17 @@ const authFetch = (url, opts = {}) => {
   return fetch(url, { ...opts, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...opts.headers } });
 };
 
+const QUOTES = [
+  { text: 'Champions keep playing until they get it right.', author: 'Billie Jean King' },
+  { text: 'You miss 100% of the shots you don\'t take.', author: 'Wayne Gretzky' },
+  { text: 'It\'s not the will to win that matters — it\'s the will to prepare to win.', author: 'Bear Bryant' },
+  { text: 'The more difficult the victory, the greater the happiness in winning.', author: 'Pelé' },
+  { text: 'Do you know what my favorite part of the game is? The opportunity to play.', author: 'Mike Singletary' },
+  { text: 'Hard work beats talent when talent doesn\'t work hard.', author: 'Tim Notke' },
+];
+
+const dailyQuote = QUOTES[new Date().getDay() % QUOTES.length];
+
 const STATUS_STYLE = {
   confirmed: { bg: 'rgba(16,185,129,0.15)', color: '#6ee7b7', border: 'rgba(16,185,129,0.3)' },
   pending:   { bg: 'rgba(245,158,11,0.15)', color: '#fcd34d', border: 'rgba(245,158,11,0.3)' },
@@ -106,6 +117,17 @@ const Dashboard = () => {
               <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</div>
             </div>
           ))}
+        </div>
+
+        {/* ── Daily motivation ── */}
+        <div className="card" style={{ padding: '1.25rem 1.75rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1.25rem', background: 'linear-gradient(135deg,rgba(124,58,237,0.1),rgba(236,72,153,0.08))', borderColor: 'rgba(124,58,237,0.25)' }}>
+          <div style={{ fontSize: '2rem', flexShrink: 0 }}>💬</div>
+          <div>
+            <p style={{ color: '#e2e8f0', fontStyle: 'italic', fontSize: '0.95rem', fontWeight: 600, lineHeight: 1.5, margin: '0 0 0.25rem' }}>
+              &ldquo;{dailyQuote.text}&rdquo;
+            </p>
+            <p style={{ color: '#7c3aed', fontSize: '0.8rem', fontWeight: 700, margin: 0 }}>— {dailyQuote.author}</p>
+          </div>
         </div>
 
         {/* ── Quick actions ── */}
