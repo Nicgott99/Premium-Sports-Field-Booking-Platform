@@ -327,11 +327,37 @@ export const getDashboardData = asyncHandler(async (req, res) => {
 // @route   GET /api/analytics/export
 // @access  Private/Admin
 export const exportAnalytics = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Analytics report exported successfully',
-    data: { reportUrl: 'placeholder-report-url' }
-  });
+  const { format = 'json', startDate, endDate } = req.query;
+
+  const dateFilter = {};
+  if (startDate) dateFilter.$gte = new Date(startDate);
+  if (endDate)   dateFilter.$lte = new Date(endDate);
+  const matchStage = Object.keys(dateFilter).length > 0 ? { $match: { createdAt: dateFilter } } : { $match: {} };
+
+  const [bookings, users, revenue] = await Promise.all([
+    Booking.aggregate([matchStage, { $group: { _id: '$status', count: { $sum: 1 }, total: { $sum: '$pricing.totalAmount' } } }]),
+    User.aggregate([matchStage, { $group: { _id: '$role', count: { $sum: 1 } } }]),
+    Booking.aggregate([matchStage, { $group: { _id: null, totalRevenue: { $sum: '$pricing.totalAmount' }, avgRevenue: { $avg: '$pricing.totalAmount' } } }]),
+  ]);
+
+  const report = {
+    generatedAt: new Date(),
+    period: { startDate: startDate || 'all-time', endDate: endDate || 'present' },
+    bookings: { byStatus: bookings },
+    users:    { byRole: users },
+    revenue:  revenue[0] ?? { totalRevenue: 0, avgRevenue: 0 },
+  };
+
+  if (format === 'csv') {
+    const rows = [['metric','value'], ['totalRevenue', report.revenue.totalRevenue], ['avgRevenue', report.revenue.avgRevenue?.toFixed(2)]];
+    bookings.forEach(b => rows.push([`bookings_${b._id}`, b.count]));
+    const csv = rows.map(r => r.join(',')).join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=analytics.csv');
+    return res.send(csv);
+  }
+
+  res.status(200).json({ success: true, message: 'Analytics report exported successfully', data: report });
 });
 
 // @desc    Get custom analytics
