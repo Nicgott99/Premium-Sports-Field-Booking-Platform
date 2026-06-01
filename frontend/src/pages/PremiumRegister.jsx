@@ -33,7 +33,7 @@ const REQ = [
 
 /* ── Register form ── */
 function RegisterForm({ onDone }) {
-  const [form, setForm]     = useState({ firstName: '', lastName: '', email: '', phone: '', password: '', confirmPassword: '' });
+  const [form, setForm]     = useState({ firstName: '', lastName: '', email: '', phone: '', password: '', confirmPassword: '', role: 'user' });
   const [loading, setLoading] = useState(false);
   const [error, setError]   = useState('');
   const [showPw, setShowPw] = useState(false);
@@ -52,7 +52,7 @@ function RegisterForm({ onDone }) {
       const res  = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone, password: form.password }),
+        body: JSON.stringify({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone, password: form.password, role: form.role }),
       });
       const data = await res.json();
       if (data.success) {
@@ -75,6 +75,25 @@ function RegisterForm({ onDone }) {
   return (
     <form onSubmit={submit}>
       {error && <div style={S.errorBox}>⚠️ {error}</div>}
+
+      {/* Role selector */}
+      <div style={{ marginBottom: '1.25rem' }}>
+        <p style={{ color: '#94a3b8', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>I am joining as</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+          {[
+            { value: 'user',       icon: '🏃', label: 'Player',       desc: 'Book fields & join teams' },
+            { value: 'fieldOwner', icon: '🏟️', label: 'Field Owner',  desc: 'List & manage venues' },
+          ].map(opt => (
+            <button key={opt.value} type="button"
+              onClick={() => setForm(prev => ({ ...prev, role: opt.value }))}
+              style={{ padding: '0.85rem', borderRadius: '12px', border: `2px solid ${form.role === opt.value ? '#7c3aed' : 'rgba(255,255,255,0.1)'}`, background: form.role === opt.value ? 'rgba(124,58,237,0.18)' : 'rgba(255,255,255,0.04)', cursor: 'pointer', textAlign: 'left', transition: 'all .2s' }}>
+              <div style={{ fontSize: '1.4rem', marginBottom: '0.25rem' }}>{opt.icon}</div>
+              <div style={{ color: form.role === opt.value ? '#a78bfa' : '#e2e8f0', fontWeight: 800, fontSize: '0.88rem' }}>{opt.label}</div>
+              <div style={{ color: '#64748b', fontSize: '0.75rem' }}>{opt.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
         <div>
