@@ -321,6 +321,23 @@ const AddField = () => {
                 </div>
                 <div />
               </div>
+              {form.hourlyRate > 0 && (
+                <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.22)', borderRadius: '12px', padding: '1rem 1.25rem', marginTop: '0.75rem' }}>
+                  <p style={{ color: '#34d399', fontWeight: 700, fontSize: '0.88rem', marginBottom: '0.6rem' }}>💰 Revenue Potential</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.75rem' }}>
+                    {[
+                      { label: 'Per 2hr slot', value: Number(form.hourlyRate) * 2 },
+                      { label: 'Daily (8 slots)', value: Number(form.hourlyRate) * 16 },
+                      { label: 'Monthly (est.)', value: Number(form.hourlyRate) * 16 * 20 },
+                    ].map(({ label, value }) => (
+                      <div key={label} style={{ textAlign: 'center' }}>
+                        <div style={{ color: '#6ee7b7', fontWeight: 900, fontSize: '1rem' }}>৳{value.toLocaleString()}</div>
+                        <div style={{ color: '#64748b', fontSize: '0.73rem', fontWeight: 600 }}>{label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Contact */}
