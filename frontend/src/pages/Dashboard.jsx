@@ -67,7 +67,8 @@ const Dashboard = () => {
   const totalBookings  = stats?.totalBookings      ?? bookings.length;
   const fieldsOwned    = stats?.fieldsOwned        ?? 0;
 
-  const isOwner = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'fieldOwner';
+  const isOwner       = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'fieldOwner';
+  const nextBooking   = bookings.find(b => b.status === 'confirmed' && new Date(b.startTime) > new Date());
 
   const QUICK = [
     { icon: '🏟️', label: 'Browse Fields',  sub: 'Find and book a venue',      path: '/fields',    grad: 'linear-gradient(135deg,#7c3aed,#6d28d9)' },
@@ -118,6 +119,23 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
+
+        {/* ── Next booking highlight ── */}
+        {nextBooking && (
+          <div className="card" style={{ padding: '1.25rem 1.75rem', marginBottom: '1.5rem', background: 'linear-gradient(135deg,rgba(16,185,129,0.1),rgba(59,130,246,0.08))', borderColor: 'rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+            <div style={{ fontSize: '2rem', flexShrink: 0 }}>⏰</div>
+            <div style={{ flex: 1, minWidth: '180px' }}>
+              <p style={{ color: '#6ee7b7', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 0.2rem' }}>Next Upcoming Booking</p>
+              <p style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.05rem', margin: '0 0 0.2rem' }}>{nextBooking.field?.name || 'Field'}</p>
+              <p style={{ color: '#64748b', fontSize: '0.82rem', margin: 0 }}>
+                {fmtDate(nextBooking.startTime)} · {fmtTime(nextBooking.startTime)}
+              </p>
+            </div>
+            <Link to="/bookings" style={{ textDecoration: 'none', background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.35)', color: '#6ee7b7', borderRadius: '10px', padding: '0.5rem 1.1rem', fontSize: '0.83rem', fontWeight: 700, flexShrink: 0 }}>
+              View Details →
+            </Link>
+          </div>
+        )}
 
         {/* ── Daily motivation ── */}
         <div className="card" style={{ padding: '1.25rem 1.75rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1.25rem', background: 'linear-gradient(135deg,rgba(124,58,237,0.1),rgba(236,72,153,0.08))', borderColor: 'rgba(124,58,237,0.25)' }}>
