@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
+import Notification from '../models/Notification.js';
 
 // Simple HTTP send with retry/backoff for outgoing webhooks
 const sendHttpWithRetry = async (url, payload, options = {}, attempts = 3) => {
@@ -142,11 +143,27 @@ const sendHttpWithRetry = async (url, payload, options = {}, attempts = 3) => {
  * @throws {Error} 500 - Database error
  */
 export const getUserNotifications = asyncHandler(async (req, res) => {
-  logger.info(`Fetching notifications for user: ${req.user?.id}`);
+  const userId     = req.user?.id;
+  const page       = Math.max(1, Number.parseInt(req.query.page,  10) || 1);
+  const limit      = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
+  const unreadOnly = req.query.unread === 'true';
+  const type       = req.query.type || '';
+
+  const query = { recipient: userId };
+  if (unreadOnly) query.isRead = false;
+  if (type)       query.notificationType = type;
+
+  const [notifications, total, unreadCount] = await Promise.all([
+    Notification.find(query).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
+    Notification.countDocuments(query),
+    Notification.countDocuments({ recipient: userId, isRead: false }),
+  ]);
+
+  logger.info(`Fetching notifications for user: ${userId}`);
   res.status(200).json({
     success: true,
     message: 'Notifications retrieved successfully',
-    data: { notifications: [] }
+    data: { notifications, total, unreadCount, page, limit }
   });
 });
 
@@ -161,19 +178,27 @@ export const getUserNotifications = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - Notification not found
  */
 export const markAsRead = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  
-  // Validate notification ID format
-  if (!id || id.length !== 24) {
+  const { id }  = req.params;
+  const userId  = req.user?.id;
+
+  if (id?.length !== 24) {
     res.status(400);
     throw new Error('Invalid notification ID format');
   }
-  
-  logger.info(`Marking notification as read: ${id}`);
-  res.status(200).json({
-    success: true,
-    message: 'Notification marked as read'
-  });
+
+  const notification = await Notification.findOneAndUpdate(
+    { _id: id, recipient: userId },
+    { isRead: true, readAt: new Date() },
+    { new: true }
+  );
+
+  if (!notification) {
+    res.status(404);
+    throw new Error('Notification not found');
+  }
+
+  logger.info(`Notification ${id} marked as read by user ${userId}`);
+  res.status(200).json({ success: true, message: 'Notification marked as read', data: notification });
 });
 
 /**
