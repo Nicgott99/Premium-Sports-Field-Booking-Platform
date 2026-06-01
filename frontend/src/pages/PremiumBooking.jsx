@@ -345,6 +345,25 @@ const PremiumBooking = () => {
                       className="input-field" placeholder="Any special requests…" style={{ fontSize: '0.88rem' }} />
                   </div>
                 </div>
+                {/* Pricing breakdown */}
+                <div style={{ background: 'rgba(0,0,0,0.18)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '1rem', marginBottom: '1.25rem' }}>
+                  {[
+                    ['Base (2h × ৳' + pricePerHour.toLocaleString() + ')',  pricePerHour * 2],
+                    ['Service fee (5%)',                                      Math.round(pricePerHour * 2 * 0.05)],
+                  ].map(([label, amount]) => (
+                    <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                      <span style={{ color: '#64748b', fontSize: '0.82rem' }}>{label}</span>
+                      <span style={{ color: '#cbd5e1', fontSize: '0.82rem', fontWeight: 700 }}>৳{amount.toLocaleString()}</span>
+                    </div>
+                  ))}
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.4rem', display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.88rem' }}>Total</span>
+                    <span style={{ color: '#6ee7b7', fontWeight: 900, fontSize: '0.95rem' }}>৳{(pricePerHour * 2 + Math.round(pricePerHour * 2 * 0.05)).toLocaleString()}</span>
+                  </div>
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.77rem', textAlign: 'center', marginBottom: '1rem' }}>
+                  ✓ Free cancellation up to 24h before · Secure payment
+                </p>
                 <button onClick={confirmBooking} disabled={booking} className="btn-primary"
                   style={{ width: '100%', justifyContent: 'center', fontSize: '1rem', padding: '0.9rem' }}>
                   {booking ? <><span className="spinner" style={{ width: '18px', height: '18px' }} /> Processing…</> : '🎯 Confirm & Book Now'}
