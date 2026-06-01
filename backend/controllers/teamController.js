@@ -127,11 +127,23 @@ export const createTeam = asyncHandler(async (req, res) => {
   }
   
   logger.info(`Creating team "${name}" for user: ${userId}`);
-  res.status(201).json({
-    success: true,
-    message: 'Team created successfully',
-    data: { id: 'placeholder-team-id' }
+
+  const existing = await Team.findOne({ name: name.trim() });
+  if (existing) {
+    res.status(409);
+    throw new Error('A team with this name already exists');
+  }
+
+  const team = await Team.create({
+    name:        name.trim(),
+    description: description || '',
+    sport,
+    maxMembers:  maxMembers || 22,
+    captain:     userId,
+    members: [{ user: userId, role: 'captain', joinedAt: new Date() }],
   });
+
+  res.status(201).json({ success: true, message: 'Team created successfully', data: team });
 });
 
 /**
