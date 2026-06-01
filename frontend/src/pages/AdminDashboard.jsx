@@ -398,10 +398,53 @@ PendingFieldsTab.propTypes = {
   onPageChange: PropTypes.func.isRequired, onAction: PropTypes.func.isRequired,
 };
 
+/* ── Tab: Analytics ── */
+const AnalyticsTab = ({ data, loading, onRetry }) => {
+  if (loading) return <div className="card" style={{ textAlign: 'center', padding: '3rem' }}><Spinner /></div>;
+  if (!data) return (
+    <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+      <p style={{ color: '#64748b' }}>Could not load analytics.{' '}
+        <button onClick={onRetry} style={{ color: '#a78bfa', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Retry</button>
+      </p>
+    </div>
+  );
+  const statRows = [
+    { icon: '👥', label: 'Total Users',        value: data.totalUsers    ?? 0, color: '#a78bfa' },
+    { icon: '🏟️', label: 'Active Fields',      value: data.activeFields  ?? 0, color: '#6ee7b7' },
+    { icon: '📅', label: 'Total Bookings',     value: data.totalBookings ?? 0, color: '#93c5fd' },
+    { icon: '⏳', label: 'Pending Bookings',   value: data.pendingBookings ?? 0, color: '#fcd34d' },
+    { icon: '💰', label: 'Total Revenue',      value: `৳${(data.totalRevenue ?? 0).toLocaleString()}`, color: '#f9a8d4' },
+    { icon: '🆕', label: 'New Users (7d)',     value: data.newUsersWeek  ?? 0, color: '#67e8f9' },
+    { icon: '📈', label: 'New Bookings (7d)',  value: data.newBookingsWeek ?? 0, color: '#86efac' },
+    { icon: '🏗️', label: 'Total Fields',       value: data.totalFields   ?? 0, color: '#c4b5fd' },
+  ];
+  return (
+    <div>
+      <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '1.25rem' }}>Platform Analytics</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '1rem' }}>
+        {statRows.map(s => (
+          <div key={s.label} className="card" style={{ textAlign: 'center', padding: '1.5rem 1rem' }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '0.4rem' }}>{s.icon}</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: '0.3rem' }}>{s.value}</div>
+            <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+AnalyticsTab.propTypes = {
+  data:    PropTypes.object,
+  loading: PropTypes.bool.isRequired,
+  onRetry: PropTypes.func.isRequired,
+};
+AnalyticsTab.defaultProps = { data: null };
+
 /* ── Main AdminDashboard ── */
 const TABS = [
-  { id: 'overview', label: '📊 Overview' },
-  { id: 'users',    label: '👥 Users' },
+  { id: 'overview',   label: '📊 Overview' },
+  { id: 'analytics',  label: '📈 Analytics' },
+  { id: 'users',      label: '👥 Users' },
   { id: 'fields',   label: '🏟️ Fields' },
   { id: 'bookings', label: '📅 Bookings' },
   { id: 'pending',  label: '⏳ Pending Fields' },
@@ -414,8 +457,10 @@ const AdminDashboard = () => {
   const [mounted, setMounted]     = useState(false);
   const [toasts, setToasts]       = useState([]);
 
-  const [overview, setOverview]   = useState(null);
-  const [ovLoading, setOvLoading] = useState(false);
+  const [overview,  setOverview]   = useState(null);
+  const [ovLoading, setOvLoading]  = useState(false);
+  const [analytics, setAnalytics]  = useState(null);
+  const [anLoading, setAnLoading]  = useState(false);
 
   const [users, setUsers]           = useState([]);
   const [usersTotal, setUsersTotal] = useState(0);
@@ -470,6 +515,16 @@ const AdminDashboard = () => {
     finally { setOvLoading(false); }
   }, []);
 
+  const loadAnalytics = useCallback(async () => {
+    setAnLoading(true);
+    try {
+      const res  = await authFetch('/api/v1/analytics/dashboard');
+      const data = await res.json();
+      if (data.success) setAnalytics(data.data);
+    } catch { /* network error */ }
+    finally { setAnLoading(false); }
+  }, []);
+
   const loadUsers = useCallback(async (page, q) => {
     setUsLoading(true);
     try {
@@ -514,11 +569,12 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (!adminUser) return;
-    if (tab === 'overview') loadOverview();
-    if (tab === 'users')    loadUsers(usersPage, usersQ);
-    if (tab === 'fields')   loadFields(fieldsPage);
-    if (tab === 'bookings') loadBookings(bookingsPage, bookingsStatus);
-    if (tab === 'pending')  loadPendingFields(pendingPage);
+    if (tab === 'overview')   loadOverview();
+    if (tab === 'analytics')  loadAnalytics();
+    if (tab === 'users')      loadUsers(usersPage, usersQ);
+    if (tab === 'fields')     loadFields(fieldsPage);
+    if (tab === 'bookings')   loadBookings(bookingsPage, bookingsStatus);
+    if (tab === 'pending')    loadPendingFields(pendingPage);
   }, [tab, adminUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const manageUser = async (userId, action) => {
@@ -590,7 +646,8 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {tab === 'overview' && <OverviewTab data={overview} loading={ovLoading} onRetry={loadOverview} />}
+        {tab === 'overview'  && <OverviewTab   data={overview}  loading={ovLoading} onRetry={loadOverview} />}
+        {tab === 'analytics' && <AnalyticsTab  data={analytics} loading={anLoading} onRetry={loadAnalytics} />}
 
         {tab === 'users' && (
           <UsersTab
