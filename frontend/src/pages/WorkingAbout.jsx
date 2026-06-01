@@ -9,10 +9,10 @@ const TABS = [
 ];
 
 const TEAM = [
-  { name: 'Alex Rahman',     role: 'CEO & Founder',      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300', bio: 'Sports enthusiast with 10+ years in tech. Built this platform to revolutionize sports booking.',        socials: ['💼', '🐦'] },
-  { name: 'Sarah Ahmed',     role: 'CTO',                image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300', bio: 'Full-stack developer passionate about creating seamless user experiences.',                          socials: ['💼', '💻'] },
-  { name: 'Mike Khan',       role: 'Head of Operations', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300', bio: 'Former sports facility manager, now ensuring smooth operations across all our partner venues.',     socials: ['💼', '📸'] },
-  { name: 'Lisa Chowdhury',  role: 'UX Designer',        image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300', bio: 'Design expert creating intuitive interfaces that make sports booking effortless.',                   socials: ['💼', '🎨'] },
+  { name: 'Alex Rahman',    role: 'CEO & Founder',      years: 10, skill: '🚀 Strategy',   image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300', bio: 'Sports enthusiast with 10+ years in tech. Built this platform to revolutionize sports booking.',    socials: ['💼', '🐦'] },
+  { name: 'Sarah Ahmed',    role: 'CTO',                years: 8,  skill: '⚙️ Engineering', image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300', bio: 'Full-stack developer passionate about creating seamless user experiences.',                        socials: ['💼', '💻'] },
+  { name: 'Mike Khan',      role: 'Head of Operations', years: 6,  skill: '🏟️ Operations',  image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300', bio: 'Former sports facility manager, now ensuring smooth operations across all our partner venues.',   socials: ['💼', '📸'] },
+  { name: 'Lisa Chowdhury', role: 'UX Designer',        years: 5,  skill: '🎨 Design',      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300', bio: 'Design expert creating intuitive interfaces that make sports booking effortless.',                 socials: ['💼', '🎨'] },
 ];
 
 const STATS = [
@@ -155,8 +155,12 @@ const WorkingAbout = () => {
                     <img src={m.image} alt={m.name}
                       style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 0.85rem', display: 'block', border: '2px solid rgba(124,58,237,0.5)' }}
                       onError={e => { e.currentTarget.style.display = 'none'; }} />
-                    <h3 style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '0.95rem', marginBottom: '0.25rem' }}>{m.name}</h3>
-                    <p style={{ color: '#a78bfa', fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.65rem' }}>{m.role}</p>
+                    <h3 style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '0.95rem', marginBottom: '0.2rem' }}>{m.name}</h3>
+                    <p style={{ color: '#a78bfa', fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.5rem' }}>{m.role}</p>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                      <span style={{ background: 'rgba(124,58,237,0.18)', color: '#c4b5fd', padding: '0.15rem 0.55rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 700 }}>{m.skill}</span>
+                      <span style={{ background: 'rgba(16,185,129,0.12)', color: '#6ee7b7', padding: '0.15rem 0.55rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 700 }}>{m.years}y exp</span>
+                    </div>
                     <p style={{ color: '#64748b', fontSize: '0.8rem', lineHeight: 1.6, marginBottom: '0.85rem' }}>{m.bio}</p>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
                       {m.socials.map(s => (
