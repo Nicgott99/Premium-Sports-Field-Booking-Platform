@@ -263,11 +263,20 @@ export const deleteNotification = asyncHandler(async (req, res) => {
  * @throws {Error} 500 - Database error
  */
 export const getNotificationSettings = asyncHandler(async (req, res) => {
-  logger.info(`Fetching notification settings for user: ${req.user?.id}`);
+  const userId = req.user?.id;
+  logger.info(`Fetching notification settings for user: ${userId}`);
+
+  const { default: User } = await import('../models/User.js');
+  const user = await User.findById(userId).select('preferences.notifications');
+  if (!user) { res.status(404); throw new Error('User not found'); }
+
+  const defaults = { email: true, push: true, sms: false };
+  const settings = { ...defaults, ...(user.preferences?.notifications ?? {}) };
+
   res.status(200).json({
     success: true,
     message: 'Notification settings retrieved successfully',
-    data: { settings: {} }
+    data: { settings }
   });
 });
 
@@ -275,9 +284,27 @@ export const getNotificationSettings = asyncHandler(async (req, res) => {
 // @route   PUT /api/notifications/settings
 // @access  Private
 export const updateNotificationSettings = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  const { email, push, sms } = req.body;
+  const { default: User } = await import('../models/User.js');
+
+  const update = {};
+  if (email !== undefined) update['preferences.notifications.email'] = Boolean(email);
+  if (push  !== undefined) update['preferences.notifications.push']  = Boolean(push);
+  if (sms   !== undefined) update['preferences.notifications.sms']   = Boolean(sms);
+
+  if (Object.keys(update).length === 0) {
+    res.status(400); throw new Error('No notification settings provided');
+  }
+
+  const updated = await User.findByIdAndUpdate(userId, update, { new: true }).select('preferences.notifications');
+  if (!updated) { res.status(404); throw new Error('User not found'); }
+
+  logger.info(`Notification settings updated for user: ${userId}`);
   res.status(200).json({
     success: true,
-    message: 'Notification settings updated successfully'
+    message: 'Notification settings updated successfully',
+    data: { settings: updated.preferences?.notifications }
   });
 });
 
