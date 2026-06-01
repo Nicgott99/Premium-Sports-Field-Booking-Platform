@@ -7,7 +7,7 @@ const sendHttpWithRetry = async (url, payload, options = {}, attempts = 3) => {
   let lastErr = null;
   for (let i = 0; i < attempts; i++) {
     try {
-      const res = await fetch(url, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options });
+      const res = await fetch(url, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json', ...options.headers }, ...options });
       if (res.ok) return { success: true, status: res.status };
       lastErr = new Error(`HTTP ${res.status}`);
     } catch (err) {
@@ -211,10 +211,16 @@ export const markAsRead = asyncHandler(async (req, res) => {
  * @throws {Error} 500 - Database error
  */
 export const markAllAsRead = asyncHandler(async (req, res) => {
-  logger.info(`Marking all notifications as read for user: ${req.user?.id}`);
+  const userId = req.user?.id;
+  const result = await Notification.updateMany(
+    { recipient: userId, isRead: false },
+    { isRead: true, readAt: new Date() }
+  );
+  logger.info(`Marked ${result.modifiedCount} notifications as read for user ${userId}`);
   res.status(200).json({
     success: true,
-    message: 'All notifications marked as read'
+    message: 'All notifications marked as read',
+    data: { updatedCount: result.modifiedCount }
   });
 });
 
@@ -229,19 +235,22 @@ export const markAllAsRead = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - Notification not found
  */
 export const deleteNotification = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  
-  // Validate notification ID format
-  if (!id || id.length !== 24) {
+  const { id }  = req.params;
+  const userId  = req.user?.id;
+
+  if (id?.length !== 24) {
     res.status(400);
     throw new Error('Invalid notification ID format');
   }
-  
-  logger.info(`Deleting notification: ${id}`);
-  res.status(200).json({
-    success: true,
-    message: 'Notification deleted successfully'
-  });
+
+  const notification = await Notification.findOneAndDelete({ _id: id, recipient: userId });
+  if (!notification) {
+    res.status(404);
+    throw new Error('Notification not found');
+  }
+
+  logger.info(`Notification ${id} deleted by user ${userId}`);
+  res.status(200).json({ success: true, message: 'Notification deleted successfully', data: { notificationId: id } });
 });
 
 /**
@@ -311,8 +320,8 @@ export const sendPushNotification = asyncHandler(async (req, res) => {
       try {
         const webhookPayload = { userId, type, relatedEntityId, title, message };
         const delivered = await sendHttpWithRetry(req.body.webhookUrl, webhookPayload, {}, 3);
-        if (!delivered.success) logger.warn(`Webhook delivery failed for user ${userId}: ${delivered.error}`);
-        else logger.info(`Webhook delivered for user ${userId} to ${req.body.webhookUrl}`);
+        if (delivered.success) logger.info(`Webhook delivered for user ${userId} to ${req.body.webhookUrl}`);
+        else logger.warn(`Webhook delivery failed for user ${userId}: ${delivered.error}`);
       } catch (err) {
         logger.warn(`Webhook send exception: ${err.message}`);
       }
