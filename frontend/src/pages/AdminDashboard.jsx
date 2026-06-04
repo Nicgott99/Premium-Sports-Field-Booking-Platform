@@ -232,10 +232,16 @@ UsersTab.propTypes = {
 UsersTab.defaultProps = { acting: null };
 
 /* ── Tab: Fields ── */
-const FieldsTab = ({ fields, total, page, loading, onPageChange, onAction }) => (
+const FieldsTab = ({ fields, total, page, loading, onPageChange, onAction, onSearch, query, onQueryChange }) => (
   <div>
-    <div style={{ marginBottom: '1.25rem' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
       <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Fields ({total})</h2>
+      <div style={{ display: 'flex', gap: '0.6rem' }}>
+        <input value={query} onChange={e => onQueryChange(e.target.value)} placeholder="Search name…"
+          onKeyDown={e => { if (e.key === 'Enter') onSearch(); }}
+          className="input-field" style={{ padding: '0.5rem 0.9rem', fontSize: '0.85rem', maxWidth: '200px' }} />
+        <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }} onClick={onSearch}>Search</button>
+      </div>
     </div>
     <div className="card" style={{ overflow: 'auto' }}>
       {loading && <div style={{ textAlign: 'center', padding: '3rem' }}><Spinner /></div>}
@@ -281,6 +287,8 @@ FieldsTab.propTypes = {
   fields: PropTypes.array.isRequired, total: PropTypes.number.isRequired,
   page: PropTypes.number.isRequired, loading: PropTypes.bool.isRequired,
   onPageChange: PropTypes.func.isRequired, onAction: PropTypes.func.isRequired,
+  onSearch: PropTypes.func.isRequired, query: PropTypes.string.isRequired,
+  onQueryChange: PropTypes.func.isRequired,
 };
 
 /* ── Tab: Bookings ── */
@@ -481,6 +489,7 @@ const AdminDashboard = () => {
   const [fields, setFields]           = useState([]);
   const [fieldsTotal, setFieldsTotal] = useState(0);
   const [fieldsPage, setFieldsPage]   = useState(1);
+  const [fieldsQ, setFieldsQ]         = useState('');
   const [flLoading, setFlLoading]     = useState(false);
 
   const [bookings, setBookings]               = useState([]);
@@ -546,10 +555,11 @@ const AdminDashboard = () => {
     finally { setUsLoading(false); }
   }, []);
 
-  const loadFields = useCallback(async (page) => {
+  const loadFields = useCallback(async (page, q = '') => {
     setFlLoading(true);
     try {
-      const res  = await authFetch(`/api/v1/admin/fields?page=${page}&limit=10`);
+      const qs   = q ? `&search=${encodeURIComponent(q)}` : '';
+      const res  = await authFetch(`/api/v1/admin/fields?page=${page}&limit=10${qs}`);
       const data = await res.json();
       if (data.success) { setFields(data.data?.fields || []); setFieldsTotal(data.data?.total || 0); }
     } catch { /* network error */ }
@@ -680,7 +690,9 @@ const AdminDashboard = () => {
         {tab === 'fields' && (
           <FieldsTab
             fields={fields} total={fieldsTotal} page={fieldsPage} loading={flLoading}
-            onPageChange={p => { setFieldsPage(p); loadFields(p); }}
+            query={fieldsQ} onQueryChange={setFieldsQ}
+            onSearch={() => { setFieldsPage(1); loadFields(1, fieldsQ); }}
+            onPageChange={p => { setFieldsPage(p); loadFields(p, fieldsQ); }}
             onAction={manageField}
           />
         )}
