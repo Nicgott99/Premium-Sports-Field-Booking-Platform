@@ -768,9 +768,19 @@ export const getWishlist = asyncHandler(async (req, res) => {
 });
 
 export const followField = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Follow field endpoint' });
+  const userId  = req.user?.id;
+  const fieldId = req.params.id;
+  const field   = await Field.findById(fieldId).select('name');
+  if (!field) { res.status(404); throw new Error('Field not found'); }
+  await User.findByIdAndUpdate(userId, { $addToSet: { 'stats.favoriteFields': fieldId } });
+  logger.info(`User ${userId} followed field ${fieldId}`);
+  res.json({ success: true, message: `Now following ${field.name}`, data: { fieldId } });
 });
 
 export const unfollowField = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Unfollow field endpoint' });
+  const userId  = req.user?.id;
+  const fieldId = req.params.id;
+  await User.findByIdAndUpdate(userId, { $pull: { 'stats.favoriteFields': fieldId } });
+  logger.info(`User ${userId} unfollowed field ${fieldId}`);
+  res.json({ success: true, message: 'Unfollowed field', data: { fieldId } });
 });
