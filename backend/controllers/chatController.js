@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import logger from '../utils/logger.js';
 import { isDuplicateNotification, markNotificationSent, checkAndMarkNotification } from '../utils/notificationDeduplicator.js';
+import Chat from '../models/Chat.js';
 
 /**
  * Chat & Messaging Controller
@@ -120,12 +121,23 @@ import { isDuplicateNotification, markNotificationSent, checkAndMarkNotification
  * @throws {Error} 500 - Database error
  */
 export const getChatRooms = asyncHandler(async (req, res) => {
-  logger.info(`Fetching chat rooms for user: ${req.user?.id}`);
-  res.status(200).json({
-    success: true,
-    message: 'Chat rooms retrieved successfully',
-    data: { rooms: [] }
-  });
+  const userId = req.user?.id;
+  const page   = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const limit  = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
+
+  const [rooms, total] = await Promise.all([
+    Chat.find({ participants: userId })
+      .populate('participants', 'firstName lastName avatar')
+      .populate('admin', 'firstName lastName')
+      .sort({ updatedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .select('-messages'),
+    Chat.countDocuments({ participants: userId }),
+  ]);
+
+  logger.info(`Fetching chat rooms for user: ${userId}`);
+  res.status(200).json({ success: true, message: 'Chat rooms retrieved successfully', data: { rooms, total, page, limit } });
 });
 
 /**
