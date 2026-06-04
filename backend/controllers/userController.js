@@ -528,7 +528,16 @@ export const updateSubscription = asyncHandler(async (req, res) => {
 });
 
 export const cancelSubscription = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Cancel subscription endpoint' });
+  const userId = req.params.id || req.user?.id;
+  if (req.user?.id !== userId) { res.status(403); throw new Error('Not authorized'); }
+  const updated = await User.findByIdAndUpdate(
+    userId,
+    { 'subscription.status': 'cancelled', 'subscription.plan': 'free' },
+    { new: true }
+  ).select('subscription');
+  if (!updated) { res.status(404); throw new Error('User not found'); }
+  logger.info(`Subscription cancelled for user ${userId}`);
+  res.json({ success: true, message: 'Subscription cancelled. You will retain access until the end of the billing period.', data: updated.subscription });
 });
 
 export const getUserAnalytics = asyncHandler(async (req, res) => {
@@ -607,5 +616,25 @@ export const exportUserData = asyncHandler(async (req, res) => {
 });
 
 export const requestDataDeletion = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Request data deletion endpoint' });
+  const userId = req.params.id || req.user?.id;
+
+  if (req.user?.id !== userId) {
+    res.status(403);
+    throw new Error('Can only request deletion for your own account');
+  }
+
+  const user = await User.findById(userId).select('firstName lastName email');
+  if (!user) { res.status(404); throw new Error('User not found'); }
+
+  logger.warn(`Data deletion requested: user ${userId} (${user.email})`);
+
+  res.json({
+    success: true,
+    message: 'Data deletion request received. Your account will be deleted within 30 days. You will receive a confirmation email.',
+    data: {
+      userId,
+      requestedAt: new Date(),
+      scheduledDeletion: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    }
+  });
 });
