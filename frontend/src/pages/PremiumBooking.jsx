@@ -376,7 +376,15 @@ const PremiumBooking = () => {
               <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '16px', padding: '2rem', textAlign: 'center' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🎉</div>
                 <h2 style={{ color: '#6ee7b7', fontWeight: 900, marginBottom: '0.5rem' }}>Booking Confirmed!</h2>
-                <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Your booking ID: <span style={{ color: '#a78bfa', fontWeight: 700 }}>{confirmed._id?.slice(-8)}</span></p>
+                <p style={{ color: '#64748b', marginBottom: '0.5rem' }}>Booking ID: <span style={{ color: '#a78bfa', fontWeight: 700 }}>{confirmed._id?.slice(-8)}</span></p>
+                {confirmed.startTime && (
+                  <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '10px', padding: '0.65rem 1rem', marginBottom: '1.25rem', display: 'inline-block' }}>
+                    <p style={{ color: '#6ee7b7', fontSize: '0.82rem', fontWeight: 700, margin: 0 }}>
+                      📅 {new Date(confirmed.startTime).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                      {' '}&nbsp;⏰{' '}{new Date(confirmed.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                )}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                   <Link to="/bookings" className="btn-primary" style={{ textDecoration: 'none', padding: '0.65rem 1.4rem' }}>📋 View My Bookings</Link>
                   <button onClick={() => { setConfirmed(null); setSelectedSlot(null); }}
