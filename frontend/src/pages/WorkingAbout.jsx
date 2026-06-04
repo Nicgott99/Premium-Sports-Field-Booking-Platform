@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const TABS = [
@@ -45,6 +45,46 @@ const VALUES = [
   { title: '🌍 Sustainability',          desc: 'We partner with eco-friendly facilities and promote sustainable sports practices.' },
   { title: '⚡ Speed & Efficiency',      desc: 'We value your time and ensure our platform is fast, reliable, and easy to use.' },
 ];
+
+function useCounter(target) {
+  const [val, setVal] = useState(0);
+  const ref = useRef(null);
+  useEffect(() => {
+    const observer = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      observer.disconnect();
+      const steps = 40;
+      const inc   = Math.ceil(target / steps);
+      let cur = 0;
+      const id = setInterval(() => {
+        cur = Math.min(cur + inc, target);
+        setVal(cur);
+        if (cur >= target) clearInterval(id);
+      }, 35);
+    }, { threshold: 0.3 });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target]);
+  return [val, ref];
+}
+
+function StatCounter({ stat }) {
+  const numericTarget = Number.parseInt(stat.number.replace(/\D/g, ''), 10) || 0;
+  const suffix = stat.number.replace(/\d/g, '').replace(',', '');
+  const [count, ref] = useCounter(numericTarget);
+  const display = Number(count).toLocaleString();
+  return (
+    <div ref={ref} style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{stat.icon}</div>
+      <div style={{ fontSize: '1.8rem', fontWeight: 900, background: stat.color, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.25rem' }}>
+        {display}{suffix}
+      </div>
+      <div style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.88rem' }}>{stat.label}</div>
+    </div>
+  );
+}
+import PropTypes from 'prop-types';
+StatCounter.propTypes = { stat: PropTypes.shape({ number: PropTypes.string, icon: PropTypes.string, label: PropTypes.string, color: PropTypes.string }).isRequired };
 
 const WorkingAbout = () => {
   const navigate   = useNavigate();
@@ -193,13 +233,7 @@ const WorkingAbout = () => {
         <div className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>
           <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.3rem', textAlign: 'center', marginBottom: '1.75rem' }}>📈 Our Impact</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '1.5rem' }}>
-            {STATS.map(s => (
-              <div key={s.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{s.icon}</div>
-                <div style={{ fontSize: '1.8rem', fontWeight: 900, background: s.color, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.25rem' }}>{s.number}</div>
-                <div style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.88rem' }}>{s.label}</div>
-              </div>
-            ))}
+            {STATS.map(s => <StatCounter key={s.label} stat={s} />)}
           </div>
         </div>
 
