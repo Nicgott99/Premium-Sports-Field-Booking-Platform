@@ -244,8 +244,13 @@ const AddField = () => {
                 <input id="af-name" className="input-field" type="text" placeholder="e.g., Dhaka Sports Complex" required value={form.name} onChange={e => setField('name', e.target.value)} />
               </div>
               <div style={FLD}>
-                <label htmlFor="af-desc" style={LBL}>Description *</label>
-                <textarea id="af-desc" className="input-field" rows={4} placeholder="Describe the field, surface quality, facilities..." required value={form.description} onChange={e => setField('description', e.target.value)} style={{ resize: 'vertical' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                  <label htmlFor="af-desc" style={{ ...LBL, margin: 0 }}>Description *</label>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 700, color: form.description.length > 1800 ? '#f87171' : '#64748b' }}>
+                    {form.description.length}/2000
+                  </span>
+                </div>
+                <textarea id="af-desc" className="input-field" rows={4} placeholder="Describe the field, surface quality, facilities..." required maxLength={2000} value={form.description} onChange={e => setField('description', e.target.value)} style={{ resize: 'vertical' }} />
               </div>
               <div style={FLD}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
