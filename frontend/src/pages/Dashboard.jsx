@@ -120,6 +120,21 @@ const Dashboard = () => {
           ))}
         </div>
 
+        {/* ── Browse by sport ── */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.85rem' }}>Browse by Sport</h2>
+          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+            {[['⚽','Football'],['🏏','Cricket'],['🏀','Basketball'],['🎾','Tennis'],['🏸','Badminton'],['🏐','Volleyball']].map(([icon, sport]) => (
+              <Link key={sport} to={`/fields?sport=${sport.toLowerCase()}`}
+                style={{ textDecoration: 'none', padding: '0.45rem 1rem', borderRadius: '999px', background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.25)', color: '#a78bfa', fontWeight: 700, fontSize: '0.83rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', transition: 'background .18s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.22)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.1)'; }}>
+                {icon} {sport}
+              </Link>
+            ))}
+          </div>
+        </div>
+
         {/* ── Next booking highlight ── */}
         {nextBooking && (
           <div className="card" style={{ padding: '1.25rem 1.75rem', marginBottom: '1.5rem', background: 'linear-gradient(135deg,rgba(16,185,129,0.1),rgba(59,130,246,0.08))', borderColor: 'rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
