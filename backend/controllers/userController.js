@@ -570,7 +570,40 @@ export const getUserAnalytics = asyncHandler(async (req, res) => {
 });
 
 export const exportUserData = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Export user data endpoint' });
+  const userId = req.params.id || req.user?.id;
+
+  if (req.user?.id !== userId && req.user?.role !== 'admin') {
+    res.status(403); throw new Error('Not authorized to export this user\'s data');
+  }
+
+  const [user, bookings, fields] = await Promise.all([
+    User.findById(userId).select('-password'),
+    Booking.find({ user: userId }).populate('field', 'name sport location'),
+    Field.find({ owner: userId }).select('name sport status pricing'),
+  ]);
+
+  if (!user) { res.status(404); throw new Error('User not found'); }
+
+  const exportData = {
+    exportedAt: new Date().toISOString(),
+    user: user.toObject(),
+    bookings: bookings.map(b => b.toObject()),
+    fields: fields.map(f => f.toObject()),
+    summary: { totalBookings: bookings.length, totalFields: fields.length },
+  };
+
+  const format = req.query.format || 'json';
+  if (format === 'csv') {
+    const rows = [['type', 'id', 'detail', 'date']];
+    bookings.forEach(b => rows.push(['booking', b._id, b.field?.name ?? '', b.startTime?.toISOString() ?? '']));
+    fields.forEach(f => rows.push(['field', f._id, f.name, f.createdAt?.toISOString() ?? '']));
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=user_data.csv');
+    return res.send(rows.map(r => r.join(',')).join('\n'));
+  }
+
+  logger.info(`User data exported for: ${userId}`);
+  res.json({ success: true, message: 'User data exported successfully', data: exportData });
 });
 
 export const requestDataDeletion = asyncHandler(async (req, res) => {
