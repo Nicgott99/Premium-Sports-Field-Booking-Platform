@@ -293,30 +293,43 @@ export const sendChatMessage = asyncHandler(async (req, res) => {
  * @throws {Error} 403 - User not message author
  */
 export const deleteChatMessage = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Message deleted successfully'
-  });
+  const userId    = req.user?.id;
+  const { roomId, messageId } = req.params;
+  const chat = await Chat.findOne({ _id: roomId, participants: userId });
+  if (!chat) { res.status(404); throw new Error('Chat room not found'); }
+  const msg = chat.messages.id(messageId);
+  if (!msg) { res.status(404); throw new Error('Message not found'); }
+  if (msg.sender?.toString() !== userId) { res.status(403); throw new Error('Can only delete your own messages'); }
+  await Chat.findByIdAndUpdate(roomId, { $pull: { messages: { _id: messageId } } });
+  logger.info(`Message ${messageId} deleted by user ${userId}`);
+  res.status(200).json({ success: true, message: 'Message deleted successfully', data: { messageId } });
 });
 
 // @desc    Join chat room
 // @route   POST /api/chat/rooms/:roomId/join
 // @access  Private
 export const joinChatRoom = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Joined chat room successfully'
-  });
+  const userId = req.user?.id;
+  const { roomId } = req.params;
+  const chat = await Chat.findById(roomId);
+  if (!chat) { res.status(404); throw new Error('Chat room not found'); }
+  if (chat.participants.some(p => p.toString() === userId)) {
+    return res.status(200).json({ success: true, message: 'Already a participant', data: { roomId } });
+  }
+  await Chat.findByIdAndUpdate(roomId, { $addToSet: { participants: userId } });
+  logger.info(`User ${userId} joined chat room ${roomId}`);
+  res.status(200).json({ success: true, message: 'Joined chat room successfully', data: { roomId } });
 });
 
 // @desc    Leave chat room
 // @route   POST /api/chat/rooms/:roomId/leave
 // @access  Private
 export const leaveChatRoom = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Left chat room successfully'
-  });
+  const userId = req.user?.id;
+  const { roomId } = req.params;
+  await Chat.findByIdAndUpdate(roomId, { $pull: { participants: userId } });
+  logger.info(`User ${userId} left chat room ${roomId}`);
+  res.status(200).json({ success: true, message: 'Left chat room successfully', data: { roomId } });
 });
 
 // @desc    Get online users
