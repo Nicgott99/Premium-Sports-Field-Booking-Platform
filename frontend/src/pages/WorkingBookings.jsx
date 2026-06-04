@@ -216,12 +216,31 @@ function renderBookingCard(booking, setDetailBooking, setCancelConfirm, navigate
   );
 }
 
+/* ── Filter / sort helpers ── */
+function applyBookingFilter(bookings, filter, now) {
+  if (filter === 'upcoming')  return bookings.filter(b => ['confirmed','pending'].includes(b.status) && new Date(b.startTime) >= now);
+  if (filter === 'completed') return bookings.filter(b => b.status === 'completed');
+  if (filter === 'cancelled') return bookings.filter(b => b.status === 'cancelled');
+  return bookings;
+}
+
+function applyBookingSort(bookings, sortBy) {
+  return [...bookings].sort((a, b) => {
+    if (sortBy === 'date')  return new Date(b.startTime || b.date) - new Date(a.startTime || a.date);
+    if (sortBy === 'price') return (b.pricing?.totalAmount ?? b.price ?? 0) - (a.pricing?.totalAmount ?? a.price ?? 0);
+    return (a.field?.name ?? a.fieldName ?? '').localeCompare(b.field?.name ?? b.fieldName ?? '');
+  });
+}
+
 /* ── WorkingBookings ── */
 const WorkingBookings = () => {
   const navigate = useNavigate();
   const [bookings,       setBookings]      = useState([]);
+  const [totalCount,     setTotalCount]    = useState(0);
+  const [currentPage,    setCurrentPage]   = useState(1);
   const [loading,        setLoading]       = useState(true);
   const [error,          setError]         = useState('');
+  const PAGE_LIMIT = 20;
   const [filter,         setFilter]        = useState('all');
   const [sortBy,         setSortBy]        = useState('date');
   const [viewMode,       setViewMode]      = useState('grouped');
@@ -245,36 +264,29 @@ const WorkingBookings = () => {
     return fetch(url, { ...opts, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...opts.headers } });
   }, []);
 
-  const fetchBookings = useCallback(async () => {
+  const fetchBookings = useCallback(async (page = 1) => {
     setLoading(true);
     setError('');
     try {
-      const res = await authFetch('/api/v1/bookings');
+      const res = await authFetch(`/api/v1/bookings?limit=${PAGE_LIMIT}&page=${page}`);
       if (res.status === 401) { navigate('/login'); return; }
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to load bookings');
       setBookings(data.data?.bookings ?? data.data ?? []);
+      setTotalCount(data.data?.total ?? data.total ?? 0);
+      setCurrentPage(page);
     } catch (err) {
       setError(err.message || 'Failed to load bookings');
     } finally {
       setLoading(false);
     }
-  }, [authFetch, navigate]);
+  }, [authFetch, navigate, PAGE_LIMIT]);
 
-  useEffect(() => { fetchBookings(); }, [fetchBookings]);
+  useEffect(() => { fetchBookings(1); }, [fetchBookings]);
 
   const now = new Date();
 
-  const filteredBookings = bookings.filter(b => {
-    if (filter === 'upcoming')  return ['confirmed','pending'].includes(b.status) && new Date(b.startTime) >= now;
-    if (filter === 'completed') return b.status === 'completed';
-    if (filter === 'cancelled') return b.status === 'cancelled';
-    return true;
-  }).sort((a, b) => {
-    if (sortBy === 'date')  return new Date(b.startTime || b.date) - new Date(a.startTime || a.date);
-    if (sortBy === 'price') return (b.pricing?.totalAmount ?? b.price ?? 0) - (a.pricing?.totalAmount ?? a.price ?? 0);
-    return (a.field?.name ?? a.fieldName ?? '').localeCompare(b.field?.name ?? b.fieldName ?? '');
-  });
+  const filteredBookings = applyBookingSort(applyBookingFilter(bookings, filter, now), sortBy);
 
   const upcomingBookings = bookings.filter(b => ['confirmed','pending'].includes(b.status) && new Date(b.startTime) >= now)
     .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
@@ -299,8 +311,8 @@ const WorkingBookings = () => {
     }
   }, [cancelConfirm, authFetch, toast]);
 
-  const totalCount    = bookings.length;
-  const upcomingCount = bookings.filter(b => b.status === 'confirmed').length;
+  const displayTotal   = totalCount || bookings.length;
+  const upcomingCount  = bookings.filter(b => b.status === 'confirmed').length;
   const completedCount = bookings.filter(b => b.status === 'completed').length;
   const cancelledCount = bookings.filter(b => b.status === 'cancelled').length;
 
@@ -325,7 +337,7 @@ const WorkingBookings = () => {
           <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>⚠️</div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#f87171', marginBottom: '0.75rem' }}>Failed to Load Bookings</h2>
           <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>{error}</p>
-          <button onClick={fetchBookings} className="btn-primary">Try Again</button>
+          <button onClick={() => fetchBookings(1)} className="btn-primary">Try Again</button>
         </div>
       </div>
     );
@@ -372,7 +384,7 @@ const WorkingBookings = () => {
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          <StatTile icon="📊" value={totalCount}    label="Total"     color="linear-gradient(135deg,#60a5fa,#22d3ee)" active={filter === 'all'}       onClick={() => { setFilter('all');       setViewMode('list'); }} />
+          <StatTile icon="📊" value={displayTotal}   label="Total"     color="linear-gradient(135deg,#60a5fa,#22d3ee)" active={filter === 'all'}       onClick={() => { setFilter('all');       setViewMode('list'); }} />
           <StatTile icon="⏰" value={upcomingCount}  label="Upcoming"  color="linear-gradient(135deg,#34d399,#10b981)" active={filter === 'upcoming'}   onClick={() => { setFilter('upcoming');  setViewMode('list'); }} />
           <StatTile icon="✅" value={completedCount} label="Completed" color="linear-gradient(135deg,#a78bfa,#8b5cf6)" active={filter === 'completed'}  onClick={() => { setFilter('completed'); setViewMode('list'); }} />
           <StatTile icon="❌" value={cancelledCount} label="Cancelled" color="linear-gradient(135deg,#f87171,#ec4899)" active={filter === 'cancelled'}  onClick={() => { setFilter('cancelled'); setViewMode('list'); }} />
@@ -468,12 +480,29 @@ const WorkingBookings = () => {
               style={{ flex: 1, minWidth: '140px', padding: '0.75rem 1rem', background: 'linear-gradient(135deg,#10b981,#059669)', border: 'none', color: '#fff', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
               🏟️ Book New Field
             </button>
-            <button onClick={fetchBookings}
+            <button onClick={() => fetchBookings(currentPage)}
               style={{ flex: 1, minWidth: '140px', padding: '0.75rem 1rem', background: 'linear-gradient(135deg,#3b82f6,#06b6d4)', border: 'none', color: '#fff', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
               🔄 Refresh
             </button>
           </div>
         </div>
+
+        {/* Pagination */}
+        {displayTotal > PAGE_LIMIT && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', marginTop: '2rem' }}>
+            <button disabled={currentPage === 1} onClick={() => fetchBookings(currentPage - 1)}
+              style={{ padding: '0.45rem 1.1rem', borderRadius: '9px', border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: currentPage === 1 ? '#334155' : '#94a3b8', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontWeight: 700 }}>
+              ← Prev
+            </button>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>
+              Page {currentPage} of {Math.ceil(displayTotal / PAGE_LIMIT)}
+            </span>
+            <button disabled={currentPage >= Math.ceil(displayTotal / PAGE_LIMIT)} onClick={() => fetchBookings(currentPage + 1)}
+              style={{ padding: '0.45rem 1.1rem', borderRadius: '9px', border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: currentPage >= Math.ceil(displayTotal / PAGE_LIMIT) ? '#334155' : '#94a3b8', cursor: currentPage >= Math.ceil(displayTotal / PAGE_LIMIT) ? 'not-allowed' : 'pointer', fontWeight: 700 }}>
+              Next →
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
