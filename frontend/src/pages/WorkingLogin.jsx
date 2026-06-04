@@ -72,8 +72,10 @@ const WorkingLogin = () => {
 
           <form onSubmit={submit}>
             {error && (
-              <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '10px', padding: '0.75rem 1rem', color: '#f87171', fontSize: '0.87rem', fontWeight: 600, marginBottom: '1.5rem' }}>
-                ⚠️ {error}
+              <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '10px', padding: '0.75rem 1rem', color: '#f87171', fontSize: '0.87rem', fontWeight: 600, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                <span>⚠️ {error}</span>
+                <button type="button" onClick={() => setError('')}
+                  style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '1rem', lineHeight: 1, flexShrink: 0 }}>✕</button>
               </div>
             )}
 
