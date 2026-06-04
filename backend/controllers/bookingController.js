@@ -463,14 +463,38 @@ export const verifyBookingQR = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get booking statistics
+// @desc    Get booking statistics for the current user
 // @route   GET /api/bookings/stats
-// @access  Private/Admin
+// @access  Private
 export const getBookingStats = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+
+  const [statusAgg, monthlyAgg, upcomingCount] = await Promise.all([
+    Booking.aggregate([
+      { $match: { user: userId } },
+      { $group: { _id: '$status', count: { $sum: 1 }, spent: { $sum: '$pricing.totalAmount' } } },
+    ]),
+    Booking.aggregate([
+      { $match: { user: userId, createdAt: { $gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) } } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]),
+    Booking.countDocuments({ user: userId, status: 'confirmed', startTime: { $gte: new Date() } }),
+  ]);
+
+  const byStatus = {};
+  let totalBookings = 0;
+  let totalSpent   = 0;
+  statusAgg.forEach(r => {
+    byStatus[r._id] = r.count;
+    totalBookings   += r.count;
+    totalSpent      += r.spent ?? 0;
+  });
+
   res.status(200).json({
     success: true,
     message: 'Booking statistics retrieved successfully',
-    data: { stats: {} }
+    data: { totalBookings, totalSpent, upcomingCount, byStatus, monthlyTrend: monthlyAgg }
   });
 });
 
