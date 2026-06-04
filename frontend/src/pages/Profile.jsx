@@ -63,10 +63,13 @@ function InfoRow({ label, value }) {
 InfoRow.propTypes  = { label: PropTypes.string.isRequired, value: PropTypes.string };
 InfoRow.defaultProps = { value: '' };
 
+const SPORT_LIST = ['Football','Cricket','Basketball','Tennis','Badminton','Volleyball','Swimming','Squash'];
+
 /* ── ProfileDisplay ── */
 function ProfileDisplay({ user }) {
-  const dob = user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : '';
-  const since = user.createdAt  ? new Date(user.createdAt).toLocaleDateString()  : '';
+  const dob   = user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : '';
+  const since = user.createdAt   ? new Date(user.createdAt).toLocaleDateString()  : '';
+  const userSports = Array.isArray(user.sports) ? user.sports : [];
   return (
     <div>
       <h3 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '1rem', marginBottom: '1.25rem' }}>📋 Profile Information</h3>
@@ -78,6 +81,16 @@ function ProfileDisplay({ user }) {
       <InfoRow label="Gender"        value={user.gender} />
       <InfoRow label="Date of Birth" value={dob} />
       <InfoRow label="Member Since"  value={since} />
+      {userSports.length > 0 && (
+        <div style={{ paddingBottom: '0.65rem', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: '0.65rem' }}>
+          <span style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>Sports Interests</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+            {userSports.map(s => (
+              <span key={s} style={{ background: 'rgba(124,58,237,0.18)', color: '#c4b5fd', padding: '0.15rem 0.55rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'capitalize' }}>{s}</span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -86,6 +99,7 @@ ProfileDisplay.propTypes = {
     firstName: PropTypes.string, lastName: PropTypes.string, email: PropTypes.string,
     phone: PropTypes.string, bio: PropTypes.string, gender: PropTypes.string,
     dateOfBirth: PropTypes.string, createdAt: PropTypes.string,
+    sports: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
 };
 
