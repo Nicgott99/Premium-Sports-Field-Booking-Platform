@@ -162,11 +162,12 @@ const amenityIcon = (name) => {
 const FieldDetails = () => {
   const { id }   = useParams();
   const navigate = useNavigate();
-  const [field,   setField]   = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState('');
-  const [imgIdx,  setImgIdx]  = useState(0);
+  const [field,       setField]       = useState(null);
+  const [reviews,     setReviews]     = useState([]);
+  const [similar,     setSimilar]     = useState([]);
+  const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState('');
+  const [imgIdx,      setImgIdx]      = useState(0);
   const [loggedInUser, setLoggedInUser] = useState(null);
 
   useEffect(() => {
@@ -185,8 +186,20 @@ const FieldDetails = () => {
       ]);
       const [fData, rData] = await Promise.all([fRes.json(), rRes.json()]);
       if (fRes.ok === false) throw new Error(fData.message || 'Failed to load field');
-      setField(fData.data?.field ?? fData.data);
+      const fieldData = fData.data?.field ?? fData.data;
+      setField(fieldData);
       setReviews(rData.data?.reviews ?? rData.data ?? []);
+      const sport = fieldData?.sport ?? fieldData?.sports?.[0] ?? '';
+      if (sport) {
+        try {
+          const sRes  = await fetch(`/api/v1/fields?sport=${sport}&limit=4`);
+          const sData = await sRes.json();
+          if (sRes.ok && sData.success) {
+            const list = (sData.data?.fields ?? sData.data ?? []).filter(f => f._id !== id);
+            setSimilar(list.slice(0, 3));
+          }
+        } catch { /* silent */ }
+      }
     } catch (err) {
       setError(err.message || 'Failed to load field');
     } finally {
@@ -422,6 +435,38 @@ const FieldDetails = () => {
             )}
           </div>
         </div>
+
+        {/* Similar fields */}
+        {similar.length > 0 && (
+          <div style={{ marginTop: '2.5rem' }}>
+            <h2 style={{ color: '#94a3b8', fontWeight: 800, fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '1rem' }}>🏟️ Similar Fields Nearby</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: '1.1rem' }}>
+              {similar.map(f => {
+                const img   = f.images?.[0]?.url ?? '';
+                const price = f.pricing?.hourly ?? f.pricing?.basePrice ?? 0;
+                const city  = f.location?.city ?? '';
+                return (
+                  <div key={f._id} className="card" style={{ overflow: 'hidden', padding: 0 }}>
+                    <div style={{ height: '110px', background: img ? undefined : 'linear-gradient(135deg,rgba(124,58,237,0.3),rgba(59,130,246,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>
+                      {img ? <img src={img} alt={f.name} style={{ width: '100%', height: '110px', objectFit: 'cover' }} /> : '🏟️'}
+                    </div>
+                    <div style={{ padding: '0.85rem 1rem' }}>
+                      <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '0.9rem', marginBottom: '0.15rem' }}>{f.name}</div>
+                      {city && <div style={{ color: '#64748b', fontSize: '0.78rem', marginBottom: '0.6rem' }}>📍 {city}</div>}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontWeight: 900, background: 'linear-gradient(135deg,#a78bfa,#f9a8d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '0.95rem' }}>৳{price.toLocaleString()}/hr</span>
+                        <button onClick={() => navigate(`/fields/${f._id}`)}
+                          style={{ padding: '0.3rem 0.75rem', background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(124,58,237,0.35)', color: '#a78bfa', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
+                          View →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
