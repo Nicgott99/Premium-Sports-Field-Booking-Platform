@@ -181,6 +181,14 @@ const NewsletterSection = () => {
   );
 };
 
+const getGreeting = () => {
+  const h = new Date().getHours();
+  if (h < 12) return { text: 'Good Morning', emoji: '🌅' };
+  if (h < 17) return { text: 'Good Afternoon', emoji: '⛅' };
+  if (h < 21) return { text: 'Good Evening', emoji: '🌆' };
+  return { text: 'Good Night', emoji: '🌙' };
+};
+
 const PremiumHome = () => {
   const navigate = useNavigate();
   const [heroVisible,     setHeroVisible]     = useState(false);
@@ -270,6 +278,13 @@ const PremiumHome = () => {
           transform: heroVisible ? 'none' : 'translateY(30px)',
           transition:'opacity .7s ease, transform .7s ease',
         }}>
+          {/* Greeting */}
+          {(() => { const g = getGreeting(); return (
+            <div style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', color:'#64748b', fontSize:'0.88rem', fontWeight:700, marginBottom:'0.75rem' }}>
+              <span>{g.emoji}</span><span>{g.text}! Ready to play?</span>
+            </div>
+          ); })()}
+
           {/* Tag */}
           <div style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', padding:'0.4rem 1.1rem', background:'rgba(124,58,237,0.14)', border:'1px solid rgba(124,58,237,0.35)', borderRadius:'9999px', color:'#c084fc', fontSize:'0.78rem', fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:'1.5rem' }}>
             <span>✦</span> Bangladesh's #1 Sports Booking Platform
