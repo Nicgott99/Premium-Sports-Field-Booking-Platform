@@ -336,7 +336,36 @@ export const getSystemHealth = asyncHandler(async (req, res) => {
  */
 export const getAnalytics = asyncHandler(async (req, res) => {
   logger.info(`Admin ${req.user?.id} accessed analytics`);
-  res.json({ success: true, message: 'Analytics endpoint', data: {} });
+
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const sevenDaysAgo  = new Date(Date.now() -  7 * 24 * 60 * 60 * 1000);
+
+  const [totalUsers, totalFields, totalBookings, revenueAgg, newUsers30, newBookings7, topFields] = await Promise.all([
+    User.countDocuments(),
+    Field.countDocuments({ status: 'active' }),
+    Booking.countDocuments(),
+    Booking.aggregate([{ $match: { status: { $in: ['confirmed', 'completed'] } } }, { $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } }]),
+    User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+    Booking.countDocuments({ createdAt: { $gte: sevenDaysAgo } }),
+    Booking.aggregate([
+      { $group: { _id: '$field', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 },
+      { $lookup: { from: 'fields', localField: '_id', foreignField: '_id', as: 'field' } },
+      { $unwind: '$field' },
+      { $project: { count: 1, 'field.name': 1 } },
+    ]),
+  ]);
+
+  res.json({
+    success: true, message: 'Analytics data',
+    data: {
+      totalUsers, totalFields, totalBookings,
+      totalRevenue: revenueAgg[0]?.total ?? 0,
+      newUsers30, newBookings7,
+      topFields,
+    }
+  });
 });
 
 /**
