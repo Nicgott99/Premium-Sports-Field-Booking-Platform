@@ -21,9 +21,20 @@ const pwStrength = (pw) => {
   return              { pct: 100, color: '#10b981', label: 'Very Strong' };
 };
 
+const SPORT_OPTS = [
+  { id: 'football',   label: '⚽ Football' },
+  { id: 'cricket',    label: '🏏 Cricket' },
+  { id: 'basketball', label: '🏀 Basketball' },
+  { id: 'tennis',     label: '🎾 Tennis' },
+  { id: 'badminton',  label: '🏸 Badminton' },
+  { id: 'volleyball', label: '🏐 Volleyball' },
+];
+
 const WorkingRegister = () => {
   const navigate = useNavigate();
-  const [form, setForm]       = useState({ firstName: '', lastName: '', email: '', phone: '', password: '', confirmPassword: '', agreeTerms: false });
+  const [form, setForm]         = useState({ firstName: '', lastName: '', email: '', phone: '', password: '', confirmPassword: '', agreeTerms: false });
+  const [sports, setSports]     = useState([]);
+  const toggleSport = (id) => setSports(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
   const [showPw, setShowPw]   = useState(false);
   const [showCPw, setShowCPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -50,7 +61,7 @@ const WorkingRegister = () => {
       const res  = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone, password: form.password }),
+        body: JSON.stringify({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone, password: form.password, sports }),
       });
       const data = await res.json();
       if (data.success) {
@@ -128,6 +139,21 @@ const WorkingRegister = () => {
               <input id="wr-phone" type="tel" name="phone" value={form.phone}
                 onChange={change} className="input-field" placeholder="+880 1xxx xxxxxx"
                 autoComplete="tel" required />
+            </div>
+
+            {/* Sports interests */}
+            <div className="form-group">
+              <p style={{ color: '#94a3b8', fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.6rem' }}>
+                Sports Interests <span style={{ color: '#475569', fontWeight: 400 }}>(optional)</span>
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {SPORT_OPTS.map(s => (
+                  <button key={s.id} type="button" onClick={() => toggleSport(s.id)}
+                    style={{ padding: '0.35rem 0.9rem', borderRadius: '999px', border: `1px solid ${sports.includes(s.id) ? 'rgba(124,58,237,0.6)' : 'rgba(255,255,255,0.1)'}`, background: sports.includes(s.id) ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.04)', color: sports.includes(s.id) ? '#c4b5fd' : '#94a3b8', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', transition: 'all .15s' }}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* password row */}
