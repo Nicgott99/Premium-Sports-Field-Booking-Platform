@@ -153,12 +153,30 @@ export const getChatRooms = asyncHandler(async (req, res) => {
  * @throws {Error} 400 - Invalid participant list
  */
 export const createChatRoom = asyncHandler(async (req, res) => {
-  logger.info(`Creating chat room for user: ${req.user?.id}`);
-  res.status(201).json({
-    success: true,
-    message: 'Chat room created successfully',
-    data: { id: 'placeholder-room-id' }
+  const creatorId    = req.user?.id;
+  const { participants = [], chatType = 'direct', chatName, description } = req.body;
+
+  const allParticipants = [...new Set([creatorId, ...participants])];
+
+  if (chatType === 'direct') {
+    if (allParticipants.length !== 2) {
+      res.status(400); throw new Error('Direct chat requires exactly 2 participants');
+    }
+    const existing = await Chat.findOne({ chatType: 'direct', participants: { $all: allParticipants, $size: 2 } });
+    if (existing) return res.status(200).json({ success: true, message: 'Chat room already exists', data: existing });
+  }
+
+  const chat = await Chat.create({
+    chatType,
+    participants: allParticipants,
+    chatName: chatType === 'group' ? (chatName || 'Group Chat') : undefined,
+    description,
+    admin: chatType === 'group' ? creatorId : undefined,
+    messages: [],
   });
+
+  logger.info(`Chat room created: ${chat._id} by user: ${creatorId}`);
+  res.status(201).json({ success: true, message: 'Chat room created successfully', data: chat });
 });
 
 /**
@@ -174,11 +192,24 @@ export const createChatRoom = asyncHandler(async (req, res) => {
  * @throws {Error} 404 - Room not found
  */
 export const getChatMessages = asyncHandler(async (req, res) => {
-  logger.info(`Fetching messages from room: ${req.params.roomId}`);
+  const { roomId } = req.params;
+  const userId     = req.user?.id;
+  const page       = Math.max(1, Number.parseInt(req.query.page,  10) || 1);
+  const limit      = Math.min(100, Math.max(1, Number.parseInt(req.query.limit, 10) || 50));
+
+  const chat = await Chat.findOne({ _id: roomId, participants: userId });
+  if (!chat) { res.status(404); throw new Error('Chat room not found or access denied'); }
+
+  const total    = chat.messages.length;
+  const start    = Math.max(0, total - page * limit);
+  const end      = total - (page - 1) * limit;
+  const messages = chat.messages.slice(start, end).reverse();
+
+  logger.info(`Fetching messages from room: ${roomId} for user: ${userId}`);
   res.status(200).json({
     success: true,
     message: 'Chat messages retrieved successfully',
-    data: { messages: [] }
+    data: { messages, total, page, limit, hasMore: start > 0 }
   });
 });
 
