@@ -711,15 +711,34 @@ export const getFieldsByOwner = asyncHandler(async (req, res) => {
 });
 
 export const toggleFieldStatus = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Toggle field status endpoint' });
+  const fieldId = req.params.id;
+  const field   = await Field.findById(fieldId);
+  if (!field) { res.status(404); throw new Error('Field not found'); }
+  if (field.owner?.toString() !== req.user?.id && req.user?.role !== 'admin') {
+    res.status(403); throw new Error('Not authorized to modify this field');
+  }
+  const newStatus = field.status === 'active' ? 'inactive' : 'active';
+  await Field.findByIdAndUpdate(fieldId, { status: newStatus });
+  logger.info(`Field ${fieldId} status toggled to ${newStatus} by ${req.user?.id}`);
+  res.json({ success: true, message: `Field ${newStatus}`, data: { fieldId, status: newStatus } });
 });
 
 export const verifyField = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Verify field endpoint' });
+  if (req.user?.role !== 'admin') { res.status(403); throw new Error('Admin only'); }
+  const field = await Field.findByIdAndUpdate(req.params.id, { isVerified: true, status: 'active' }, { new: true });
+  if (!field) { res.status(404); throw new Error('Field not found'); }
+  logger.info(`Field ${req.params.id} verified by admin ${req.user?.id}`);
+  res.json({ success: true, message: 'Field verified and activated', data: { fieldId: req.params.id } });
 });
 
 export const reportField = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Report field endpoint' });
+  const { reason, details } = req.body;
+  const fieldId = req.params.id;
+  if (!reason) { res.status(400); throw new Error('Reason is required'); }
+  const field = await Field.findById(fieldId).select('name');
+  if (!field) { res.status(404); throw new Error('Field not found'); }
+  logger.warn(`Field ${fieldId} (${field.name}) reported by user ${req.user?.id}: ${reason}`);
+  res.json({ success: true, message: 'Report submitted. Our team will review it.', data: { fieldId, reason, reportedAt: new Date() } });
 });
 
 export const addToWishlist = asyncHandler(async (req, res) => {
