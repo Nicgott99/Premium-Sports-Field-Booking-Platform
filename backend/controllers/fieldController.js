@@ -3,6 +3,7 @@ import logger from '../utils/logger.js';
 import Field from '../models/Field.js';
 import Booking from '../models/Booking.js';
 import Review from '../models/Review.js';
+import User from '../models/User.js';
 
 /**
  * Field Controller - Sports Facility Listing & Management
@@ -722,15 +723,29 @@ export const reportField = asyncHandler(async (req, res) => {
 });
 
 export const addToWishlist = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Add to wishlist endpoint' });
+  const userId  = req.user?.id;
+  const fieldId = req.params.id;
+  const field   = await Field.findById(fieldId);
+  if (!field) { res.status(404); throw new Error('Field not found'); }
+  await User.findByIdAndUpdate(userId, { $addToSet: { 'stats.favoriteFields': fieldId } });
+  logger.info(`User ${userId} added field ${fieldId} to wishlist`);
+  res.json({ success: true, message: 'Field added to wishlist', data: { fieldId } });
 });
 
 export const removeFromWishlist = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Remove from wishlist endpoint' });
+  const userId  = req.user?.id;
+  const fieldId = req.params.id;
+  await User.findByIdAndUpdate(userId, { $pull: { 'stats.favoriteFields': fieldId } });
+  logger.info(`User ${userId} removed field ${fieldId} from wishlist`);
+  res.json({ success: true, message: 'Field removed from wishlist', data: { fieldId } });
 });
 
 export const getWishlist = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get wishlist endpoint', data: [] });
+  const userId = req.user?.id;
+  const user   = await User.findById(userId).select('stats.favoriteFields').populate('stats.favoriteFields', 'name sport location pricing images rating');
+  if (!user) { res.status(404); throw new Error('User not found'); }
+  const fields = user.stats?.favoriteFields ?? [];
+  res.json({ success: true, message: 'Wishlist retrieved successfully', data: { fields, total: fields.length } });
 });
 
 export const followField = asyncHandler(async (req, res) => {
