@@ -524,7 +524,25 @@ export const getBlockedUsers = asyncHandler(async (req, res) => {
 });
 
 export const updateSubscription = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Update subscription endpoint' });
+  const userId = req.params.id || req.user?.id;
+  if (req.user?.id !== userId) { res.status(403); throw new Error('Not authorized'); }
+
+  const { plan } = req.body;
+  const allowed = ['free', 'basic', 'premium', 'platinum'];
+  if (!plan || !allowed.includes(plan)) {
+    res.status(400);
+    throw new Error(`Plan must be one of: ${allowed.join(', ')}`);
+  }
+
+  const updated = await User.findByIdAndUpdate(
+    userId,
+    { 'subscription.plan': plan, 'subscription.status': 'active', 'subscription.startDate': new Date() },
+    { new: true }
+  ).select('subscription');
+
+  if (!updated) { res.status(404); throw new Error('User not found'); }
+  logger.info(`Subscription updated for user ${userId}: ${plan}`);
+  res.json({ success: true, message: `Subscription upgraded to ${plan}`, data: updated.subscription });
 });
 
 export const cancelSubscription = asyncHandler(async (req, res) => {
