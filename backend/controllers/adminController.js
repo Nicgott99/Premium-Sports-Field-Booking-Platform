@@ -621,11 +621,78 @@ export const sendBulkNotifications = asyncHandler(async (req, res) => {
 });
 
 export const generateReports = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Generate reports endpoint' });
+  const { type = 'summary', startDate, endDate } = req.query;
+  const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const end   = endDate   ? new Date(endDate)   : new Date();
+  const match = { createdAt: { $gte: start, $lte: end } };
+
+  const [totalBookings, totalUsers, revenueAgg, cancelledCount] = await Promise.all([
+    Booking.countDocuments(match),
+    User.countDocuments(match),
+    Booking.aggregate([{ $match: { ...match, status: { $in: ['confirmed', 'completed'] } } }, { $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } }]),
+    Booking.countDocuments({ ...match, status: 'cancelled' }),
+  ]);
+
+  const report = {
+    type,
+    period: { from: start.toISOString().split('T')[0], to: end.toISOString().split('T')[0] },
+    summary: {
+      newBookings: totalBookings,
+      newUsers: totalUsers,
+      revenue: revenueAgg[0]?.total ?? 0,
+      cancellations: cancelledCount,
+      cancellationRate: totalBookings > 0 ? Math.round((cancelledCount / totalBookings) * 100) : 0,
+    },
+    generatedAt: new Date(),
+    generatedBy: req.user?.id,
+  };
+
+  if (type === 'csv') {
+    const rows = [
+      ['Metric', 'Value'],
+      ['New Bookings', report.summary.newBookings],
+      ['New Users', report.summary.newUsers],
+      ['Revenue (BDT)', report.summary.revenue],
+      ['Cancellations', report.summary.cancellations],
+      ['Cancellation Rate (%)', report.summary.cancellationRate],
+    ];
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=report_${start.toISOString().split('T')[0]}_${end.toISOString().split('T')[0]}.csv`);
+    return res.send(rows.map(r => r.join(',')).join('\n'));
+  }
+
+  res.json({ success: true, message: 'Report generated', data: report });
 });
 
 export const auditLogs = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Audit logs endpoint', data: [] });
+  const page  = Math.max(1, Number.parseInt(req.query.page,  10) || 1);
+  const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit, 10) || 50));
+  const days  = Math.min(90, Math.max(1, Number.parseInt(req.query.days, 10) || 30));
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+  const [recentBookings, recentUsers, recentFields] = await Promise.all([
+    Booking.find({ createdAt: { $gte: since } })
+      .populate('user', 'firstName lastName email')
+      .populate('field', 'name')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .select('status pricing.totalAmount createdAt'),
+    User.find({ createdAt: { $gte: since } })
+      .select('firstName lastName email role createdAt')
+      .sort({ createdAt: -1 })
+      .limit(20),
+    Field.find({ createdAt: { $gte: since } })
+      .select('name sport status createdAt')
+      .sort({ createdAt: -1 })
+      .limit(20),
+  ]);
+
+  res.json({
+    success: true,
+    message: 'Audit logs retrieved',
+    data: { recentBookings, recentUsers, recentFields, period: `${days} days`, generatedAt: new Date() }
+  });
 });
 
 export const performanceMetrics = asyncHandler(async (req, res) => {
