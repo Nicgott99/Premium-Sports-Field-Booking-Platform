@@ -122,8 +122,13 @@ function ProfileEditForm({ form, saving, onChange, onSubmit }) {
         <input id="prof-phone" type="tel" name="phone" value={form.phone} onChange={onChange} className="input-field" placeholder="01XXXXXXXXX" />
       </div>
       <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="prof-bio" className="field-label">Bio</label>
-        <textarea id="prof-bio" name="bio" value={form.bio} onChange={onChange} rows={3} className="input-field" style={{ resize: 'vertical' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+          <label htmlFor="prof-bio" className="field-label" style={{ margin: 0 }}>Bio</label>
+          <span style={{ fontSize: '0.73rem', fontWeight: 700, color: (form.bio?.length ?? 0) > 450 ? '#f87171' : '#64748b' }}>
+            {form.bio?.length ?? 0}/500
+          </span>
+        </div>
+        <textarea id="prof-bio" name="bio" value={form.bio} onChange={onChange} rows={3} maxLength={500} className="input-field" style={{ resize: 'vertical' }} placeholder="Tell us about yourself…" />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
