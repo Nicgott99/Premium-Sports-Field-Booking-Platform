@@ -107,6 +107,11 @@ FieldCard.propTypes = {
 };
 
 /* ── Filter / sort helpers (outside component to keep cognitive complexity low) ── */
+function fieldMatchesSaved(field, favorites) {
+  const fid = field._id || field.id;
+  return favorites.includes(fid);
+}
+
 function fieldMatchesFilters(field, lc, sport, city, priceMax) {
   const name   = (field.name   ?? '').toLowerCase();
   const locRaw = field.location;
@@ -150,6 +155,7 @@ const WorkingFields = () => {
   const [currentPage,     setCurrentPage]    = useState(1);
   const [totalCount,      setTotalCount]     = useState(0);
   const [favorites,       setFavorites]      = useState(getFavorites);
+  const [showSaved,       setShowSaved]      = useState(false);
 
   useEffect(() => {
     const raw = localStorage.getItem('user');
@@ -189,11 +195,12 @@ const WorkingFields = () => {
 
   useEffect(() => {
     const lc       = searchTerm.toLowerCase();
-    const filtered = fields
-      .filter(f => fieldMatchesFilters(f, lc, selectedSport, selectedCity, priceMax))
-      .sort((a, b) => compareFields(a, b, sortBy));
+    const filterFn = showSaved
+      ? f => fieldMatchesSaved(f, favorites)
+      : f => fieldMatchesFilters(f, lc, selectedSport, selectedCity, priceMax);
+    const filtered = fields.filter(filterFn).sort((a, b) => compareFields(a, b, sortBy));
     setFilteredFields(filtered);
-  }, [fields, searchTerm, selectedSport, selectedCity, priceMax, sortBy]);
+  }, [fields, searchTerm, selectedSport, selectedCity, priceMax, sortBy, showSaved, favorites]);
 
   const handleBook    = useCallback((id) => { navigate(`/booking?field=${id}`); }, [navigate]);
   const handleDetails = useCallback((id) => { navigate(`/fields/${id}`); },   [navigate]);
@@ -266,6 +273,10 @@ const WorkingFields = () => {
 
         {/* Sport quick-filter chips */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.25rem', justifyContent: 'center' }}>
+          <button onClick={() => setShowSaved(v => !v)}
+            style={{ padding: '0.45rem 1.1rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.83rem', cursor: 'pointer', border: '1px solid', transition: 'all .18s', background: showSaved ? 'linear-gradient(135deg,#f87171,#ec4899)' : 'rgba(255,255,255,0.04)', color: showSaved ? '#fff' : '#94a3b8', borderColor: showSaved ? 'transparent' : 'rgba(255,255,255,0.1)' }}>
+            {showSaved ? '❤️' : '🤍'} Saved ({favorites.length})
+          </button>
           <button onClick={() => setSelectedSport('')}
             style={{ padding: '0.45rem 1.1rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.83rem', cursor: 'pointer', border: '1px solid', transition: 'all .18s', background: selectedSport ? 'rgba(255,255,255,0.04)' : 'linear-gradient(135deg,#7c3aed,#ec4899)', color: selectedSport ? '#94a3b8' : '#fff', borderColor: selectedSport ? 'rgba(255,255,255,0.1)' : 'transparent' }}>
             🏟️ All Sports
