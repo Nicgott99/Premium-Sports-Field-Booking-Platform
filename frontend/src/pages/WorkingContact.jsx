@@ -71,9 +71,20 @@ const WorkingContact = () => {
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <div style={{ fontSize: '2.8rem', marginBottom: '0.75rem' }}>📞</div>
           <h1 style={{ fontSize: '2.4rem', fontWeight: 900, background: 'linear-gradient(135deg,#a78bfa,#f9a8d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.65rem' }}>Contact Us</h1>
-          <p style={{ color: '#94a3b8', fontSize: '1.05rem', maxWidth: '600px', margin: '0 auto' }}>
+          <p style={{ color: '#94a3b8', fontSize: '1.05rem', maxWidth: '600px', margin: '0 auto 1.25rem' }}>
             We're here to help! Get in touch for support, partnerships, or any questions.
           </p>
+          <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <span style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399', borderRadius: '999px', padding: '0.25rem 0.85rem', fontSize: '0.78rem', fontWeight: 700 }}>
+              🟢 Support Online
+            </span>
+            <span style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', color: '#93c5fd', borderRadius: '999px', padding: '0.25rem 0.85rem', fontSize: '0.78rem', fontWeight: 700 }}>
+              ⚡ Avg. Response: &lt;2 hours
+            </span>
+            <span style={{ background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.3)', color: '#a78bfa', borderRadius: '999px', padding: '0.25rem 0.85rem', fontSize: '0.78rem', fontWeight: 700 }}>
+              💬 Live Chat 24/7
+            </span>
+          </div>
         </div>
 
         {/* Contact method tiles */}
