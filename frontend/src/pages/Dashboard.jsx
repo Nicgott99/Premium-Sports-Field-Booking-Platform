@@ -69,6 +69,7 @@ const Dashboard = () => {
 
   const isOwner       = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'fieldOwner';
   const nextBooking   = bookings.find(b => b.status === 'confirmed' && new Date(b.startTime) > new Date());
+  const pendingCount  = bookings.filter(b => b.status === 'pending').length;
 
   const QUICK = [
     { icon: '🏟️', label: 'Browse Fields',  sub: 'Find and book a venue',      path: '/fields',    grad: 'linear-gradient(135deg,#7c3aed,#6d28d9)' },
@@ -122,6 +123,14 @@ const Dashboard = () => {
 
         {/* ── Browse by sport ── */}
         <div style={{ marginBottom: '2rem' }}>
+          {pendingCount > 0 && (
+            <div className="card" style={{ padding: '0.9rem 1.25rem', marginBottom: '1rem', background: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+              <span style={{ color: '#fcd34d', fontWeight: 700, fontSize: '0.88rem' }}>
+                ⏳ You have <strong>{pendingCount}</strong> pending booking{pendingCount > 1 ? 's' : ''} awaiting confirmation.
+              </span>
+              <Link to="/bookings" style={{ color: '#fcd34d', fontWeight: 700, fontSize: '0.82rem', textDecoration: 'none', flexShrink: 0 }}>View →</Link>
+            </div>
+          )}
           <h2 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.85rem' }}>Browse by Sport</h2>
           <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
             {[['⚽','Football'],['🏏','Cricket'],['🏀','Basketball'],['🎾','Tennis'],['🏸','Badminton'],['🏐','Volleyball']].map(([icon, sport]) => (
