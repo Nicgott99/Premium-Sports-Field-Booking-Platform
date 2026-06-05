@@ -435,8 +435,16 @@ const WorkingBookings = () => {
               <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
                 <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📅</div>
                 <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f1f5f9', marginBottom: '0.5rem' }}>No Bookings Yet</h3>
-                <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Start by booking a premium sports field.</p>
-                <button onClick={() => navigate('/fields')} className="btn-primary">Book Your First Field</button>
+                <p style={{ color: '#64748b', marginBottom: '1.5rem', maxWidth: '320px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
+                  Ready to play? Browse 500+ premium sports fields across Bangladesh and make your first booking in seconds.
+                </p>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button onClick={() => navigate('/fields')} className="btn-primary">🏟️ Browse Fields</button>
+                  <button onClick={() => navigate('/fields?sport=football')}
+                    style={{ padding: '0.65rem 1.25rem', borderRadius: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#94a3b8', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
+                    ⚽ Football Fields
+                  </button>
+                </div>
               </div>
             ) : (
               <>
