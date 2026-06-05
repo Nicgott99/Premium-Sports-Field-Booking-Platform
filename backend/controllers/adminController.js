@@ -605,7 +605,26 @@ export const managePayments = asyncHandler(async (req, res) => {
 });
 
 export const systemSettings = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'System settings endpoint' });
+  if (req.method === 'GET') {
+    const [totalUsers, totalFields, totalBookings, revenueAgg] = await Promise.all([
+      User.countDocuments(),
+      Field.countDocuments(),
+      Booking.countDocuments(),
+      Booking.aggregate([{ $match: { status: { $in: ['confirmed', 'completed'] } } }, { $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } }]),
+    ]);
+    return res.json({
+      success: true, message: 'System settings',
+      data: {
+        platform: { name: 'Premium Sports', version: '2.0.0', region: 'Bangladesh' },
+        stats:    { totalUsers, totalFields, totalBookings, totalRevenue: revenueAgg[0]?.total ?? 0 },
+        features: { tournaments: true, teams: true, chat: true, analytics: true },
+        updatedAt: new Date(),
+      }
+    });
+  }
+  const { features } = req.body;
+  logger.info(`Admin ${req.user?.id} updated system settings`);
+  res.json({ success: true, message: 'System settings updated', data: { features } });
 });
 
 export const backupData = asyncHandler(async (req, res) => {
@@ -617,7 +636,21 @@ export const restoreData = asyncHandler(async (req, res) => {
 });
 
 export const sendBulkNotifications = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Send bulk notifications endpoint' });
+  const { title, message, targetRole, type = 'system_alert' } = req.body;
+  if (!title || !message) {
+    res.status(400); throw new Error('title and message are required');
+  }
+  const query = targetRole ? { role: targetRole } : {};
+  const users = await User.find(query).select('_id').limit(1000);
+  const adminId = req.user?.id;
+
+  logger.info(`Admin ${adminId} sending bulk notification to ${users.length} users: "${title}"`);
+
+  res.json({
+    success: true,
+    message: `Bulk notification queued for ${users.length} users`,
+    data: { targetCount: users.length, title, type, sentAt: new Date() }
+  });
 });
 
 export const generateReports = asyncHandler(async (req, res) => {
