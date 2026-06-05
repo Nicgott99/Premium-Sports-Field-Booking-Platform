@@ -9,10 +9,10 @@ const TABS = [
 ];
 
 const TEAM = [
-  { name: 'Alex Rahman',    role: 'CEO & Founder',      years: 10, skill: '🚀 Strategy',   image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300', bio: 'Sports enthusiast with 10+ years in tech. Built this platform to revolutionize sports booking.',    socials: ['💼', '🐦'] },
-  { name: 'Sarah Ahmed',    role: 'CTO',                years: 8,  skill: '⚙️ Engineering', image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300', bio: 'Full-stack developer passionate about creating seamless user experiences.',                        socials: ['💼', '💻'] },
-  { name: 'Mike Khan',      role: 'Head of Operations', years: 6,  skill: '🏟️ Operations',  image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300', bio: 'Former sports facility manager, now ensuring smooth operations across all our partner venues.',   socials: ['💼', '📸'] },
-  { name: 'Lisa Chowdhury', role: 'UX Designer',        years: 5,  skill: '🎨 Design',      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300', bio: 'Design expert creating intuitive interfaces that make sports booking effortless.',                 socials: ['💼', '🎨'] },
+  { name: 'Alex Rahman',    role: 'CEO & Founder',      years: 10, skill: '🚀 Strategy',   image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300', bio: 'Sports enthusiast with 10+ years in tech. Built this platform to revolutionize sports booking.',    links: [{ label: 'LinkedIn', icon: '💼', url: '#' }, { label: 'Twitter', icon: '🐦', url: '#' }] },
+  { name: 'Sarah Ahmed',    role: 'CTO',                years: 8,  skill: '⚙️ Engineering', image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300', bio: 'Full-stack developer passionate about creating seamless user experiences.',                        links: [{ label: 'LinkedIn', icon: '💼', url: '#' }, { label: 'GitHub',  icon: '💻', url: '#' }] },
+  { name: 'Mike Khan',      role: 'Head of Operations', years: 6,  skill: '🏟️ Operations',  image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300', bio: 'Former sports facility manager, now ensuring smooth operations across all our partner venues.',   links: [{ label: 'LinkedIn', icon: '💼', url: '#' }, { label: 'Insta',   icon: '📸', url: '#' }] },
+  { name: 'Lisa Chowdhury', role: 'UX Designer',        years: 5,  skill: '🎨 Design',      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300', bio: 'Design expert creating intuitive interfaces that make sports booking effortless.',                 links: [{ label: 'LinkedIn', icon: '💼', url: '#' }, { label: 'Dribbble', icon: '🎨', url: '#' }] },
 ];
 
 const STATS = [
@@ -203,8 +203,13 @@ const WorkingAbout = () => {
                     </div>
                     <p style={{ color: '#64748b', fontSize: '0.8rem', lineHeight: 1.6, marginBottom: '0.85rem' }}>{m.bio}</p>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
-                      {m.socials.map(s => (
-                        <span key={s} style={{ fontSize: '1.1rem', cursor: 'default' }}>{s}</span>
+                      {(m.links ?? []).map(l => (
+                        <a key={l.label} href={l.url} aria-label={l.label}
+                          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', fontSize: '0.9rem', textDecoration: 'none', transition: 'background .2s' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.3)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.15)'; }}>
+                          {l.icon}
+                        </a>
                       ))}
                     </div>
                   </div>
