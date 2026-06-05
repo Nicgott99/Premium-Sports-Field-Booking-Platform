@@ -512,15 +512,29 @@ export const reportUser = asyncHandler(async (req, res) => {
 });
 
 export const blockUser = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Block user endpoint' });
+  const blockerId = req.user?.id;
+  const blockedId = req.params.id;
+  if (blockerId === blockedId) { res.status(400); throw new Error('Cannot block yourself'); }
+  const target = await User.findById(blockedId).select('firstName lastName');
+  if (!target) { res.status(404); throw new Error('User not found'); }
+  await User.findByIdAndUpdate(blockerId, { $addToSet: { blockedUsers: blockedId } });
+  logger.info(`User ${blockerId} blocked user ${blockedId}`);
+  res.json({ success: true, message: `${target.firstName} has been blocked`, data: { blockedUserId: blockedId } });
 });
 
 export const unblockUser = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Unblock user endpoint' });
+  const blockerId = req.user?.id;
+  const blockedId = req.params.id;
+  await User.findByIdAndUpdate(blockerId, { $pull: { blockedUsers: blockedId } });
+  logger.info(`User ${blockerId} unblocked user ${blockedId}`);
+  res.json({ success: true, message: 'User unblocked successfully', data: { unblockedUserId: blockedId } });
 });
 
 export const getBlockedUsers = asyncHandler(async (req, res) => {
-  res.json({ success: true, message: 'Get blocked users endpoint', data: [] });
+  const userId = req.user?.id;
+  const user   = await User.findById(userId).select('blockedUsers').populate('blockedUsers', 'firstName lastName avatar');
+  const blocked = user?.blockedUsers ?? [];
+  res.json({ success: true, message: 'Blocked users retrieved', data: { users: blocked, total: blocked.length } });
 });
 
 export const updateSubscription = asyncHandler(async (req, res) => {
