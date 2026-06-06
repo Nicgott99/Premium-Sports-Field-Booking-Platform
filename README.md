@@ -1,10 +1,14 @@
 # 🏆 CSE471 Premium Sports Platform - MERN Stack
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/hasibullahkhanalvie/cse471-sports-platform)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/Nicgott99/Premium-Sports-Field-Booking-Platform)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](package.json)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-green.svg)](https://nodejs.org/)
 [![MongoDB](https://img.shields.io/badge/mongodb-6.0+-green.svg)](https://www.mongodb.com/)
+[![React](https://img.shields.io/badge/react-18+-blue.svg)](https://react.dev/)
+[![Express](https://img.shields.io/badge/express-4.18+-brightgreen.svg)](https://expressjs.com/)
+[![Code Style](https://img.shields.io/badge/code%20style-prettier-ff69b4.svg)](https://prettier.io/)
+[![ESLint](https://img.shields.io/badge/eslint-enabled-4B32C3.svg)](https://eslint.org/)
 
 A comprehensive, premium sports booking and community platform built with the MERN stack (MongoDB, Express.js, React.js, Node.js) featuring real-time communication, advanced analytics, payment processing, and AI-powered recommendations.
 
