@@ -8,7 +8,13 @@
     "start": "node server.js",
     "dev": "node dev-start.js",
     "dev:nodemon": "nodemon dev-start.js",
+    "lint": "eslint . --ext js --report-unused-disable-directives",
+    "lint:fix": "eslint . --ext js --fix",
+    "format": "prettier --write \"**/*.{js,json}\"",
+    "format:check": "prettier --check \"**/*.{js,json}\"",
     "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "seed": "node config/seeder.js"
   },
   "keywords": [
