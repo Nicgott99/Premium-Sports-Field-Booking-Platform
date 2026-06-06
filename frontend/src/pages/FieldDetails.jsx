@@ -430,7 +430,13 @@ const FieldDetails = () => {
             {locText !== 'N/A' && (
               <div className="card" style={{ padding: '1.25rem' }}>
                 <h3 style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.9rem', marginBottom: '0.5rem' }}>📍 Location</h3>
-                <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.6 }}>{locText}</p>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: '0.75rem' }}>{locText}</p>
+                {locCity && (
+                  <a href={`/fields?city=${encodeURIComponent(locCity)}`}
+                    style={{ color: '#7c3aed', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}>
+                    🔍 More fields in {locCity} →
+                  </a>
+                )}
               </div>
             )}
           </div>
