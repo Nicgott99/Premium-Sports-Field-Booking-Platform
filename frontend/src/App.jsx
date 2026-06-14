@@ -16,6 +16,7 @@ import WorkingContact from './pages/WorkingContact';
 import WorkingAbout from './pages/WorkingAbout';
 import NotFound from './pages/NotFound';
 import SearchPage from './pages/SearchPage';
+import LoyaltyProgram from './pages/LoyaltyProgram';
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
             <Route path="/contact" element={<WorkingContact />} />
             <Route path="/about" element={<WorkingAbout />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/loyalty" element={<LoyaltyProgram />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
