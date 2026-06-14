@@ -23,6 +23,7 @@ import PricingCalculator from './pages/PricingCalculator';
 import MembershipPlans from './pages/MembershipPlans';
 import NotificationsPage from './pages/NotificationsPage';
 import HelpCenter from './pages/HelpCenter';
+import FieldComparison from './pages/FieldComparison';
 
 const App = () => {
   return (
@@ -56,6 +57,7 @@ const App = () => {
             <Route path="/membership" element={<MembershipPlans />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/help" element={<HelpCenter />} />
+            <Route path="/compare" element={<FieldComparison />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
