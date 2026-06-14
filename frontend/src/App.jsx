@@ -29,6 +29,7 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import SchedulePage from './pages/SchedulePage';
 import PromotionsPage from './pages/PromotionsPage';
 import SportsStatsPage from './pages/SportsStatsPage';
+import MapView from './pages/MapView';
 
 const App = () => {
   return (
@@ -68,6 +69,7 @@ const App = () => {
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/promotions" element={<PromotionsPage />} />
             <Route path="/stats" element={<SportsStatsPage />} />
+            <Route path="/map" element={<MapView />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
