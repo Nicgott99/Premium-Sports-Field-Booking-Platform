@@ -28,6 +28,7 @@ import ReferralProgram from './pages/ReferralProgram';
 import LeaderboardPage from './pages/LeaderboardPage';
 import SchedulePage from './pages/SchedulePage';
 import PromotionsPage from './pages/PromotionsPage';
+import SportsStatsPage from './pages/SportsStatsPage';
 
 const App = () => {
   return (
@@ -66,6 +67,7 @@ const App = () => {
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/promotions" element={<PromotionsPage />} />
+            <Route path="/stats" element={<SportsStatsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
