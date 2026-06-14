@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import WorkingContact from './pages/WorkingContact';
 import WorkingAbout from './pages/WorkingAbout';
 import NotFound from './pages/NotFound';
+import SearchPage from './pages/SearchPage';
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/contact" element={<WorkingContact />} />
             <Route path="/about" element={<WorkingAbout />} />
+            <Route path="/search" element={<SearchPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
