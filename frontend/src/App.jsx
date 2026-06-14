@@ -25,6 +25,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import HelpCenter from './pages/HelpCenter';
 import FieldComparison from './pages/FieldComparison';
 import ReferralProgram from './pages/ReferralProgram';
+import LeaderboardPage from './pages/LeaderboardPage';
 
 const App = () => {
   return (
@@ -60,6 +61,7 @@ const App = () => {
             <Route path="/help" element={<HelpCenter />} />
             <Route path="/compare" element={<FieldComparison />} />
             <Route path="/referral" element={<ReferralProgram />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
