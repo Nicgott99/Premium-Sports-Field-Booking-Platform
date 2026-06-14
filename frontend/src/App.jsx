@@ -21,6 +21,7 @@ import TournamentPage from './pages/TournamentPage';
 import TeamManagement from './pages/TeamManagement';
 import PricingCalculator from './pages/PricingCalculator';
 import MembershipPlans from './pages/MembershipPlans';
+import NotificationsPage from './pages/NotificationsPage';
 
 const App = () => {
   return (
@@ -52,6 +53,7 @@ const App = () => {
             <Route path="/teams" element={<TeamManagement />} />
             <Route path="/pricing" element={<PricingCalculator />} />
             <Route path="/membership" element={<MembershipPlans />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
