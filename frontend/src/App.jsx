@@ -22,6 +22,7 @@ import TeamManagement from './pages/TeamManagement';
 import PricingCalculator from './pages/PricingCalculator';
 import MembershipPlans from './pages/MembershipPlans';
 import NotificationsPage from './pages/NotificationsPage';
+import HelpCenter from './pages/HelpCenter';
 
 const App = () => {
   return (
@@ -54,6 +55,7 @@ const App = () => {
             <Route path="/pricing" element={<PricingCalculator />} />
             <Route path="/membership" element={<MembershipPlans />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/help" element={<HelpCenter />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
