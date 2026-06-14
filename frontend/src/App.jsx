@@ -27,6 +27,7 @@ import FieldComparison from './pages/FieldComparison';
 import ReferralProgram from './pages/ReferralProgram';
 import LeaderboardPage from './pages/LeaderboardPage';
 import SchedulePage from './pages/SchedulePage';
+import PromotionsPage from './pages/PromotionsPage';
 
 const App = () => {
   return (
@@ -64,6 +65,7 @@ const App = () => {
             <Route path="/referral" element={<ReferralProgram />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/schedule" element={<SchedulePage />} />
+            <Route path="/promotions" element={<PromotionsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
