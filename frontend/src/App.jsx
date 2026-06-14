@@ -17,6 +17,7 @@ import WorkingAbout from './pages/WorkingAbout';
 import NotFound from './pages/NotFound';
 import SearchPage from './pages/SearchPage';
 import LoyaltyProgram from './pages/LoyaltyProgram';
+import TournamentPage from './pages/TournamentPage';
 
 const App = () => {
   return (
@@ -44,6 +45,7 @@ const App = () => {
             <Route path="/about" element={<WorkingAbout />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/loyalty" element={<LoyaltyProgram />} />
+            <Route path="/tournaments" element={<TournamentPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
