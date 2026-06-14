@@ -20,6 +20,7 @@ import LoyaltyProgram from './pages/LoyaltyProgram';
 import TournamentPage from './pages/TournamentPage';
 import TeamManagement from './pages/TeamManagement';
 import PricingCalculator from './pages/PricingCalculator';
+import MembershipPlans from './pages/MembershipPlans';
 
 const App = () => {
   return (
@@ -50,6 +51,7 @@ const App = () => {
             <Route path="/tournaments" element={<TournamentPage />} />
             <Route path="/teams" element={<TeamManagement />} />
             <Route path="/pricing" element={<PricingCalculator />} />
+            <Route path="/membership" element={<MembershipPlans />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
