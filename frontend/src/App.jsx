@@ -33,7 +33,7 @@ import MapView from './pages/MapView';
 
 const App = () => {
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#0f0c29,#1a1040,#0f0c29)' }}>
+    <div style={{ minHeight: '100vh', background: '#051424' }}>
       <Router
         future={{
           v7_startTransition: true,

@@ -5,9 +5,31 @@
    Dark luxury theme with glass morphism & vivid gradients
    ================================================================ */
 
-/* ── CSS Custom Properties ────────────────────────────────────── */
+/* ── CSS Custom Properties — Kinetic Elite Design System ─────── */
 :root {
-  /* Brand colours */
+  /* ── Kinetic Elite palette ── */
+  --ke-surface:    #051424;
+  --ke-surface-2:  #0d1c2d;
+  --ke-surface-3:  #122131;
+  --ke-surface-4:  #1c2b3c;
+  --ke-surface-5:  #273647;
+
+  --ke-lime:       #c3f400;
+  --ke-lime-dim:   rgba(195,244,0,0.15);
+  --ke-lime-glow:  0 0 32px rgba(195,244,0,0.25);
+
+  --ke-orange:     #ff5e07;
+  --ke-orange-dim: rgba(255,94,7,0.15);
+  --ke-orange-glow:0 0 32px rgba(255,94,7,0.25);
+
+  --ke-text:       #f0f6ff;
+  --ke-text-2:     #8ba3be;
+  --ke-text-3:     #506070;
+
+  --ke-glass-bg:   rgba(18,33,49,0.72);
+  --ke-glass-border: rgba(255,255,255,0.08);
+
+  /* ── Legacy compatibility aliases ── */
   --c-purple:      #7c3aed;
   --c-purple-dark: #5b21b6;
   --c-pink:        #ec4899;
@@ -18,34 +40,35 @@
   --c-green:       #10b981;
   --c-red:         #ef4444;
 
-  /* Dark surfaces */
-  --bg-base:    #030712;
-  --bg-surface: #0d0d1f;
-  --bg-card:    rgba(255,255,255,0.04);
-  --bg-card-h:  rgba(255,255,255,0.07);
-  --bg-glass:   rgba(13,13,31,0.85);
+  /* Dark surfaces — updated to Kinetic Elite */
+  --bg-base:    var(--ke-surface);
+  --bg-surface: var(--ke-surface-2);
+  --bg-card:    var(--ke-glass-bg);
+  --bg-card-h:  rgba(28,43,60,0.85);
+  --bg-glass:   var(--ke-glass-bg);
 
   /* Borders */
-  --border-subtle:  rgba(255,255,255,0.07);
-  --border-accent:  rgba(124,58,237,0.35);
-  --border-hover:   rgba(124,58,237,0.6);
+  --border-subtle:  var(--ke-glass-border);
+  --border-accent:  rgba(195,244,0,0.3);
+  --border-hover:   rgba(195,244,0,0.55);
 
   /* Text */
-  --text-primary:   #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted:     #475569;
+  --text-primary:   var(--ke-text);
+  --text-secondary: var(--ke-text-2);
+  --text-muted:     var(--ke-text-3);
 
   /* Gradients */
-  --grad-primary:    linear-gradient(135deg,#7c3aed,#ec4899);
+  --grad-primary:    linear-gradient(135deg,var(--ke-lime),#8fcc00);
+  --grad-orange:     linear-gradient(135deg,var(--ke-orange),#cc3a00);
   --grad-blue:       linear-gradient(135deg,#3b82f6,#06b6d4);
   --grad-gold:       linear-gradient(135deg,#f59e0b,#ef4444);
   --grad-green:      linear-gradient(135deg,#10b981,#3b82f6);
-  --grad-hero:       linear-gradient(135deg,#030712 0%,#0d0525 40%,#030712 100%);
+  --grad-hero:       linear-gradient(160deg,var(--ke-surface) 0%,#0a1e32 50%,var(--ke-surface) 100%);
 
   /* Shadows */
-  --shadow-card:   0 8px 32px rgba(0,0,0,0.4);
-  --shadow-glow:   0 0 40px rgba(124,58,237,0.25);
-  --shadow-btn:    0 4px 20px rgba(124,58,237,0.45);
+  --shadow-card:   0 8px 32px rgba(0,0,0,0.5);
+  --shadow-glow:   var(--ke-lime-glow);
+  --shadow-btn:    0 4px 20px rgba(195,244,0,0.35);
   --shadow-blue:   0 4px 20px rgba(59,130,246,0.4);
 
   /* Radii */
@@ -59,16 +82,112 @@
   --t-fast: 150ms;
   --t-base: 250ms;
   --t-slow: 400ms;
+
+  /* Fonts */
+  --font-display: 'Anybody', 'Inter', sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
 }
 
-/* ── Global base ─────────────────────────────────────────────── */
+/* ── Global base — Kinetic Elite ─────────────────────────────── */
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg-base);
-  color: var(--text-primary);
-  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--ke-surface);
+  color: var(--ke-text);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+}
+
+/* ── Kinetic Elite utility classes ──────────────────────────── */
+.ke-glass {
+  background: var(--ke-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--ke-glass-border);
+}
+.ke-glass-hover:hover {
+  border-color: rgba(195,244,0,0.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), var(--ke-lime-glow);
+}
+.ke-lime-text  { color: var(--ke-lime); }
+.ke-orange-text{ color: var(--ke-orange); }
+.ke-surface-card { background: var(--ke-surface-3); border: 1px solid var(--ke-glass-border); border-radius: var(--r-lg); }
+
+/* Kinetic Elite animated gradient background orbs */
+.ke-bg-orbs::before {
+  content: '';
+  position: fixed;
+  width: 50vw; height: 50vw;
+  background: radial-gradient(circle,rgba(195,244,0,0.06),transparent 65%);
+  top: -10%; right: -10%;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+.ke-bg-orbs::after {
+  content: '';
+  position: fixed;
+  width: 40vw; height: 40vw;
+  background: radial-gradient(circle,rgba(255,94,7,0.08),transparent 65%);
+  bottom: -10%; left: -10%;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Font helpers */
+.font-display { font-family: var(--font-display); }
+.font-mono    { font-family: var(--font-mono); }
+
+/* Lime accent badge */
+.ke-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--ke-lime-dim);
+  border: 1px solid rgba(195,244,0,0.3);
+  color: var(--ke-lime);
+}
+.ke-badge-orange {
+  background: var(--ke-orange-dim);
+  border-color: rgba(255,94,7,0.3);
+  color: var(--ke-orange);
+}
+
+/* Lime CTA button */
+.btn-ke-primary {
+  background: var(--ke-lime);
+  color: #0a1200;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-btn);
+}
+.btn-ke-primary:hover { transform: translateY(-2px); filter: brightness(1.08); }
+
+/* Stat numbers */
+.ke-stat-num {
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--ke-lime);
+}
+
+/* Section label mono */
+.ke-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ke-text-2);
 }
 
 /* ── Animated page background ────────────────────────────────── */
@@ -522,9 +641,9 @@ textarea.input-field { resize: vertical; min-height: 100px; line-height: 1.6; }
 
 /* ── Scrollbar ───────────────────────────────────────────────── */
 ::-webkit-scrollbar        { width:5px; }
-::-webkit-scrollbar-track  { background:rgba(0,0,0,0.2); }
-::-webkit-scrollbar-thumb  { background:rgba(124,58,237,0.45); border-radius:4px; }
-::-webkit-scrollbar-thumb:hover { background:rgba(124,58,237,0.7); }
+::-webkit-scrollbar-track  { background:rgba(5,20,36,0.8); }
+::-webkit-scrollbar-thumb  { background:rgba(195,244,0,0.35); border-radius:4px; }
+::-webkit-scrollbar-thumb:hover { background:rgba(195,244,0,0.6); }
 
 /* ── Sport category colours ─────────────────────────────────── */
 .sport-football   { --sport-color: #22c55e; }
