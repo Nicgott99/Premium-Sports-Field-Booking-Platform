@@ -1,218 +1,133 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-const authFetch = (url, opts = {}) => {
-  const token = localStorage.getItem('token');
-  return fetch(url, { ...opts, headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...opts.headers } });
-};
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 const MOCK_TOURNAMENTS = [
-  { _id: 't1', name: 'Dhaka Premier Football Cup', sport: 'Football', status: 'Open', startDate: '2025-07-10', endDate: '2025-07-20', teams: 12, maxTeams: 16, prize: '৳50,000', location: 'Bangabandhu National Stadium', fee: 2000, image: '⚽', description: 'Annual premier football tournament open to all registered clubs in Dhaka.' },
-  { _id: 't2', name: 'Chittagong Cricket League',  sport: 'Cricket',  status: 'Open', startDate: '2025-07-15', endDate: '2025-08-05', teams: 6,  maxTeams: 8,  prize: '৳35,000', location: 'Zahur Ahmed Chowdhury Stadium', fee: 3000, image: '🏏', description: 'T20 format cricket league for amateur and semi-pro teams.' },
-  { _id: 't3', name: 'National Badminton Open',    sport: 'Badminton', status: 'Upcoming', startDate: '2025-08-01', endDate: '2025-08-03', teams: 20, maxTeams: 32, prize: '৳20,000', location: 'Shaheed Suhrawardy Indoor Stadium', fee: 500, image: '🏸', description: 'Singles and doubles badminton tournament for all ages.' },
-  { _id: 't4', name: 'Sylhet Basketball Classic',  sport: 'Basketball', status: 'Ongoing', startDate: '2025-06-20', endDate: '2025-06-30', teams: 8, maxTeams: 8, prize: '৳15,000', location: 'Osmani Stadium', fee: 1500, image: '🏀', description: 'Fast-paced 3x3 and 5x5 basketball tournament.' },
-  { _id: 't5', name: 'Rajshahi Tennis Open',       sport: 'Tennis',    status: 'Upcoming', startDate: '2025-09-05', endDate: '2025-09-07', teams: 16, maxTeams: 32, prize: '৳25,000', location: 'Rajshahi Club Grounds', fee: 1000, image: '🎾', description: 'Mixed singles and doubles tennis open tournament.' },
-  { _id: 't6', name: 'Khulna Volleyball Cup',      sport: 'Volleyball', status: 'Open', startDate: '2025-07-25', endDate: '2025-07-27', teams: 4, maxTeams: 12, prize: '৳10,000', location: 'Khulna District Sports Complex', fee: 800, image: '🏐', description: 'Beach and indoor volleyball championship.' },
+  { id:1, name:'Dhaka Premier League — Football', sport:'Football', icon:'⚽', status:'ongoing', teams:16, registered:16, prize:'৳80,000', startDate:'2026-06-01', endDate:'2026-06-30', venue:'Bashundhara Sports Complex', format:'Round Robin + Knockout', entryFee:5000, description:'The most prestigious football tournament in the city with 16 elite teams competing across 4 weeks.' },
+  { id:2, name:'3v3 Basketball Showdown', sport:'Basketball', icon:'🏀', status:'open', teams:8, registered:5, prize:'৳25,000', startDate:'2026-06-25', endDate:'2026-06-26', venue:'Mirpur Indoor Stadium', format:'Single Elimination', entryFee:1500, description:'Fast-paced 3v3 street basketball tournament on professional courts.' },
+  { id:3, name:'Smash Open — Tennis Championship', sport:'Tennis', icon:'🎾', status:'open', teams:32, registered:24, prize:'৳40,000', startDate:'2026-07-05', endDate:'2026-07-12', venue:'Dhanmondi Tennis Club', format:'Double Elimination', entryFee:3000, description:'Open singles and doubles tennis championship with players from all over Bangladesh.' },
+  { id:4, name:'T10 Cricket Blitz', sport:'Cricket', icon:'🏏', status:'upcoming', teams:12, registered:0, prize:'৳60,000', startDate:'2026-07-20', endDate:'2026-07-21', venue:'Elite Cricket Centre', format:'Group Stage + Final', entryFee:4000, description:'High-intensity T10 format cricket tournament — 12 teams, 2 days, one champion.' },
+  { id:5, name:'Badminton Grand Prix', sport:'Badminton', icon:'🏸', status:'completed', teams:20, registered:20, prize:'৳30,000', startDate:'2026-05-10', endDate:'2026-05-12', venue:'Badminton Arena Dhaka', format:'Round Robin', entryFee:2000, description:'Past tournament. Won by Team Falcon from Uttara.' },
 ];
 
-const STATUS_COLOR = { Open: '#10b981', Upcoming: '#f59e0b', Ongoing: '#6366f1', Closed: '#ef4444' };
+const STATUS_STYLE = {
+  ongoing:  { color:'#c3f400', bg:'rgba(195,244,0,0.12)', border:'rgba(195,244,0,0.3)',  label:'LIVE' },
+  open:     { color:'#7dd3fc', bg:'rgba(125,211,252,0.12)', border:'rgba(125,211,252,0.3)', label:'Open' },
+  upcoming: { color:'#ff5e07', bg:'rgba(255,94,7,0.12)', border:'rgba(255,94,7,0.3)',  label:'Upcoming' },
+  completed:{ color:'#506070', bg:'rgba(80,96,112,0.12)', border:'rgba(80,96,112,0.3)',  label:'Ended' },
+};
+
+function TournamentCard({ t, onSelect, selected }) {
+  const ss = STATUS_STYLE[t.status];
+  const spotsLeft = t.teams - t.registered;
+  const fillPct = Math.round((t.registered / t.teams) * 100);
+  return (
+    <button type="button" onClick={() => onSelect(t)} style={{ background:'rgba(13,28,45,0.72)', border:`1px solid ${selected ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.07)'}`, borderRadius:'16px', padding:'1.4rem 1.5rem', backdropFilter:'blur(14px)', cursor:'pointer', transition:'all 0.2s', width:'100%', textAlign:'left', display:'block' }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(195,244,0,0.25)'; e.currentTarget.style.transform='translateY(-2px)'; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = selected ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.07)'; e.currentTarget.style.transform='none'; }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'0.75rem' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'0.65rem' }}>
+          <span style={{ fontSize:'1.8rem' }}>{t.icon}</span>
+          <div>
+            <h3 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.95rem', color:'#f0f6ff', margin:0, lineHeight:1.3 }}>{t.name}</h3>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", color:'#506070', fontSize:'0.7rem', marginTop:'0.2rem' }}>{t.venue}</div>
+          </div>
+        </div>
+        <span style={{ background:ss.bg, border:`1px solid ${ss.border}`, color:ss.color, padding:'0.18rem 0.6rem', borderRadius:'999px', fontSize:'0.7rem', fontWeight:800, whiteSpace:'nowrap', fontFamily:"'JetBrains Mono',monospace" }}>{ss.label}</span>
+      </div>
+      <div style={{ display:'flex', gap:'1rem', flexWrap:'wrap', marginBottom:'0.85rem' }}>
+        {[['emoji_events', t.prize],['group', `${t.registered}/${t.teams} teams`],['event', t.startDate]].map(([icon, val]) => (
+          <span key={icon} style={{ display:'flex', alignItems:'center', gap:'0.3rem', color:'#506070', fontSize:'0.78rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize:'0.9rem' }}>{icon}</span>
+            <span>{val}</span>
+          </span>
+        ))}
+      </div>
+      <div style={{ height:'4px', background:'rgba(255,255,255,0.06)', borderRadius:'999px', overflow:'hidden' }}>
+        <div style={{ height:'100%', width:`${fillPct}%`, background: fillPct >= 100 ? '#ff5e07' : '#c3f400', borderRadius:'999px' }} />
+      </div>
+      <div style={{ display:'flex', justifyContent:'space-between', marginTop:'0.35rem' }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color:'#506070' }}>{fillPct}% filled</span>
+        {t.status === 'open' && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color: spotsLeft <= 2 ? '#ff5e07' : '#c3f400' }}>{spotsLeft} spots left</span>}
+      </div>
+    </button>
+  );
+}
+TournamentCard.propTypes = {
+  t: PropTypes.shape({ id:PropTypes.number, name:PropTypes.string, sport:PropTypes.string, icon:PropTypes.string, status:PropTypes.string, teams:PropTypes.number, registered:PropTypes.number, prize:PropTypes.string, startDate:PropTypes.string, endDate:PropTypes.string, venue:PropTypes.string, format:PropTypes.string, entryFee:PropTypes.number, description:PropTypes.string }).isRequired,
+  onSelect: PropTypes.func.isRequired,
+  selected: PropTypes.bool.isRequired,
+};
+
+const FILTERS = ['All','Ongoing','Open','Upcoming','Completed'];
 
 const TournamentPage = () => {
-  const navigate  = useNavigate();
   const [tournaments, setTournaments] = useState([]);
-  const [loading,     setLoading]     = useState(true);
-  const [filter,      setFilter]      = useState('All');
-  const [sport,       setSport]       = useState('All');
-  const [selected,    setSelected]    = useState(null);
-  const [joining,     setJoining]     = useState(null);
-  const [toast,       setToast]       = useState('');
+  const [filter, setFilter] = useState('All');
+  const [selected, setSelected] = useState(null);
 
-  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3500); };
-
-  const load = useCallback(async () => {
-    try {
-      const res  = await authFetch('/api/v1/tournaments');
-      const data = await res.json();
-      if (res.ok && data.success && Array.isArray(data.data?.tournaments ?? data.data)) {
-        setTournaments(data.data?.tournaments ?? data.data);
-      } else { setTournaments(MOCK_TOURNAMENTS); }
-    } catch { setTournaments(MOCK_TOURNAMENTS); } finally { setLoading(false); }
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/v1/tournaments');
+        if (!res.ok) throw new Error('api');
+        const data = await res.json();
+        const list = data.data ?? data;
+        setTournaments(list);
+        setSelected(list[0] ?? null);
+      } catch {
+        setTournaments(MOCK_TOURNAMENTS);
+        setSelected(MOCK_TOURNAMENTS[0]);
+      }
+    };
+    load();
   }, []);
 
-  useEffect(() => { load(); }, [load]);
-
-  const SPORTS   = ['All', ...new Set(MOCK_TOURNAMENTS.map(t => t.sport))];
-  const STATUSES = ['All', 'Open', 'Upcoming', 'Ongoing'];
-
-  const displayed = (tournaments.length ? tournaments : MOCK_TOURNAMENTS).filter(t =>
-    (filter === 'All' || t.status === filter) && (sport === 'All' || t.sport === sport)
-  );
-
-  const handleJoin = async (t) => {
-    const raw = localStorage.getItem('user');
-    if (!raw) { navigate('/login'); return; }
-    setJoining(t._id);
-    try {
-      const parsed = JSON.parse(raw);
-      const res = await authFetch(`/api/v1/tournaments/${t._id}/join`, {
-        method: 'POST',
-        body: JSON.stringify({ userId: parsed._id ?? parsed.id }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        showToast(`🎉 Joined "${t.name}"! Check your email for confirmation.`);
-      } else {
-        showToast(`🎉 Registered for "${t.name}"! See you on the field.`);
-      }
-    } catch { showToast(`🎉 Registered for "${t.name}"! See you on the field.`); }
-    finally { setJoining(null); setSelected(null); }
-  };
-
-  const S = {
-    page:    { minHeight: '100vh', background: 'linear-gradient(135deg,#030712 0%,#0d0525 50%,#030712 100%)', padding: '2rem 1.5rem', fontFamily: "'Inter',sans-serif", color: '#f1f5f9' },
-    wrap:    { maxWidth: 1100, margin: '0 auto' },
-    hero:    { textAlign: 'center', marginBottom: '2.5rem' },
-    title:   { fontSize: 'clamp(1.8rem,4vw,2.8rem)', fontWeight: 900, background: 'linear-gradient(135deg,#7c3aed,#ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: '0 0 0.4rem' },
-    filters: { display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '2rem', alignItems: 'center' },
-    chip:    (active) => ({ background: active ? 'linear-gradient(135deg,#7c3aed,#6d28d9)' : 'rgba(255,255,255,0.06)', border: `1px solid ${active ? '#7c3aed' : 'rgba(255,255,255,0.1)'}`, color: active ? '#fff' : '#94a3b8', padding: '0.4rem 1rem', borderRadius: '20px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, transition: 'all 0.2s' }),
-    grid:    { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: '1.25rem' },
-    card:    { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '18px', overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s,border-color 0.2s' },
-    cardTop: (sport) => ({ background: `linear-gradient(135deg,rgba(124,58,237,0.3),rgba(236,72,153,0.2))`, padding: '1.5rem 1.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }),
-    cardBody:{ padding: '1rem 1.5rem 1.5rem' },
-    statusBadge: (s) => ({ background: `${STATUS_COLOR[s]}22`, color: STATUS_COLOR[s], border: `1px solid ${STATUS_COLOR[s]}55`, borderRadius: '20px', padding: '0.25rem 0.75rem', fontSize: '0.75rem', fontWeight: 700 }),
-    prizeTag: { background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b', borderRadius: '8px', padding: '0.3rem 0.75rem', fontSize: '0.8rem', fontWeight: 700 },
-    btn:     { background: 'linear-gradient(135deg,#7c3aed,#ec4899)', border: 'none', color: '#fff', fontWeight: 700, padding: '0.6rem 1.25rem', borderRadius: '10px', cursor: 'pointer', fontSize: '0.875rem', width: '100%', marginTop: '0.75rem', transition: 'opacity 0.2s' },
-    modal:   { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' },
-    modalBox:{ background: 'linear-gradient(135deg,#0f0c29,#1a1040)', border: '1px solid rgba(124,58,237,0.3)', borderRadius: '20px', padding: '2rem', maxWidth: 520, width: '100%', maxHeight: '90vh', overflowY: 'auto' },
-    row:     { display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.875rem' },
-  };
-
-  if (loading) return (
-    <div style={{ ...S.page, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center', color: '#94a3b8' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
-        <p>Loading tournaments…</p>
-      </div>
-    </div>
-  );
+  const displayed = filter === 'All' ? tournaments : tournaments.filter(t => t.status === filter.toLowerCase());
 
   return (
-    <div style={S.page}>
-      {toast && (
-        <div style={{ position: 'fixed', top: '1.5rem', right: '1.5rem', background: 'rgba(16,185,129,0.9)', color: '#fff', padding: '0.75rem 1.5rem', borderRadius: '12px', fontWeight: 700, zIndex: 9999, fontSize: '0.9rem', maxWidth: 320 }}>
-          {toast}
-        </div>
-      )}
+    <div style={{ minHeight:'100vh', background:'#051424', paddingTop:'5.5rem', paddingBottom:'4rem' }}>
+      <div style={{ maxWidth:'1200px', margin:'0 auto', padding:'0 1.25rem' }}>
 
-      <div style={S.wrap}>
-        <div style={S.hero}>
-          <h1 style={S.title}>🏆 Tournaments</h1>
-          <p style={{ color: '#94a3b8', fontSize: '1rem', margin: 0 }}>Compete, win, and claim glory on the field</p>
+        <div style={{ textAlign:'center', marginBottom:'2rem' }}>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Compete</span>
+          <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.8rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>Tournaments</h1>
         </div>
 
-        {/* Stats strip */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          {[['🏆', displayed.length, 'Tournaments'], ['🟢', displayed.filter(t => t.status === 'Open').length, 'Open Now'], ['👥', displayed.reduce((s, t) => s + (t.teams || 0), 0), 'Teams Joined'], ['💰', '৳'+displayed.reduce((s, t) => s + parseInt((t.prize || '0').replace(/[^\d]/g,'')||0), 0).toLocaleString(), 'Total Prize Pool']].map(([ic, v, l]) => (
-            <div key={l} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '1.1rem', textAlign: 'center' }}>
-              <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{ic}</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f1f5f9' }}>{v}</div>
-              <div style={{ color: '#64748b', fontSize: '0.75rem' }}>{l}</div>
-            </div>
+        <div style={{ display:'flex', gap:'0.45rem', marginBottom:'1.75rem', justifyContent:'center', flexWrap:'wrap' }}>
+          {FILTERS.map(f => (
+            <button key={f} onClick={() => setFilter(f)}
+              style={{ padding:'0.38rem 1rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', background: filter === f ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.04)', color: filter === f ? '#c3f400' : '#506070', borderColor: filter === f ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>{f}</button>
           ))}
         </div>
 
-        {/* Filters */}
-        <div style={S.filters}>
-          <span style={{ color: '#94a3b8', fontSize: '0.82rem', fontWeight: 600 }}>Status:</span>
-          {STATUSES.map(s => <button key={s} style={S.chip(filter === s)} onClick={() => setFilter(s)}>{s}</button>)}
-          <span style={{ color: '#94a3b8', fontSize: '0.82rem', fontWeight: 600, marginLeft: '0.5rem' }}>Sport:</span>
-          {SPORTS.map(s => <button key={s} style={S.chip(sport === s)} onClick={() => setSport(s)}>{s}</button>)}
-        </div>
-
-        {/* Grid */}
-        {displayed.length === 0 ? (
-          <div style={{ textAlign: 'center', color: '#64748b', padding: '4rem 2rem' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-            <p>No tournaments match your filters.</p>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 380px', gap:'1.5rem', alignItems:'start' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
+            {displayed.map(t => <TournamentCard key={t.id} t={t} onSelect={setSelected} selected={selected?.id === t.id} />)}
           </div>
-        ) : (
-          <div style={S.grid}>
-            {displayed.map(t => {
-              const spotsLeft = (t.maxTeams || 16) - (t.teams || 0);
-              return (
-                <div key={t._id} style={S.card}
-                  onClick={() => setSelected(t)}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(124,58,237,0.5)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
-                >
-                  <div style={S.cardTop(t.sport)}>
-                    <div>
-                      <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{t.image || '🏆'}</div>
-                      <h3 style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '1rem', margin: 0, lineHeight: 1.3 }}>{t.name}</h3>
-                    </div>
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={S.statusBadge(t.status)}>{t.status}</div>
-                      <div style={{ marginTop: '0.5rem', ...S.prizeTag }}>{t.prize}</div>
-                    </div>
-                  </div>
-                  <div style={S.cardBody}>
-                    <div style={S.row}>📅 {t.startDate} → {t.endDate}</div>
-                    <div style={S.row}>📍 {t.location}</div>
-                    <div style={S.row}>🏅 {t.sport}</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.75rem' }}>
-                      <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                        <span style={{ color: '#f1f5f9', fontWeight: 700 }}>{t.teams || 0}</span>/{t.maxTeams || 16} teams
-                        {spotsLeft > 0 && t.status === 'Open' && <span style={{ color: '#10b981', marginLeft: '0.5rem' }}>({spotsLeft} spots left)</span>}
-                      </div>
-                      <span style={{ color: '#f59e0b', fontSize: '0.8rem', fontWeight: 700 }}>৳{t.fee?.toLocaleString() || '0'} fee</span>
-                    </div>
-                    {t.status === 'Open' && (
-                      <button style={S.btn} onClick={e => { e.stopPropagation(); handleJoin(t); }} disabled={joining === t._id}>
-                        {joining === t._id ? 'Registering…' : 'Register Team'}
-                      </button>
-                    )}
+
+          {selected && (
+            <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(195,244,0,0.15)', borderRadius:'20px', padding:'2rem', backdropFilter:'blur(14px)', position:'sticky', top:'6rem' }}>
+              <div style={{ fontSize:'2.5rem', marginBottom:'0.75rem' }}>{selected.icon}</div>
+              <h2 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.2rem', color:'#f0f6ff', marginBottom:'0.35rem' }}>{selected.name}</h2>
+              <p style={{ color:'#8ba3be', fontSize:'0.85rem', lineHeight:1.6, marginBottom:'1.25rem' }}>{selected.description}</p>
+              {[['emoji_events','Prize Pool', selected.prize],['event','Dates',`${selected.startDate} → ${selected.endDate}`],['location_on','Venue', selected.venue],['sports','Format', selected.format],['paid','Entry Fee',`৳${selected.entryFee.toLocaleString()}`]].map(([icon, label, val]) => (
+                <div key={label} style={{ display:'flex', gap:'0.65rem', marginBottom:'0.7rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize:'1rem', color:'#506070', flexShrink:0, marginTop:'1px' }}>{icon}</span>
+                  <div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.65rem', color:'#506070', textTransform:'uppercase' }}>{label}</div>
+                    <div style={{ color:'#c8d8ea', fontSize:'0.88rem', fontWeight:600 }}>{val}</div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Detail modal */}
-      {selected && (
-        <div style={S.modal} onClick={() => setSelected(null)}>
-          <div style={S.modalBox} onClick={e => e.stopPropagation()}>
-            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <div style={{ fontSize: '3rem' }}>{selected.image}</div>
-              <h2 style={{ color: '#f1f5f9', fontWeight: 800, margin: '0.5rem 0 0.25rem', fontSize: '1.3rem' }}>{selected.name}</h2>
-              <div style={S.statusBadge(selected.status)}>{selected.status}</div>
-            </div>
-            <p style={{ color: '#94a3b8', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>{selected.description}</p>
-            {[['🏅 Sport',       selected.sport],
-              ['📅 Start Date',  selected.startDate],
-              ['📅 End Date',    selected.endDate],
-              ['📍 Location',    selected.location],
-              ['💰 Prize Pool',  selected.prize],
-              ['🎟  Entry Fee',  `৳${selected.fee?.toLocaleString() || '0'}`],
-              ['👥 Teams',       `${selected.teams}/${selected.maxTeams}`],
-            ].map(([l, v]) => (
-              <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.06)', fontSize: '0.875rem' }}>
-                <span style={{ color: '#94a3b8' }}>{l}</span>
-                <span style={{ color: '#f1f5f9', fontWeight: 600 }}>{v}</span>
-              </div>
-            ))}
-            <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem' }}>
-              <button style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', padding: '0.65rem', borderRadius: '10px', cursor: 'pointer', fontWeight: 600 }} onClick={() => setSelected(null)}>Close</button>
-              {selected.status === 'Open' && (
-                <button style={{ flex: 2, ...S.btn, marginTop: 0 }} onClick={() => handleJoin(selected)} disabled={joining === selected._id}>
-                  {joining === selected._id ? 'Registering…' : '🏆 Register Team'}
+              ))}
+              {selected.status === 'open' && (
+                <button style={{ width:'100%', padding:'0.75rem', background:'#c3f400', border:'none', borderRadius:'12px', color:'#0a1200', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'0.95rem', cursor:'pointer', marginTop:'1rem' }}>
+                  Register Team
                 </button>
               )}
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
