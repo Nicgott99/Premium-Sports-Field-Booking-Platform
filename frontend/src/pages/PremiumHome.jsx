@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Link, useNavigate } from 'react-router-dom';
 
-/* ── Animated counter hook ─────────────────────────────────── */
 function useCounter(target, duration = 1800) {
   const [val, setVal] = useState(0);
   const ref = useRef(null);
@@ -25,525 +24,327 @@ function useCounter(target, duration = 1800) {
   return [val, ref];
 }
 
-/* ── Data ─────────────────────────────────────────────────── */
 const STATS = [
-  { value: 500,  suffix: '+', label: 'Premium Fields',  color: '#a78bfa', icon: '🏟️' },
-  { value: 12,   suffix: 'K+',label: 'Active Players',  color: '#67e8f9', icon: '👥' },
-  { value: 98,   suffix: '%', label: 'Satisfaction',    color: '#6ee7b7', icon: '⭐' },
-  { value: 24,   suffix: '/7', label: 'Support',        color: '#fcd34d', icon: '🛎️' },
+  { value: 500, suffix: '+',  label: 'Premium Fields',  icon: 'stadium'     },
+  { value: 12,  suffix: 'K+', label: 'Active Players',  icon: 'group'       },
+  { value: 98,  suffix: '%',  label: 'Satisfaction',    icon: 'star'        },
+  { value: 24,  suffix: '/7', label: 'Always Open',     icon: 'schedule'    },
 ];
 
 const SPORTS = [
-  { name:'Football',   emoji:'⚽', color:'#22c55e', bg:'rgba(34,197,94,0.12)',   border:'rgba(34,197,94,0.25)'   },
-  { name:'Cricket',    emoji:'🏏', color:'#f59e0b', bg:'rgba(245,158,11,0.12)',  border:'rgba(245,158,11,0.25)'  },
-  { name:'Basketball', emoji:'🏀', color:'#f97316', bg:'rgba(249,115,22,0.12)',  border:'rgba(249,115,22,0.25)'  },
-  { name:'Tennis',     emoji:'🎾', color:'#a3e635', bg:'rgba(163,230,53,0.12)',  border:'rgba(163,230,53,0.25)'  },
-  { name:'Badminton',  emoji:'🏸', color:'#38bdf8', bg:'rgba(56,189,248,0.12)',  border:'rgba(56,189,248,0.25)'  },
-  { name:'Volleyball', emoji:'🏐', color:'#c084fc', bg:'rgba(192,132,252,0.12)', border:'rgba(192,132,252,0.25)' },
+  { name: 'Football',   icon: '⚽', sport: 'football'   },
+  { name: 'Cricket',    icon: '🏏', sport: 'cricket'    },
+  { name: 'Basketball', icon: '🏀', sport: 'basketball' },
+  { name: 'Tennis',     icon: '🎾', sport: 'tennis'     },
+  { name: 'Badminton',  icon: '🏸', sport: 'badminton'  },
+  { name: 'Volleyball', icon: '🏐', sport: 'volleyball' },
 ];
 
 const FEATURES = [
-  { icon:'⚡', title:'Instant Booking',    desc:'Reserve any field in under 60 seconds. Real-time availability, zero waiting.', color:'#7c3aed', bg:'rgba(124,58,237,0.12)' },
-  { icon:'🔒', title:'Secure Payments',   desc:'Bank-grade encryption on all transactions. Your money is always protected.', color:'#06b6d4', bg:'rgba(6,182,212,0.12)'   },
-  { icon:'📱', title:'Mobile First',      desc:'Full-featured experience on any device. Book from anywhere, anytime.',         color:'#ec4899', bg:'rgba(236,72,153,0.12)'  },
-  { icon:'⭐', title:'Verified Venues',   desc:'Every field is inspected and approved. We guarantee premium quality.',         color:'#f59e0b', bg:'rgba(245,158,11,0.12)' },
-  { icon:'🎯', title:'Smart Scheduling', desc:'AI-assisted time slot suggestions based on your preferences and history.',      color:'#10b981', bg:'rgba(16,185,129,0.12)' },
-  { icon:'🏆', title:'Loyalty Rewards',  desc:'Earn points with every booking. Redeem for free sessions and exclusive perks.', color:'#f87171', bg:'rgba(248,113,113,0.12)' },
+  { icon: 'bolt',              title: 'Instant Booking',   desc: 'Reserve any field in under 60 seconds. Real-time availability, zero waiting.'              },
+  { icon: 'lock',              title: 'Secure Payments',   desc: 'Bank-grade encryption on all transactions. Your money is always protected.'                },
+  { icon: 'smartphone',        title: 'Mobile First',      desc: 'Full-featured experience on any device. Book from anywhere, anytime.'                      },
+  { icon: 'verified',          title: 'Verified Venues',   desc: 'Every field is inspected and approved. We guarantee premium quality.'                      },
+  { icon: 'auto_awesome',      title: 'Smart Scheduling',  desc: 'AI-assisted time slot suggestions based on your preferences and history.'                  },
+  { icon: 'stars',             title: 'Loyalty Rewards',   desc: 'Earn points with every booking. Redeem for free sessions and exclusive perks.'             },
 ];
 
 const TESTIMONIALS = [
-  { name: 'Rafique Islam',   sport: '⚽ Football',    text: 'Booked my team\'s weekly match in under 2 minutes. The field was exactly as advertised — floodlit, premium turf.', avatar: '🧑' },
-  { name: 'Priya Sharma',    sport: '🎾 Tennis',      text: 'Finally a platform that shows real availability. No more calling around. I use it every week!',                     avatar: '👩' },
-  { name: 'Tanvir Ahmed',    sport: '🏀 Basketball',  text: 'The QR check-in is brilliant. Just scan at the gate and you\'re in. Zero hassle, premium experience.',             avatar: '🧑' },
-  { name: 'Nusrat Jahan',    sport: '🏸 Badminton',   text: 'Found a court near my office with parking and changing rooms. The verified venues give you peace of mind.',         avatar: '👩' },
+  { name: 'Rafique Islam',  sport: 'Football',   text: "Booked my team's weekly match in under 2 minutes. The field was exactly as advertised — floodlit, premium turf.", init: 'R' },
+  { name: 'Priya Sharma',   sport: 'Tennis',     text: "Finally a platform that shows real availability. No more calling around. I use it every week!",               init: 'P' },
+  { name: 'Tanvir Ahmed',   sport: 'Basketball', text: "The QR check-in is brilliant. Just scan at the gate and you're in. Zero hassle, premium experience.",          init: 'T' },
+  { name: 'Nusrat Jahan',   sport: 'Badminton',  text: "Found a court near my office with parking and changing rooms. The verified venues give you peace of mind.",     init: 'N' },
 ];
 
-const HOW = [
-  { step:'01', title:'Create Account', desc:'Sign up in seconds with email verification for maximum security.', icon:'👤' },
-  { step:'02', title:'Find Your Field', desc:'Browse premium venues by sport, location, date and price range.', icon:'🔍' },
-  { step:'03', title:'Pick a Time Slot', desc:'Choose from available 2-hour slots, 8AM to midnight, every day.', icon:'📅' },
-  { step:'04', title:'Play & Enjoy',    desc:'Show up, scan your QR code, and elevate your game!', icon:'🏆' },
-];
-
-/* ── Stat card with animated counter ─── */
-function StatCard({ value, suffix, label, color, icon }) {
+function StatCard({ value, suffix, label, icon }) {
   const [count, ref] = useCounter(value);
   return (
-    <div ref={ref} className="card" style={{ textAlign:'center', padding:'2rem 1rem' }}>
-      <div style={{ fontSize:'2rem', marginBottom:'0.5rem' }}>{icon}</div>
-      <div style={{ fontSize:'2.8rem', fontWeight:900, lineHeight:1, color, marginBottom:'0.4rem' }}>
+    <article ref={ref} style={{
+      background: 'rgba(18,33,49,0.6)',
+      border: '1px solid rgba(195,244,0,0.12)',
+      borderRadius: '16px',
+      padding: '1.5rem',
+      textAlign: 'center',
+      backdropFilter: 'blur(12px)',
+      transition: 'all 300ms',
+    }}
+    onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(195,244,0,0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+    onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(195,244,0,0.12)'; e.currentTarget.style.transform = 'none'; }}
+    >
+      <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: '#c3f400', display: 'block', marginBottom: '0.5rem' }}>{icon}</span>
+      <div style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: '2.2rem', color: '#f0f6ff', lineHeight: 1 }}>
         {count}{suffix}
       </div>
-      <div style={{ fontSize:'0.82rem', color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.06em' }}>{label}</div>
-    </div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#506070', marginTop: '0.4rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</div>
+    </article>
   );
 }
+
 StatCard.propTypes = {
   value:  PropTypes.number.isRequired,
   suffix: PropTypes.string.isRequired,
   label:  PropTypes.string.isRequired,
-  color:  PropTypes.string.isRequired,
   icon:   PropTypes.string.isRequired,
 };
 
-/* ── FeaturedFieldCard ─────────────────────────────────────── */
-function FeaturedFieldCard({ field, navigate }) {
-  const img   = field.images?.[0]?.url;
-  const sport = Array.isArray(field.sports) ? field.sports[0] : (field.sport || '');
-  const city  = field.location?.city || '';
-  const price = field.pricing?.hourly || 0;
-  const avg   = field.rating?.average || 0;
+export default function PremiumHome() {
+  const navigate  = useNavigate();
+  const [search, setSearch] = useState('');
+  const [sport, setSport]   = useState('');
 
-  return (
-    <div className="card featured-field-card" style={{ overflow: 'hidden', padding: 0 }}>
-      <div style={{ height: '175px', overflow: 'hidden', position: 'relative', background: 'linear-gradient(135deg,rgba(124,58,237,0.3),rgba(236,72,153,0.2))' }}>
-        {img
-          ? <img src={img} alt={field.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}>🏟️</div>
-        }
-        <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', background: 'rgba(0,0,0,0.62)', borderRadius: '9999px', padding: '0.2rem 0.6rem', fontSize: '0.74rem', fontWeight: 700, color: '#fcd34d' }}>
-          ⭐ {avg > 0 ? avg.toFixed(1) : 'New'}
-        </div>
-      </div>
-      <div style={{ padding: '1.25rem' }}>
-        <h3 style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '0.98rem', margin: '0 0 0.3rem' }}>{field.name}</h3>
-        <div style={{ color: '#64748b', fontSize: '0.81rem', marginBottom: '0.85rem', textTransform: 'capitalize' }}>
-          {sport}{city ? ` · ${city}` : ''}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <span style={{ color: '#6ee7b7', fontWeight: 800, fontSize: '1.05rem' }}>৳{price.toLocaleString()}</span>
-            <span style={{ color: '#64748b', fontSize: '0.78rem' }}>/hr</span>
-          </div>
-          <button onClick={() => navigate(`/fields/${field._id}`)} className="btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.82rem' }}>
-            Book Now
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-FeaturedFieldCard.propTypes = {
-  field: PropTypes.shape({
-    _id:      PropTypes.string.isRequired,
-    name:     PropTypes.string.isRequired,
-    images:   PropTypes.arrayOf(PropTypes.shape({ url: PropTypes.string })),
-    sports:   PropTypes.arrayOf(PropTypes.string),
-    sport:    PropTypes.string,
-    location: PropTypes.shape({ city: PropTypes.string }),
-    pricing:  PropTypes.shape({ hourly: PropTypes.number }),
-    rating:   PropTypes.shape({ average: PropTypes.number }),
-  }).isRequired,
-  navigate: PropTypes.func.isRequired,
-};
-
-/* ── Main component ────────────────────────────────────────── */
-const NewsletterSection = () => {
-  const [email,      setEmail]      = useState('');
-  const [submitted,  setSubmitted]  = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubmit = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    setSubmitting(true);
-    await new Promise(r => setTimeout(r, 600));
-    setSubmitted(true);
-    setSubmitting(false);
+    const params = new URLSearchParams();
+    if (search) params.set('q', search);
+    if (sport)  params.set('sport', sport);
+    navigate(`/fields?${params.toString()}`);
   };
 
   return (
-    <section style={{ padding:'4rem 1.5rem', background:'rgba(124,58,237,0.06)', borderTop:'1px solid rgba(124,58,237,0.15)', borderBottom:'1px solid rgba(124,58,237,0.15)' }}>
-      <div style={{ maxWidth:'50rem', margin:'0 auto', textAlign:'center' }}>
-        <div style={{ fontSize:'2rem', marginBottom:'0.75rem' }}>📬</div>
-        <h2 style={{ fontSize:'clamp(1.4rem,3vw,2rem)', fontWeight:900, color:'#f1f5f9', marginBottom:'0.5rem' }}>Stay in the Game</h2>
-        <p style={{ color:'#64748b', marginBottom:'1.75rem', fontSize:'0.95rem' }}>
-          Get field opening alerts, tournament news, and exclusive deals — weekly.
-        </p>
-        {submitted ? (
-          <div style={{ background:'rgba(16,185,129,0.12)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:'14px', padding:'1rem 2rem', color:'#34d399', fontWeight:700, display:'inline-block' }}>
-            ✓ You&apos;re subscribed! We&apos;ll be in touch.
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} style={{ display:'flex', gap:'0.75rem', maxWidth:'440px', margin:'0 auto', flexWrap:'wrap', justifyContent:'center' }}>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="your@email.com" required className="input-field"
-              style={{ flex:1, minWidth:'220px', fontSize:'0.9rem' }} />
-            <button type="submit" disabled={submitting} className="btn-primary"
-              style={{ padding:'0.7rem 1.4rem', fontSize:'0.9rem', flexShrink:0 }}>
-              {submitting ? <><span className="spinner" style={{ width:'16px', height:'16px' }} /> Joining…</> : '🚀 Subscribe'}
-            </button>
-          </form>
-        )}
-        <p style={{ color:'#334155', fontSize:'0.75rem', marginTop:'0.85rem' }}>No spam. Unsubscribe anytime.</p>
+    <div style={{ background: '#051424', minHeight: '100vh', overflowX: 'hidden' }}>
+
+      {/* ── Ambient orbs ── */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        <div style={{ position: 'absolute', top: '-15%', left: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(195,244,0,0.07) 0%,transparent 65%)', filter: 'blur(40px)' }} />
+        <div style={{ position: 'absolute', bottom: '10%', right: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(255,94,7,0.06) 0%,transparent 65%)', filter: 'blur(40px)' }} />
+        <div style={{ position: 'absolute', top: '45%', left: '40%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(195,244,0,0.04) 0%,transparent 65%)', filter: 'blur(50px)' }} />
       </div>
-    </section>
-  );
-};
 
-const getGreeting = () => {
-  const h = new Date().getHours();
-  if (h < 12) return { text: 'Good Morning', emoji: '🌅' };
-  if (h < 17) return { text: 'Good Afternoon', emoji: '⛅' };
-  if (h < 21) return { text: 'Good Evening', emoji: '🌆' };
-  return { text: 'Good Night', emoji: '🌙' };
-};
+      {/* ── HERO ── */}
+      <section style={{ position: 'relative', zIndex: 1, paddingTop: 'clamp(6rem,14vh,10rem)', paddingBottom: 'clamp(4rem,8vh,7rem)', textAlign: 'center', padding: 'clamp(6rem,14vh,10rem) 1.5rem clamp(4rem,8vh,7rem)' }}>
+        {/* Badge */}
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 1rem', borderRadius: '99px', background: 'rgba(195,244,0,0.1)', border: '1px solid rgba(195,244,0,0.25)', marginBottom: '2rem' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#c3f400', display: 'inline-block', animation: 'pulse-lime 2s ease-in-out infinite' }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Bangladesh #1 Sports Platform</span>
+        </div>
 
-const PremiumHome = () => {
-  const navigate = useNavigate();
-  const [heroVisible,     setHeroVisible]     = useState(false);
-  const [featuredFields,  setFeaturedFields]  = useState([]);
-  const [featuredLoading, setFeaturedLoading] = useState(true);
-  const [liveStats,       setLiveStats]       = useState({ fields: 500, bookings: 12000 });
+        {/* Headline */}
+        <h1 style={{
+          fontFamily: "'Anybody', sans-serif",
+          fontWeight: 900,
+          fontSize: 'clamp(2.5rem, 7vw, 5.5rem)',
+          lineHeight: 1.02,
+          letterSpacing: '-0.03em',
+          color: '#f0f6ff',
+          marginBottom: '1.5rem',
+          maxWidth: '900px',
+          margin: '0 auto 1.5rem',
+        }}>
+          Book Premium
+          <br />
+          <span style={{ color: '#c3f400', display: 'inline-block', position: 'relative' }}>
+            Sports Fields
+            <svg style={{ position: 'absolute', bottom: '-8px', left: 0, right: 0, width: '100%' }} viewBox="0 0 400 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 9C80 3 160 1 200 3C240 5 320 9 398 5" stroke="#c3f400" strokeWidth="3" strokeLinecap="round" opacity="0.6"/>
+            </svg>
+          </span>
+          <br />
+          Instantly
+        </h1>
 
-  useEffect(() => {
-    const t = setTimeout(() => setHeroVisible(true), 80);
-    return () => clearTimeout(t);
-  }, []);
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 'clamp(1rem,2vw,1.2rem)', color: '#8ba3be', maxWidth: '560px', margin: '0 auto 3rem', lineHeight: 1.7 }}>
+          Find, compare, and book the best sports venues near you. Real-time availability, instant confirmation, and loyalty rewards.
+        </p>
 
-  useEffect(() => {
-    async function loadFeatured() {
-      try {
-        const [fRes, sRes] = await Promise.all([
-          fetch('/api/v1/fields/featured?limit=6'),
-          fetch('/api/v1/fields?limit=1'),
-        ]);
-        const [fData, sData] = await Promise.all([fRes.json(), sRes.json()]);
-        if (fRes.ok && fData.success) setFeaturedFields(fData.data?.fields || []);
-        if (sRes.ok && sData.success) {
-          const totalFields   = sData.data?.total   ?? sData.total   ?? 500;
-          const totalBookings = sData.data?.bookings ?? 12000;
-          setLiveStats({ fields: totalFields, bookings: totalBookings });
-        }
-      } catch { /* silent */ }
-      finally { setFeaturedLoading(false); }
-    }
-    loadFeatured();
-  }, []);
+        {/* Search bar */}
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', maxWidth: '640px', margin: '0 auto 2.5rem', background: 'rgba(13,28,45,0.8)', border: '1px solid rgba(195,244,0,0.2)', borderRadius: '14px', padding: '0.4rem', backdropFilter: 'blur(16px)' }}>
+          <span className="material-symbols-outlined" style={{ color: '#506070', fontSize: '1.1rem', alignSelf: 'center', marginLeft: '0.5rem' }}>search</span>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by location, sport, or venue..."
+            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#f0f6ff', fontSize: '0.95rem', fontFamily: "'Inter', sans-serif", padding: '0.5rem 0.3rem' }}
+          />
+          <select
+            value={sport}
+            onChange={e => setSport(e.target.value)}
+            style={{ background: 'rgba(195,244,0,0.08)', border: 'none', outline: 'none', color: '#c3f400', fontSize: '0.85rem', padding: '0.4rem 0.7rem', borderRadius: '8px', fontFamily: "'Inter', sans-serif", cursor: 'pointer' }}
+          >
+            <option value="">All Sports</option>
+            {SPORTS.map(s => <option key={s.sport} value={s.sport}>{s.name}</option>)}
+          </select>
+          <button type="submit" style={{ background: '#c3f400', color: '#0a1200', border: 'none', borderRadius: '10px', padding: '0.6rem 1.3rem', fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 200ms' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; }}
+          >Search</button>
+        </form>
 
-  const SKELETON_KEYS = ['sk1', 'sk2', 'sk3'];
+        {/* CTA group */}
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link to="/fields" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 2rem', background: '#c3f400', color: '#0a1200', borderRadius: '10px', textDecoration: 'none', fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '0.95rem', boxShadow: '0 8px 32px rgba(195,244,0,0.35)', transition: 'all 200ms' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(195,244,0,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(195,244,0,0.35)'; }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>explore</span>
+            <span>Browse Fields</span>
+          </Link>
+          <Link to="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 2rem', background: 'transparent', color: '#f0f6ff', borderRadius: '10px', textDecoration: 'none', fontFamily: "'Anybody', sans-serif", fontWeight: 700, fontSize: '0.95rem', border: '1px solid rgba(255,255,255,0.15)', transition: 'all 200ms' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
+            <span>Join Free</span>
+          </Link>
+        </div>
+      </section>
 
-  const renderFeatured = () => {
-    if (featuredLoading) {
-      return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: '1.25rem' }}>
-          {SKELETON_KEYS.map(k => (
-            <div key={k} className="card" style={{ overflow: 'hidden', padding: 0 }}>
-              <div style={{ height: '175px', background: 'rgba(255,255,255,0.04)' }} />
-              <div style={{ padding: '1.25rem' }}>
-                <div style={{ height: '14px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', marginBottom: '0.5rem', width: '70%' }} />
-                <div style={{ height: '12px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px', width: '50%' }} />
+      {/* ── STATS ── */}
+      <section style={{ position: 'relative', zIndex: 1, padding: '2rem 1.5rem 5rem', maxWidth: '72rem', margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '1rem' }}>
+          {STATS.map(s => <StatCard key={s.label} {...s} />)}
+        </div>
+      </section>
+
+      {/* ── SPORTS CAROUSEL ── */}
+      <section style={{ position: 'relative', zIndex: 1, padding: '0 1.5rem 6rem', maxWidth: '72rem', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.12em', textTransform: 'uppercase' }}>What we offer</span>
+          <h2 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f0f6ff', margin: '0.5rem 0 0', letterSpacing: '-0.02em' }}>Pick Your Sport</h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: '0.75rem' }}>
+          {SPORTS.map(s => (
+            <Link
+              key={s.sport}
+              to={`/fields?sport=${s.sport}`}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
+                padding: '1.5rem 0.5rem',
+                background: 'rgba(18,33,49,0.55)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '14px', textDecoration: 'none',
+                transition: 'all 250ms',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(195,244,0,0.3)'; e.currentTarget.style.background = 'rgba(195,244,0,0.06)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.06)'; e.currentTarget.style.background = 'rgba(18,33,49,0.55)'; e.currentTarget.style.transform = 'none'; }}
+            >
+              <span style={{ fontSize: '2rem', lineHeight: 1 }}>{s.icon}</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: '#8ba3be' }}>{s.name}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FEATURES ── */}
+      <section style={{ position: 'relative', zIndex: 1, padding: '0 1.5rem 7rem', maxWidth: '72rem', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Why Kinetic Elite</span>
+          <h2 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f0f6ff', margin: '0.5rem 0 0.75rem', letterSpacing: '-0.02em' }}>Built for Athletes</h2>
+          <p style={{ color: '#506070', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>Every feature designed with the player experience first. Fast, reliable, premium.</p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: '1rem' }}>
+          {FEATURES.map((f, i) => (
+            <article key={f.title} style={{
+              background: 'rgba(18,33,49,0.6)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '16px', padding: '1.75rem',
+              backdropFilter: 'blur(12px)',
+              transition: 'all 300ms',
+              animationDelay: `${i * 60}ms`,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(195,244,0,0.2)'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'rgba(18,33,49,0.85)'; }}
+            onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.background = 'rgba(18,33,49,0.6)'; }}
+            >
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(195,244,0,0.1)', border: '1px solid rgba(195,244,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+                <span className="material-symbols-outlined" style={{ color: '#c3f400', fontSize: '1.2rem' }}>{f.icon}</span>
+              </div>
+              <h3 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '1.1rem', color: '#f0f6ff', marginBottom: '0.5rem' }}>{f.title}</h3>
+              <p style={{ color: '#506070', fontSize: '0.875rem', lineHeight: 1.65, margin: 0 }}>{f.desc}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section style={{ position: 'relative', zIndex: 1, padding: '0 1.5rem 7rem', maxWidth: '72rem', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Simple Process</span>
+          <h2 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f0f6ff', margin: '0.5rem 0 0', letterSpacing: '-0.02em' }}>Book in 3 Steps</h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '1.5rem' }}>
+          {[
+            { step: '01', icon: 'search', title: 'Find Your Field',  desc: 'Search by sport, location, or availability. Filter to your exact needs.' },
+            { step: '02', icon: 'event',  title: 'Pick Your Slot',   desc: 'See live availability. Choose date and time that works for you.'          },
+            { step: '03', icon: 'check_circle', title: 'Confirm & Play', desc: 'Instant booking confirmation. Get QR code for contactless entry.'   },
+          ].map(item => (
+            <div key={item.step} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+              <div style={{ flexShrink: 0 }}>
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(195,244,0,0.08)', border: '1px solid rgba(195,244,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span className="material-symbols-outlined" style={{ color: '#c3f400', fontSize: '1.3rem' }}>{item.icon}</span>
+                </div>
+              </div>
+              <div>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: '#506070', letterSpacing: '0.1em' }}>{item.step}</span>
+                <h3 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '1rem', color: '#f0f6ff', margin: '0.15rem 0 0.4rem' }}>{item.title}</h3>
+                <p style={{ color: '#506070', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>{item.desc}</p>
               </div>
             </div>
           ))}
         </div>
-      );
-    }
-    if (featuredFields.length > 0) {
-      return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: '1.25rem' }}>
-          {featuredFields.map(f => <FeaturedFieldCard key={f._id} field={f} navigate={navigate} />)}
-        </div>
-      );
-    }
-    return (
-      <div style={{ textAlign: 'center', padding: '3rem' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏟️</div>
-        <p style={{ color: '#64748b', marginBottom: '1.25rem' }}>Featured fields coming soon.</p>
-        <button className="btn-primary" onClick={() => navigate('/fields')}>Browse All Fields</button>
-      </div>
-    );
-  };
-
-  return (
-    <div className="pg-bg" style={{ minHeight:'100vh' }}>
-
-      {/* ═══════════════════════════════════════════════════════
-          HERO
-      ═══════════════════════════════════════════════════════ */}
-      <section style={{
-        minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center',
-        padding:'7rem 1.5rem 4rem', textAlign:'center', position:'relative', overflow:'hidden',
-      }}>
-        {/* Background orbs */}
-        <div style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
-          <div style={{ position:'absolute', top:'-10%', left:'-10%', width:'60vw', height:'60vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(124,58,237,0.2),transparent 70%)', filter:'blur(80px)' }} />
-          <div style={{ position:'absolute', bottom:'-5%', right:'-10%', width:'50vw', height:'50vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(236,72,153,0.18),transparent 70%)', filter:'blur(80px)' }} />
-          <div style={{ position:'absolute', top:'40%', left:'50%', transform:'translate(-50%,-50%)', width:'40vw', height:'40vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(59,130,246,0.1),transparent 70%)', filter:'blur(60px)' }} />
-        </div>
-
-        <div style={{
-          maxWidth:'860px', margin:'0 auto', position:'relative',
-          opacity: heroVisible ? 1 : 0,
-          transform: heroVisible ? 'none' : 'translateY(30px)',
-          transition:'opacity .7s ease, transform .7s ease',
-        }}>
-          {/* Greeting */}
-          {(() => { const g = getGreeting(); return (
-            <div style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', color:'#64748b', fontSize:'0.88rem', fontWeight:700, marginBottom:'0.75rem' }}>
-              <span>{g.emoji}</span><span>{g.text}! Ready to play?</span>
-            </div>
-          ); })()}
-
-          {/* Tag */}
-          <div style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', padding:'0.4rem 1.1rem', background:'rgba(124,58,237,0.14)', border:'1px solid rgba(124,58,237,0.35)', borderRadius:'9999px', color:'#c084fc', fontSize:'0.78rem', fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:'1.5rem' }}>
-            <span>✦</span> Bangladesh's #1 Sports Booking Platform
-          </div>
-
-          {/* Headline */}
-          <h1 style={{
-            fontSize:'clamp(3rem,7vw,6rem)',
-            fontWeight:900, lineHeight:1.05, letterSpacing:'-0.03em',
-            color:'#f1f5f9', marginBottom:'1.5rem',
-          }}>
-            Book Premium{' '}
-            <span style={{
-              background:'linear-gradient(135deg,#a78bfa 0%,#f9a8d4 50%,#67e8f9 100%)',
-              WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent',
-              backgroundSize:'200% 200%',
-              animation:'gradient-shift 4s ease infinite',
-            }}>Sports Fields</span>
-            <br />Like Never Before
-          </h1>
-
-          <p style={{ fontSize:'clamp(1rem,2.5vw,1.25rem)', color:'#94a3b8', lineHeight:1.7, maxWidth:'56ch', margin:'0 auto 2.5rem' }}>
-            Discover, book, and enjoy 500+ premium sports facilities across Bangladesh. Real-time availability, instant confirmation, zero hassle.
-          </p>
-
-          {/* CTAs */}
-          <div style={{ display:'flex', flexWrap:'wrap', gap:'1rem', justifyContent:'center', marginBottom:'3rem' }}>
-            <button className="btn-primary btn-xl" onClick={() => navigate('/fields')}>
-              🏟️ Browse Fields
-            </button>
-            <button className="btn-ghost btn-xl" onClick={() => navigate('/register')}>
-              Get Started Free →
-            </button>
-          </div>
-
-          {/* Trust bar */}
-          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:'2rem', color:'#64748b', fontSize:'0.82rem', fontWeight:600 }}>
-            {['✅ Free to join','⚡ Instant booking','🔒 Secure payments','📱 Mobile ready'].map(t => (
-              <span key={t}>{t}</span>
-            ))}
-          </div>
-        </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════
-          SPORTS CATEGORIES
-      ═══════════════════════════════════════════════════════ */}
-      <section style={{ padding:'4rem 1.5rem' }}>
-        <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:'3rem' }}>
-            <div className="section-tag">🏅 Sports We Cover</div>
-            <h2 className="section-heading">Your Sport, Your Court</h2>
-          </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))', gap:'1rem' }}>
-            {SPORTS.map(s => (
-              <button key={s.name} onClick={() => navigate(`/fields?sport=${s.name.toLowerCase()}`)} style={{
-                display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-                gap:'0.75rem', padding:'1.75rem 1rem',
-                background: s.bg, border:`1px solid ${s.border}`,
-                borderRadius:'16px', cursor:'pointer',
-                transition:'transform 200ms, box-shadow 200ms',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow=`0 12px 30px ${s.bg}`; }}
-              onMouseLeave={e => { e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; }}
-              >
-                <span style={{ fontSize:'2.5rem' }}>{s.emoji}</span>
-                <span style={{ fontWeight:700, color: s.color, fontSize:'0.9rem' }}>{s.name}</span>
-              </button>
-            ))}
-          </div>
+      {/* ── TESTIMONIALS ── */}
+      <section style={{ position: 'relative', zIndex: 1, padding: '0 1.5rem 7rem', maxWidth: '72rem', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Real Players</span>
+          <h2 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f0f6ff', margin: '0.5rem 0 0', letterSpacing: '-0.02em' }}>What Athletes Say</h2>
         </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════
-          STATS
-      ═══════════════════════════════════════════════════════ */}
-      <section style={{ padding:'4rem 1.5rem' }}>
-        <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:'1.25rem' }}>
-            {[
-              { ...STATS[0], value: liveStats.fields },
-              { ...STATS[1], value: Math.round(liveStats.bookings / 1000) },
-              STATS[2],
-              STATS[3],
-            ].map(s => <StatCard key={s.label} {...s} />)}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════
-          FEATURED FIELDS
-      ═══════════════════════════════════════════════════════ */}
-      <section style={{ padding: '5rem 1.5rem' }}>
-        <div style={{ maxWidth: '82rem', margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '3rem' }}>
-            <div>
-              <div className="section-tag">⭐ Top Venues</div>
-              <h2 className="section-heading">Featured Fields</h2>
-            </div>
-            <button className="btn-ghost" onClick={() => navigate('/fields')}>View All Fields →</button>
-          </div>
-          {renderFeatured()}
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════
-          FEATURES
-      ═══════════════════════════════════════════════════════ */}
-      <section style={{ padding:'5rem 1.5rem' }}>
-        <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:'3.5rem' }}>
-            <div className="section-tag">💎 Platform Features</div>
-            <h2 className="section-heading">Everything You Need</h2>
-            <p className="section-sub" style={{ margin:'1rem auto 0' }}>Built with cutting-edge technology to give you the smoothest sports booking experience in Bangladesh.</p>
-          </div>
-          <div className="auto-grid-3">
-            {FEATURES.map(f => (
-              <div key={f.title} className="card feature-hover-card" style={{
-                '--feat-color': f.color,
-                display:'flex', flexDirection:'column', gap:'1rem',
-                transition:'transform 250ms, border-color 250ms, box-shadow 250ms',
-              }}>
-                <div style={{ width:'48px', height:'48px', borderRadius:'12px', background:f.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.5rem' }}>{f.icon}</div>
-                <h3 style={{ fontWeight:800, fontSize:'1.05rem', color:'#f1f5f9', margin:0 }}>{f.title}</h3>
-                <p style={{ color:'#64748b', fontSize:'0.88rem', lineHeight:1.6, margin:0 }}>{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════
-          HOW IT WORKS
-      ═══════════════════════════════════════════════════════ */}
-      <section style={{ padding:'5rem 1.5rem' }}>
-        <div style={{ maxWidth:'70rem', margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:'3.5rem' }}>
-            <div className="section-tag">🚀 Simple Process</div>
-            <h2 className="section-heading">Book in 4 Easy Steps</h2>
-          </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:'1.5rem' }}>
-            {HOW.map((h, i) => (
-              <div key={h.step} className="card" style={{ position:'relative', overflow:'hidden' }}>
-                {/* Step number watermark */}
-                <div style={{
-                  position:'absolute', top:'-0.5rem', right:'1rem',
-                  fontSize:'5rem', fontWeight:900, color:'rgba(124,58,237,0.07)',
-                  lineHeight:1, pointerEvents:'none', userSelect:'none',
-                }}>{h.step}</div>
-
-                <div style={{ fontSize:'2rem', marginBottom:'1rem' }}>{h.icon}</div>
-                <div style={{ fontSize:'0.72rem', fontWeight:700, color:'#7c3aed', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'0.5rem' }}>Step {h.step}</div>
-                <h3 style={{ fontWeight:800, fontSize:'1.1rem', color:'#f1f5f9', marginBottom:'0.5rem' }}>{h.title}</h3>
-                <p style={{ color:'#64748b', fontSize:'0.88rem', lineHeight:1.6, margin:0 }}>{h.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════
-          TESTIMONIALS
-      ═══════════════════════════════════════════════════════ */}
-      <section style={{ padding:'5rem 1.5rem' }}>
-        <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:'3rem' }}>
-            <div className="section-tag">💬 What Players Say</div>
-            <h2 className="section-heading">Loved by Athletes</h2>
-          </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))', gap:'1.25rem' }}>
-            {TESTIMONIALS.map(t => (
-              <div key={t.name} className="card" style={{ padding:'1.5rem' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', marginBottom:'1rem' }}>
-                  <div style={{ width:'42px', height:'42px', borderRadius:'50%', background:'linear-gradient(135deg,#7c3aed,#ec4899)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem', flexShrink:0 }}>{t.avatar}</div>
-                  <div>
-                    <div style={{ color:'#f1f5f9', fontWeight:800, fontSize:'0.9rem' }}>{t.name}</div>
-                    <div style={{ color:'#7c3aed', fontSize:'0.75rem', fontWeight:700 }}>{t.sport}</div>
-                  </div>
-                  <div style={{ marginLeft:'auto', color:'#fbbf24', fontSize:'0.85rem' }}>★★★★★</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: '1rem' }}>
+          {TESTIMONIALS.map(t => (
+            <article key={t.name} style={{
+              background: 'rgba(18,33,49,0.6)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '16px', padding: '1.5rem',
+              backdropFilter: 'blur(12px)',
+              transition: 'all 250ms',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(195,244,0,0.18)'; }}
+            onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.06)'; }}
+            >
+              <div style={{ color: '#c3f400', fontSize: '1.2rem', marginBottom: '0.75rem' }}>★★★★★</div>
+              <p style={{ color: '#8ba3be', fontSize: '0.875rem', lineHeight: 1.7, margin: '0 0 1.25rem', fontStyle: 'italic' }}>"{t.text}"</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#c3f400', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: '0.9rem', color: '#0a1200', flexShrink: 0 }}>{t.init}</div>
+                <div>
+                  <div style={{ fontWeight: 700, color: '#f0f6ff', fontSize: '0.875rem' }}>{t.name}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: '#506070', letterSpacing: '0.05em' }}>{t.sport}</div>
                 </div>
-                <p style={{ color:'#94a3b8', fontSize:'0.87rem', lineHeight:1.65, margin:0, fontStyle:'italic' }}>
-                  &ldquo;{t.text}&rdquo;
-                </p>
               </div>
-            ))}
-          </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      <NewsletterSection />
-
-      {/* ═══════════════════════════════════════════════════════
-          CTA
-      ═══════════════════════════════════════════════════════ */}
-      <section style={{ padding:'5rem 1.5rem' }}>
-        <div style={{ maxWidth:'60rem', margin:'0 auto' }}>
-          <div style={{
-            background:'linear-gradient(135deg,rgba(124,58,237,0.2),rgba(236,72,153,0.15))',
-            border:'1px solid rgba(124,58,237,0.3)',
-            borderRadius:'24px', padding:'4rem 2.5rem',
-            textAlign:'center', position:'relative', overflow:'hidden',
-          }}>
-            <div style={{ position:'absolute', top:'-30%', left:'-10%', width:'60%', height:'120%', background:'radial-gradient(circle,rgba(124,58,237,0.15),transparent 70%)', filter:'blur(40px)', pointerEvents:'none' }} />
-            <div style={{ position:'relative' }}>
-              <div style={{ fontSize:'3rem', marginBottom:'1rem' }}>🏆</div>
-              <h2 style={{ fontSize:'clamp(1.8rem,4vw,3rem)', fontWeight:900, color:'#f1f5f9', marginBottom:'1rem', letterSpacing:'-0.02em' }}>
-                Ready to Elevate Your Game?
-              </h2>
-              <p style={{ color:'#94a3b8', fontSize:'1.05rem', lineHeight:1.7, marginBottom:'2.5rem', maxWidth:'48ch', margin:'0 auto 2.5rem' }}>
-                Join 12,000+ athletes who trust Premium Sports for their bookings. Sign up free today.
-              </p>
-              <div style={{ display:'flex', flexWrap:'wrap', gap:'1rem', justifyContent:'center' }}>
-                <button className="btn-primary btn-xl" onClick={() => navigate('/register')}>
-                  ✨ Start for Free
-                </button>
-                <button className="btn-ghost btn-xl" onClick={() => navigate('/fields')}>
-                  Browse Fields
-                </button>
-              </div>
-            </div>
+      {/* ── CTA BANNER ── */}
+      <section style={{ position: 'relative', zIndex: 1, padding: '0 1.5rem 8rem', maxWidth: '72rem', margin: '0 auto' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(195,244,0,0.08) 0%, rgba(255,94,7,0.06) 100%)',
+          border: '1px solid rgba(195,244,0,0.2)',
+          borderRadius: '24px', padding: 'clamp(2.5rem,6vw,4rem)',
+          textAlign: 'center', position: 'relative', overflow: 'hidden',
+        }}>
+          <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(195,244,0,0.1) 0%,transparent 65%)', pointerEvents: 'none' }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'block', marginBottom: '1rem' }}>Get Started Today</span>
+          <h2 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f0f6ff', margin: '0 0 1rem', letterSpacing: '-0.02em' }}>Ready to Play?</h2>
+          <p style={{ color: '#8ba3be', maxWidth: '420px', margin: '0 auto 2rem', lineHeight: 1.7 }}>Join thousands of athletes who book smarter. Create your free account today.</p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 2.2rem', background: '#c3f400', color: '#0a1200', borderRadius: '10px', textDecoration: 'none', fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '0.95rem', boxShadow: '0 8px 32px rgba(195,244,0,0.35)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>rocket_launch</span>
+              <span>Create Free Account</span>
+            </Link>
+            <Link to="/fields" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 2.2rem', background: 'transparent', color: '#f0f6ff', borderRadius: '10px', textDecoration: 'none', fontFamily: "'Anybody', sans-serif", fontWeight: 700, fontSize: '0.95rem', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>explore</span>
+              <span>Explore Fields</span>
+            </Link>
           </div>
         </div>
       </section>
-
-      {/* ── Footer ─── */}
-      <footer style={{ padding:'3rem 1.5rem', borderTop:'1px solid rgba(255,255,255,0.06)', textAlign:'center' }}>
-        <div style={{ maxWidth:'82rem', margin:'0 auto' }}>
-          <div style={{ display:'flex', flexWrap:'wrap', justifyContent:'center', gap:'2rem', marginBottom:'2rem' }}>
-            {[['Home','/'],['Fields','/fields'],['Book Now','/booking'],['About','/about'],['Contact','/contact']].map(([l,p]) => (
-              <Link key={p} to={p} style={{ textDecoration:'none', color:'#475569', fontSize:'0.88rem', fontWeight:600, transition:'color 200ms' }}
-              onMouseEnter={e=>e.target.style.color='#94a3b8'}
-              onMouseLeave={e=>e.target.style.color='#475569'}
-              >{l}</Link>
-            ))}
-          </div>
-          <p style={{ color:'#334155', fontSize:'0.82rem' }}>© 2025 Premium Sports Platform · Built with ❤️ in Bangladesh</p>
-        </div>
-      </footer>
 
       <style>{`
-        @keyframes gradient-shift {
-          0%,100% { background-position:0% 50%; }
-          50%      { background-position:100% 50%; }
-        }
-        .feature-hover-card:hover {
-          transform: translateY(-4px);
-          border-color: color-mix(in srgb, var(--feat-color) 33%, transparent) !important;
-          box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 30px color-mix(in srgb, var(--feat-color) 13%, transparent) !important;
-        }
-        .featured-field-card {
-          transition: transform 250ms, box-shadow 250ms;
-        }
-        .featured-field-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 16px 40px rgba(0,0,0,0.45) !important;
+        @keyframes pulse-lime {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(0.85); }
         }
       `}</style>
     </div>
   );
-};
-
-export default PremiumHome;
+}
