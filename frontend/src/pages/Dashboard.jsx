@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const authFetch = (url, opts = {}) => {
   const token = localStorage.getItem('token');
@@ -18,22 +19,44 @@ const QUOTES = [
 const dailyQuote = QUOTES[new Date().getDay() % QUOTES.length];
 
 const STATUS_STYLE = {
-  confirmed: { bg: 'rgba(16,185,129,0.15)', color: '#6ee7b7', border: 'rgba(16,185,129,0.3)' },
-  pending:   { bg: 'rgba(245,158,11,0.15)', color: '#fcd34d', border: 'rgba(245,158,11,0.3)' },
-  cancelled: { bg: 'rgba(239,68,68,0.15)',  color: '#fca5a5', border: 'rgba(239,68,68,0.3)'  },
-  completed: { bg: 'rgba(59,130,246,0.15)', color: '#93c5fd', border: 'rgba(59,130,246,0.3)' },
+  confirmed: { color: '#c3f400', bg: 'rgba(195,244,0,0.1)',   border: 'rgba(195,244,0,0.25)'   },
+  pending:   { color: '#ff5e07', bg: 'rgba(255,94,7,0.1)',    border: 'rgba(255,94,7,0.25)'    },
+  cancelled: { color: '#506070', bg: 'rgba(80,96,112,0.1)',   border: 'rgba(80,96,112,0.25)'   },
+  completed: { color: '#7dd3fc', bg: 'rgba(125,211,252,0.1)', border: 'rgba(125,211,252,0.25)' },
 };
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 const fmtTime = (t) => t ? new Date(t).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '—';
 
+const SPORTS = [['⚽','Football'],['🏏','Cricket'],['🏀','Basketball'],['🎾','Tennis'],['🏸','Badminton'],['🏐','Volleyball']];
+
+function StatCard({ icon, label, value, color }) {
+  return (
+    <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', backdropFilter:'blur(14px)', padding:'1.25rem 1.4rem', display:'flex', alignItems:'center', gap:'1rem' }}>
+      <div style={{ width:'42px', height:'42px', borderRadius:'12px', background:`${color}18`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+        <span className="material-symbols-outlined" style={{ fontSize:'1.2rem', color }}>{icon}</span>
+      </div>
+      <div>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", color:'#506070', fontSize:'0.68rem', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'0.2rem' }}>{label}</div>
+        <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.5rem', color, lineHeight:1 }}>{value}</div>
+      </div>
+    </div>
+  );
+}
+StatCard.propTypes = {
+  icon:  PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  color: PropTypes.string.isRequired,
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser]           = useState(null);
-  const [bookings, setBookings]   = useState([]);
-  const [stats, setStats]         = useState(null);
-  const [loading, setLoading]     = useState(true);
-  const [mounted, setMounted]     = useState(false);
+  const [user, setUser]         = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [stats, setStats]       = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [mounted, setMounted]   = useState(false);
 
   useEffect(() => { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t); }, []);
 
@@ -61,183 +84,203 @@ const Dashboard = () => {
 
   if (!user) return null;
 
-  const upcomingCount  = stats?.confirmedBookings  ?? bookings.filter(b => b.status === 'confirmed').length;
-  const completedCount = stats?.completedBookings  ?? bookings.filter(b => b.status === 'completed').length;
-  const totalSpent     = stats?.totalSpent         ?? bookings.reduce((s, b) => s + (b.pricing?.totalAmount || 0), 0);
-  const totalBookings  = stats?.totalBookings      ?? bookings.length;
-  const fieldsOwned    = stats?.fieldsOwned        ?? 0;
+  const upcomingCount  = stats?.confirmedBookings ?? bookings.filter(b => b.status === 'confirmed').length;
+  const completedCount = stats?.completedBookings ?? bookings.filter(b => b.status === 'completed').length;
+  const totalSpent     = stats?.totalSpent        ?? bookings.reduce((s, b) => s + (b.pricing?.totalAmount || 0), 0);
+  const totalBookings  = stats?.totalBookings     ?? bookings.length;
+  const fieldsOwned    = stats?.fieldsOwned       ?? 0;
 
-  const isOwner       = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'fieldOwner';
-  const nextBooking   = bookings.find(b => b.status === 'confirmed' && new Date(b.startTime) > new Date());
-  const pendingCount  = bookings.filter(b => b.status === 'pending').length;
+  const isOwner      = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'fieldOwner';
+  const nextBooking  = bookings.find(b => b.status === 'confirmed' && new Date(b.startTime) > new Date());
+  const pendingCount = bookings.filter(b => b.status === 'pending').length;
 
   const QUICK = [
-    { icon: '🏟️', label: 'Browse Fields',  sub: 'Find and book a venue',      path: '/fields',    grad: 'linear-gradient(135deg,#7c3aed,#6d28d9)' },
-    { icon: '📅', label: 'My Bookings',    sub: 'View all reservations',       path: '/bookings',  grad: 'linear-gradient(135deg,#0891b2,#0e7490)' },
-    { icon: '👤', label: 'My Profile',     sub: 'Update account details',      path: '/profile',   grad: 'linear-gradient(135deg,#059669,#047857)' },
-    { icon: '📞', label: 'Contact Support', sub: 'Get help from our team',     path: '/contact',   grad: 'linear-gradient(135deg,#d97706,#b45309)' },
-    ...(isOwner ? [{ icon: '➕', label: 'Add Field', sub: 'List a new sports venue', path: '/add-field', grad: 'linear-gradient(135deg,#ec4899,#be185d)' }] : []),
+    { icon:'stadium',       label:'Browse Fields',    sub:'Find and book a venue',       path:'/fields'    },
+    { icon:'calendar_month',label:'My Bookings',      sub:'View all reservations',        path:'/bookings'  },
+    { icon:'person',        label:'My Profile',       sub:'Update account details',       path:'/profile'   },
+    { icon:'support_agent', label:'Contact Support',  sub:'Get help from our team',       path:'/contact'   },
+    ...(isOwner ? [{ icon:'add_circle', label:'Add Field', sub:'List a new sports venue', path:'/add-field' }] : []),
   ];
 
   return (
-    <div className="pg-bg" style={{ minHeight: '100vh', paddingTop: '5.5rem' }}>
+    <div style={{ minHeight:'100vh', background:'#051424', paddingTop:'5.5rem', paddingBottom:'4rem' }}>
       {/* Orbs */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-        <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: '50vw', height: '50vw', borderRadius: '50%', background: 'radial-gradient(circle,rgba(124,58,237,0.14),transparent 70%)', filter: 'blur(80px)' }} />
-        <div style={{ position: 'absolute', bottom: '-5%', right: '-5%', width: '40vw', height: '40vw', borderRadius: '50%', background: 'radial-gradient(circle,rgba(236,72,153,0.12),transparent 70%)', filter: 'blur(80px)' }} />
+      <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0 }}>
+        <div style={{ position:'absolute', top:'-10%', left:'-5%', width:'50vw', height:'50vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(195,244,0,0.06),transparent 70%)', filter:'blur(80px)' }} />
+        <div style={{ position:'absolute', bottom:'-5%', right:'-5%', width:'40vw', height:'40vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(255,94,7,0.07),transparent 70%)', filter:'blur(80px)' }} />
       </div>
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '82rem', margin: '0 auto', padding: '2rem 1.5rem 4rem', opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(20px)', transition: 'opacity .5s, transform .5s' }}>
+      <div style={{ position:'relative', zIndex:1, maxWidth:'1200px', margin:'0 auto', padding:'2rem 1.5rem 4rem', opacity:mounted?1:0, transform:mounted?'none':'translateY(20px)', transition:'opacity .5s, transform .5s' }}>
 
         {/* ── Welcome header ── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:'1rem', marginBottom:'2rem' }}>
           <div>
-            <p style={{ color: '#64748b', fontSize: '0.88rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.3rem' }}>Welcome back</p>
-            <h1 style={{ fontSize: 'clamp(1.6rem,3vw,2.2rem)', fontWeight: 900, color: '#f1f5f9', margin: 0 }}>
-              {user.firstName} {user.lastName} <span style={{ fontSize: '1.5rem' }}>👋</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Welcome back</span>
+            <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.6rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>
+              {user.firstName} {user.lastName}
             </h1>
           </div>
-          {user.role === 'admin' && (
-            <Link to="/admin" style={{ textDecoration: 'none', padding: '0.65rem 1.4rem', borderRadius: '10px', background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontWeight: 800, fontSize: '0.9rem', boxShadow: '0 4px 15px rgba(245,158,11,0.35)' }}>
-              👑 Admin Panel
-            </Link>
-          )}
-        </div>
-
-        {/* ── Stat tiles ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
-          {[
-            { icon: '📅', label: 'Total Bookings',  value: totalBookings,   color: '#a78bfa' },
-            { icon: '⏰', label: 'Upcoming',         value: upcomingCount,   color: '#6ee7b7' },
-            { icon: '✅', label: 'Completed',        value: completedCount,  color: '#93c5fd' },
-            { icon: '💰', label: 'Total Spent',      value: `৳${totalSpent.toLocaleString()}`, color: '#fcd34d' },
-            ...(isOwner ? [{ icon: '🏟️', label: 'Fields Owned', value: fieldsOwned, color: '#f9a8d4' }] : []),
-          ].map(s => (
-            <div key={s.label} className="card" style={{ textAlign: 'center', padding: '1.75rem 1rem' }}>
-              <div style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{s.icon}</div>
-              <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: '0.35rem' }}>{s.value}</div>
-              <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Browse by sport ── */}
-        <div style={{ marginBottom: '2rem' }}>
-          {pendingCount > 0 && (
-            <div className="card" style={{ padding: '0.9rem 1.25rem', marginBottom: '1rem', background: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-              <span style={{ color: '#fcd34d', fontWeight: 700, fontSize: '0.88rem' }}>
-                ⏳ You have <strong>{pendingCount}</strong> pending booking{pendingCount > 1 ? 's' : ''} awaiting confirmation.
-              </span>
-              <Link to="/bookings" style={{ color: '#fcd34d', fontWeight: 700, fontSize: '0.82rem', textDecoration: 'none', flexShrink: 0 }}>View →</Link>
-            </div>
-          )}
-          <h2 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.85rem' }}>Browse by Sport</h2>
-          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-            {[['⚽','Football'],['🏏','Cricket'],['🏀','Basketball'],['🎾','Tennis'],['🏸','Badminton'],['🏐','Volleyball']].map(([icon, sport]) => (
-              <Link key={sport} to={`/fields?sport=${sport.toLowerCase()}`}
-                style={{ textDecoration: 'none', padding: '0.45rem 1rem', borderRadius: '999px', background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.25)', color: '#a78bfa', fontWeight: 700, fontSize: '0.83rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', transition: 'background .18s' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.22)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.1)'; }}>
-                {icon} {sport}
+          <div style={{ display:'flex', gap:'0.75rem', flexWrap:'wrap' }}>
+            {user.role === 'admin' && (
+              <Link to="/admin" style={{ textDecoration:'none', padding:'0.6rem 1.25rem', borderRadius:'10px', background:'rgba(195,244,0,0.1)', border:'1px solid rgba(195,244,0,0.3)', color:'#c3f400', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.88rem', display:'flex', alignItems:'center', gap:'0.4rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize:'1rem' }}>admin_panel_settings</span><span>Admin Panel</span>
               </Link>
-            ))}
+            )}
+            <Link to="/fields" style={{ textDecoration:'none', padding:'0.6rem 1.4rem', borderRadius:'10px', background:'#c3f400', color:'#0a1200', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'0.88rem' }}>
+              Book Now
+            </Link>
           </div>
         </div>
 
-        {/* ── Next booking highlight ── */}
-        {nextBooking && (
-          <div className="card" style={{ padding: '1.25rem 1.75rem', marginBottom: '1.5rem', background: 'linear-gradient(135deg,rgba(16,185,129,0.1),rgba(59,130,246,0.08))', borderColor: 'rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
-            <div style={{ fontSize: '2rem', flexShrink: 0 }}>⏰</div>
-            <div style={{ flex: 1, minWidth: '180px' }}>
-              <p style={{ color: '#6ee7b7', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 0.2rem' }}>Next Upcoming Booking</p>
-              <p style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.05rem', margin: '0 0 0.2rem' }}>{nextBooking.field?.name || 'Field'}</p>
-              <p style={{ color: '#64748b', fontSize: '0.82rem', margin: 0 }}>
-                {fmtDate(nextBooking.startTime)} · {fmtTime(nextBooking.startTime)}
-              </p>
+        {/* ── Pending alert ── */}
+        {pendingCount > 0 && (
+          <div style={{ background:'rgba(255,94,7,0.06)', border:'1px solid rgba(255,94,7,0.2)', borderRadius:'14px', backdropFilter:'blur(14px)', padding:'0.9rem 1.25rem', marginBottom:'1.5rem', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', flexWrap:'wrap' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'0.65rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize:'1.1rem', color:'#ff5e07' }}>pending_actions</span>
+              <span style={{ color:'#ff5e07', fontWeight:700, fontSize:'0.88rem' }}>
+                You have <strong>{pendingCount}</strong> pending booking{pendingCount > 1 ? 's' : ''} awaiting confirmation.
+              </span>
             </div>
-            <Link to="/bookings" style={{ textDecoration: 'none', background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.35)', color: '#6ee7b7', borderRadius: '10px', padding: '0.5rem 1.1rem', fontSize: '0.83rem', fontWeight: 700, flexShrink: 0 }}>
-              View Details →
-            </Link>
+            <Link to="/bookings" style={{ color:'#ff5e07', fontWeight:700, fontSize:'0.82rem', textDecoration:'none', flexShrink:0 }}>View →</Link>
           </div>
         )}
 
-        {/* ── Daily motivation ── */}
-        <div className="card" style={{ padding: '1.25rem 1.75rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1.25rem', background: 'linear-gradient(135deg,rgba(124,58,237,0.1),rgba(236,72,153,0.08))', borderColor: 'rgba(124,58,237,0.25)' }}>
-          <div style={{ fontSize: '2rem', flexShrink: 0 }}>💬</div>
-          <div>
-            <p style={{ color: '#e2e8f0', fontStyle: 'italic', fontSize: '0.95rem', fontWeight: 600, lineHeight: 1.5, margin: '0 0 0.25rem' }}>
-              &ldquo;{dailyQuote.text}&rdquo;
-            </p>
-            <p style={{ color: '#7c3aed', fontSize: '0.8rem', fontWeight: 700, margin: 0 }}>— {dailyQuote.author}</p>
-          </div>
+        {/* ── Stat strip ── */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:'1rem', marginBottom:'1.5rem' }}>
+          <StatCard icon="calendar_month"  label="Total Bookings" value={totalBookings}                      color="#c3f400" />
+          <StatCard icon="event_available" label="Upcoming"        value={upcomingCount}                      color="#7dd3fc" />
+          <StatCard icon="check_circle"    label="Completed"       value={completedCount}                     color="#a78bfa" />
+          <StatCard icon="payments"        label="Total Spent"     value={`৳${totalSpent.toLocaleString()}`}  color="#ff5e07" />
+          {isOwner && <StatCard icon="stadium" label="Fields Owned" value={fieldsOwned} color="#22d3ee" />}
         </div>
 
-        {/* ── Quick actions ── */}
-        <div style={{ marginBottom: '2.5rem' }}>
-          <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#94a3b8', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Quick Actions</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '1rem' }}>
-            {QUICK.map(q => (
-              <Link key={q.path} to={q.path} className="quick-action-card" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: q.grad, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', flexShrink: 0 }}>{q.icon}</div>
-                <div>
-                  <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '0.95rem' }}>{q.label}</div>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{q.sub}</div>
+        {/* ── Bento grid ── */}
+        <div style={{ display:'grid', gridTemplateColumns:'340px 1fr', gap:'1.25rem', alignItems:'start' }}>
+
+          {/* Left column */}
+          <div style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
+
+            {/* Next booking */}
+            {nextBooking && (
+              <div style={{ background:'rgba(195,244,0,0.04)', border:'1px solid rgba(195,244,0,0.15)', borderRadius:'16px', backdropFilter:'blur(14px)', padding:'1.4rem' }}>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color:'#c3f400', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'0.6rem' }}>Next Upcoming</div>
+                <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.05rem', color:'#f0f6ff', marginBottom:'0.35rem' }}>{nextBooking.field?.name || 'Field'}</div>
+                <div style={{ display:'flex', alignItems:'center', gap:'0.4rem', color:'#8ba3be', fontSize:'0.82rem', marginBottom:'1rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize:'0.9rem' }}>schedule</span>
+                  {fmtDate(nextBooking.startTime)} · {fmtTime(nextBooking.startTime)}
                 </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+                <Link to="/bookings" style={{ textDecoration:'none', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.4rem', padding:'0.6rem', background:'rgba(195,244,0,0.1)', border:'1px solid rgba(195,244,0,0.25)', borderRadius:'10px', color:'#c3f400', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.85rem' }}>
+                  <span>View Details</span><span className="material-symbols-outlined" style={{ fontSize:'1rem' }}>arrow_forward</span>
+                </Link>
+              </div>
+            )}
 
-        {/* ── Recent bookings ── */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Recent Bookings</h2>
-            <Link to="/bookings" style={{ color: '#7c3aed', fontSize: '0.88rem', fontWeight: 700, textDecoration: 'none' }}>View All →</Link>
+            {/* Quick actions */}
+            <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', backdropFilter:'blur(14px)', padding:'1.4rem' }}>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color:'#506070', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'0.85rem' }}>Quick Actions</div>
+              <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
+                {QUICK.map(q => (
+                  <Link key={q.path} to={q.path} style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:'0.85rem', padding:'0.75rem 0.9rem', borderRadius:'10px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.05)', transition:'all 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background='rgba(195,244,0,0.06)'; e.currentTarget.style.borderColor='rgba(195,244,0,0.15)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.05)'; }}>
+                    <div style={{ width:'34px', height:'34px', borderRadius:'10px', background:'rgba(195,244,0,0.08)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize:'1.05rem', color:'#c3f400' }}>{q.icon}</span>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:800, color:'#f0f6ff', fontSize:'0.88rem' }}>{q.label}</div>
+                      <div style={{ color:'#506070', fontSize:'0.74rem' }}>{q.sub}</div>
+                    </div>
+                    <span className="material-symbols-outlined" style={{ fontSize:'0.9rem', color:'#506070' }}>chevron_right</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Daily quote */}
+            <div style={{ background:'rgba(195,244,0,0.03)', border:'1px solid rgba(195,244,0,0.1)', borderRadius:'16px', backdropFilter:'blur(14px)', padding:'1.4rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize:'1.4rem', color:'#c3f400', display:'block', marginBottom:'0.65rem' }}>format_quote</span>
+              <p style={{ color:'#c8d8ea', fontStyle:'italic', fontSize:'0.9rem', fontWeight:600, lineHeight:1.6, margin:'0 0 0.5rem' }}>
+                &ldquo;{dailyQuote.text}&rdquo;
+              </p>
+              <p style={{ fontFamily:"'JetBrains Mono',monospace", color:'#c3f400', fontSize:'0.72rem', margin:0 }}>— {dailyQuote.author}</p>
+            </div>
+
+            {/* Browse by sport */}
+            <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', backdropFilter:'blur(14px)', padding:'1.4rem' }}>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color:'#506070', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'0.85rem' }}>Browse by Sport</div>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.5rem' }}>
+                {SPORTS.map(([icon, sport]) => (
+                  <Link key={sport} to={`/fields?sport=${sport.toLowerCase()}`}
+                    style={{ textDecoration:'none', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.3rem', padding:'0.75rem 0.5rem', borderRadius:'10px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.05)', transition:'all 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background='rgba(195,244,0,0.06)'; e.currentTarget.style.borderColor='rgba(195,244,0,0.15)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.05)'; }}>
+                    <span style={{ fontSize:'1.3rem' }}>{icon}</span>
+                    <span style={{ fontFamily:"'JetBrains Mono',monospace", color:'#8ba3be', fontSize:'0.65rem', textAlign:'center' }}>{sport}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {loading && (
-            <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-              <div className="spinner" style={{ width: '36px', height: '36px', margin: '0 auto 1rem' }} />
-              <p style={{ color: '#64748b' }}>Loading bookings…</p>
-            </div>
-          )}
-          {!loading && bookings.length === 0 && (
-            <div className="card" style={{ textAlign: 'center', padding: '3.5rem' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
-              <h3 style={{ color: '#f1f5f9', fontWeight: 800, marginBottom: '0.5rem' }}>No bookings yet</h3>
-              <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Start by browsing premium fields near you.</p>
-              <Link to="/fields" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.7rem 1.5rem' }}>
-                🏟️ Browse Fields
+          {/* Right column — Recent Bookings */}
+          <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', backdropFilter:'blur(14px)', padding:'1.5rem' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'1.25rem' }}>
+              <div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color:'#506070', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'0.2rem' }}>History</div>
+                <h2 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.1rem', color:'#f0f6ff', margin:0 }}>Recent Bookings</h2>
+              </div>
+              <Link to="/bookings" style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:'0.3rem', color:'#c3f400', fontWeight:700, fontSize:'0.82rem' }}>
+                <span>View All</span><span className="material-symbols-outlined" style={{ fontSize:'1rem' }}>arrow_forward</span>
               </Link>
             </div>
-          )}
-          {!loading && bookings.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {bookings.map(b => {
-                const st = STATUS_STYLE[b.status] || STATUS_STYLE.pending;
-                return (
-                  <div key={b._id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', padding: '1.25rem 1.5rem' }}>
-                    <div style={{ flex: 1, minWidth: '180px' }}>
-                      <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '1rem', marginBottom: '0.2rem' }}>
-                        {b.field?.name || 'Field'}
+
+            {loading && (
+              <div style={{ textAlign:'center', padding:'3rem 0', color:'#506070' }}>
+                <span className="material-symbols-outlined" style={{ fontSize:'2rem', display:'block', marginBottom:'0.5rem', opacity:0.5 }}>hourglass_empty</span>
+                <div style={{ fontSize:'0.85rem' }}>Loading bookings…</div>
+              </div>
+            )}
+
+            {!loading && bookings.length === 0 && (
+              <div style={{ textAlign:'center', padding:'4rem 1rem', color:'#506070' }}>
+                <span className="material-symbols-outlined" style={{ fontSize:'3rem', display:'block', marginBottom:'0.75rem' }}>event_busy</span>
+                <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'1rem', color:'#8ba3be', marginBottom:'0.5rem' }}>No bookings yet</div>
+                <div style={{ fontSize:'0.85rem', marginBottom:'1.5rem' }}>Start by browsing premium fields near you.</div>
+                <Link to="/fields" style={{ textDecoration:'none', display:'inline-flex', alignItems:'center', gap:'0.5rem', padding:'0.65rem 1.4rem', background:'#c3f400', borderRadius:'10px', color:'#0a1200', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'0.88rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize:'1rem' }}>stadium</span>
+                  Browse Fields
+                </Link>
+              </div>
+            )}
+
+            {!loading && bookings.length > 0 && (
+              <div style={{ display:'flex', flexDirection:'column', gap:'0.65rem' }}>
+                {bookings.map(b => {
+                  const st = STATUS_STYLE[b.status] || STATUS_STYLE.pending;
+                  return (
+                    <div key={b._id} style={{ display:'flex', alignItems:'center', gap:'1rem', padding:'1rem 1.1rem', background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.05)', borderRadius:'12px', flexWrap:'wrap' }}>
+                      <div style={{ flex:1, minWidth:'160px' }}>
+                        <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:800, color:'#f0f6ff', fontSize:'0.92rem', marginBottom:'0.2rem' }}>
+                          {b.field?.name || 'Field'}
+                        </div>
+                        <div style={{ fontFamily:"'JetBrains Mono',monospace", color:'#506070', fontSize:'0.72rem' }}>
+                          {fmtDate(b.startTime)} · {fmtTime(b.startTime)} – {fmtTime(b.endTime)}
+                        </div>
                       </div>
-                      <div style={{ color: '#64748b', fontSize: '0.82rem' }}>
-                        {fmtDate(b.startTime)} · {fmtTime(b.startTime)} – {fmtTime(b.endTime)}
+                      <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', flexShrink:0 }}>
+                        <span style={{ background:st.bg, color:st.color, border:`1px solid ${st.border}`, borderRadius:'999px', padding:'0.15rem 0.65rem', fontSize:'0.7rem', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.05em' }}>
+                          {b.status}
+                        </span>
+                        <span style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, color:'#c3f400', fontSize:'0.92rem' }}>
+                          ৳{b.pricing?.totalAmount?.toLocaleString() || 0}
+                        </span>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <span style={{ background: st.bg, color: st.color, border: `1px solid ${st.border}`, borderRadius: '9999px', padding: '0.25rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                        {b.status}
-                      </span>
-                      <span style={{ fontWeight: 800, color: '#6ee7b7', fontSize: '0.95rem' }}>
-                        ৳{b.pricing?.totalAmount?.toLocaleString() || 0}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
