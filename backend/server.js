@@ -32,6 +32,7 @@ import reviewRoutes from './routes/reviewRoutes.js';
 import tournamentRoutes from './routes/tournamentRoutes.js';
 import teamRoutes from './routes/teamRoutes.js';
 import pricingRoutes from './routes/pricingRoutes.js';
+import loyaltyRoutes from './routes/loyaltyRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -308,6 +309,7 @@ app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/tournaments', tournamentRoutes);
 app.use('/api/v1/teams', teamRoutes);
 app.use('/api/v1/pricing', pricingRoutes);
+app.use('/api/v1/loyalty', loyaltyRoutes);
 
 // Backward compatibility - keep old routes without version prefix
 app.use('/api/auth', authRoutes);
