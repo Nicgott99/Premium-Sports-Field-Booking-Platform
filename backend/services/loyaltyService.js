@@ -3,7 +3,7 @@ const POINTS_CONFIG = {
   perBooking: 20,
   bonusWeekend: 1.5,
   bonusEarlyBird: 1.25,
-  bonusPremiumField: 2.0,
+  bonusPremiumField: 2,
   referralBonus: 200,
   reviewBonus: 30,
 };
@@ -56,4 +56,4 @@ const buildSummary = (userPoints) => {
   };
 };
 
-module.exports = { calculateBookingPoints, redeemPoints, buildSummary, getTier, getNextTier, TIERS, POINTS_CONFIG };
+export { calculateBookingPoints, redeemPoints, buildSummary, getTier, getNextTier, TIERS, POINTS_CONFIG };

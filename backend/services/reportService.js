@@ -77,4 +77,4 @@ const generateOccupancyReport = (fields, bookings) => {
   }).sort((a, b) => b.occupancyRate - a.occupancyRate);
 };
 
-module.exports = { generateRevenueReport, generateUserReport, generateOccupancyReport, groupBy, sum };
+export { generateRevenueReport, generateUserReport, generateOccupancyReport, groupBy, sum };
