@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -40,16 +40,16 @@ function StepIndicator({ current }) {
         return (
           <React.Fragment key={label}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: i < STEPS.length - 1 ? 0 : 1 }}>
-              <div style={{ width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: done ? '#c3f400' : active ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.05)', border: `2px solid ${done || active ? '#c3f400' : 'rgba(255,255,255,0.1)'}`, marginBottom: '0.3rem' }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: done ? '#FBBF24' : active ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.05)', border: `2px solid ${done || active ? '#FBBF24' : 'rgba(255,255,255,0.1)'}`, marginBottom: '0.3rem' }}>
                 {done
                   ? <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#051424' }}>check</span>
-                  : <span style={{ fontSize: '0.75rem', fontWeight: 800, color: active ? '#c3f400' : '#506070', fontFamily: "'JetBrains Mono',monospace" }}>{i + 1}</span>
+                  : <span style={{ fontSize: '0.75rem', fontWeight: 800, color: active ? '#FBBF24' : '#506070', fontFamily: "'JetBrains Mono',monospace" }}>{i + 1}</span>
                 }
               </div>
-              <span style={{ fontSize: '0.68rem', color: active ? '#c3f400' : done ? '#7dd3fc' : '#506070', fontWeight: active ? 700 : 500, whiteSpace: 'nowrap' }}>{label}</span>
+              <span style={{ fontSize: '0.68rem', color: active ? '#FBBF24' : done ? '#7dd3fc' : '#506070', fontWeight: active ? 700 : 500, whiteSpace: 'nowrap' }}>{label}</span>
             </div>
             {i < STEPS.length - 1 && (
-              <div style={{ flex: 1, height: 2, background: i < current ? '#c3f400' : 'rgba(255,255,255,0.07)', margin: '0 0.3rem', marginBottom: '1.2rem', borderRadius: 1 }} />
+              <div style={{ flex: 1, height: 2, background: i < current ? '#FBBF24' : 'rgba(255,255,255,0.07)', margin: '0 0.3rem', marginBottom: '1.2rem', borderRadius: 1 }} />
             )}
           </React.Fragment>
         );
@@ -61,9 +61,9 @@ StepIndicator.propTypes = { current: PropTypes.number.isRequired };
 
 function SportCard({ sport, selected, onSelect }) {
   return (
-    <button type="button" onClick={() => onSelect(sport.label)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.1rem 0.75rem', background: selected ? 'rgba(195,244,0,0.12)' : 'rgba(255,255,255,0.03)', border: `1px solid ${selected ? 'rgba(195,244,0,0.4)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 12, cursor: 'pointer', transition: 'all 0.18s', boxShadow: selected ? '0 0 16px rgba(195,244,0,0.15)' : 'none' }}>
-      <span className="material-symbols-outlined" style={{ fontSize: '1.8rem', color: selected ? '#c3f400' : '#506070' }}>{sport.icon}</span>
-      <span style={{ fontSize: '0.78rem', color: selected ? '#c3f400' : '#94a3b8', fontWeight: selected ? 700 : 500 }}>{sport.label}</span>
+    <button type="button" onClick={() => onSelect(sport.label)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1.1rem 0.75rem', background: selected ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.03)', border: `1px solid ${selected ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 12, cursor: 'pointer', transition: 'all 0.18s', boxShadow: selected ? '0 0 16px rgba(251,191,36,0.15)' : 'none' }}>
+      <span className="material-symbols-outlined" style={{ fontSize: '1.8rem', color: selected ? '#FBBF24' : '#506070' }}>{sport.icon}</span>
+      <span style={{ fontSize: '0.78rem', color: selected ? '#FBBF24' : '#94a3b8', fontWeight: selected ? 700 : 500 }}>{sport.label}</span>
     </button>
   );
 }
@@ -75,13 +75,13 @@ SportCard.propTypes = {
 
 function FieldCard({ field, selected, onSelect }) {
   return (
-    <button type="button" onClick={() => field.available && onSelect(field)} disabled={!field.available} style={{ width: '100%', textAlign: 'left', display: 'block', padding: '1rem 1.1rem', background: selected ? 'rgba(195,244,0,0.1)' : field.available ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)', border: `1px solid ${selected ? 'rgba(195,244,0,0.4)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 12, cursor: field.available ? 'pointer' : 'not-allowed', opacity: field.available ? 1 : 0.45, marginBottom: '0.6rem' }}>
+    <button type="button" onClick={() => field.available && onSelect(field)} disabled={!field.available} style={{ width: '100%', textAlign: 'left', display: 'block', padding: '1rem 1.1rem', background: selected ? 'rgba(251,191,36,0.1)' : field.available ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)', border: `1px solid ${selected ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 12, cursor: field.available ? 'pointer' : 'not-allowed', opacity: field.available ? 1 : 0.45, marginBottom: '0.6rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <div style={{ color: selected ? '#c3f400' : '#e2e8f0', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.2rem' }}>{field.name}</div>
+          <div style={{ color: selected ? '#FBBF24' : '#e2e8f0', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.2rem' }}>{field.name}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{ color: '#506070', fontSize: '0.75rem' }}>⭐ {field.rating}</span>
-            <span style={{ color: field.available ? '#c3f400' : '#ff5e07', fontSize: '0.72rem', fontWeight: 700 }}>{field.available ? 'Available' : 'Booked'}</span>
+            <span style={{ color: field.available ? '#FBBF24' : '#ff5e07', fontSize: '0.72rem', fontWeight: 700 }}>{field.available ? 'Available' : 'Booked'}</span>
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
@@ -160,10 +160,10 @@ const QuickBookWidget = () => {
     return (
       <div style={{ minHeight: '100vh', background: '#051424', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', fontFamily: "'Inter',sans-serif" }}>
         <div style={{ ...glass, borderRadius: 20, padding: '2.5rem', maxWidth: 480, width: '100%', textAlign: 'center' }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(195,244,0,0.15)', border: '2px solid rgba(195,244,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: '#c3f400' }}>check_circle</span>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(251,191,36,0.15)', border: '2px solid rgba(251,191,36,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: '#FBBF24' }}>check_circle</span>
           </div>
-          <h2 style={{ fontFamily: "'Anybody',sans-serif", fontWeight: 900, color: '#c3f400', fontSize: '1.8rem', margin: '0 0 0.5rem' }}>Booked!</h2>
+          <h2 style={{ fontFamily: "'Anybody',sans-serif", fontWeight: 900, color: '#FBBF24', fontSize: '1.8rem', margin: '0 0 0.5rem' }}>Booked!</h2>
           <p style={{ color: '#506070', marginBottom: '1.5rem' }}>Your slot is confirmed. See you on the field!</p>
           <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: '1rem', textAlign: 'left', marginBottom: '1.5rem' }}>
             {[['Field', booking.field ?? booking.fieldName],['Date', booking.date],['Time', booking.startTime],['Duration', `${booking.duration}h`],['Total', `৳${booking.total ?? (field?.pricePerHour * duration)}`]].map(([k, v]) => (
@@ -173,7 +173,7 @@ const QuickBookWidget = () => {
               </div>
             ))}
           </div>
-          <button type="button" onClick={() => navigate('/bookings')} style={{ width: '100%', padding: '0.85rem', background: '#c3f400', border: 'none', borderRadius: 10, color: '#051424', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer' }}>View My Bookings</button>
+          <button type="button" onClick={() => navigate('/bookings')} style={{ width: '100%', padding: '0.85rem', background: '#FBBF24', border: 'none', borderRadius: 10, color: '#051424', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer' }}>View My Bookings</button>
         </div>
       </div>
     );
@@ -181,14 +181,14 @@ const QuickBookWidget = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: '#051424', padding: '2rem 1.5rem', fontFamily: "'Inter',sans-serif", color: '#e2e8f0', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'fixed', top: '-10%', right: '-5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(195,244,0,0.06) 0%,transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', top: '-10%', right: '-5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(251,191,36,0.06) 0%,transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '-10%', left: '-5%', width: 450, height: 450, borderRadius: '50%', background: 'radial-gradient(circle,rgba(255,94,7,0.05) 0%,transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 640, margin: '0 auto', position: 'relative' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', background: 'rgba(195,244,0,0.08)', border: '1px solid rgba(195,244,0,0.2)', borderRadius: 20, padding: '0.35rem 1rem', marginBottom: '1rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c3f400' }}>bolt</span>
-            <span style={{ fontSize: '0.78rem', color: '#c3f400', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Quick Book</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 20, padding: '0.35rem 1rem', marginBottom: '1rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#FBBF24' }}>bolt</span>
+            <span style={{ fontSize: '0.78rem', color: '#FBBF24', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Quick Book</span>
           </div>
           <h1 style={{ fontFamily: "'Anybody',sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,2.4rem)', color: '#f1f5f9', margin: '0 0 0.4rem', letterSpacing: '-0.02em' }}>Book in 60 Seconds</h1>
           <p style={{ color: '#506070', margin: 0, fontSize: '0.92rem' }}>Select sport, pick a slot, and you're done</p>
@@ -220,7 +220,7 @@ const QuickBookWidget = () => {
                 <label style={{ display: 'block', color: '#506070', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Start Time</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                   {TIME_SLOTS.map(t => (
-                    <button key={t} type="button" onClick={() => setStartTime(t)} style={{ padding: '0.4rem 0.75rem', background: startTime === t ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${startTime === t ? 'rgba(195,244,0,0.4)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 8, color: startTime === t ? '#c3f400' : '#94a3b8', fontSize: '0.78rem', fontWeight: startTime === t ? 700 : 500, cursor: 'pointer', fontFamily: "'JetBrains Mono',monospace" }}>{t}</button>
+                    <button key={t} type="button" onClick={() => setStartTime(t)} style={{ padding: '0.4rem 0.75rem', background: startTime === t ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${startTime === t ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 8, color: startTime === t ? '#FBBF24' : '#94a3b8', fontSize: '0.78rem', fontWeight: startTime === t ? 700 : 500, cursor: 'pointer', fontFamily: "'JetBrains Mono',monospace" }}>{t}</button>
                   ))}
                 </div>
               </div>
@@ -258,7 +258,7 @@ const QuickBookWidget = () => {
                 {[['Sport', sport],['Field', field.name],['Date', date],['Time', startTime],['Duration', `${duration}h`],['Total', `৳${field.pricePerHour * duration}`]].map(([k, v]) => (
                   <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                     <span style={{ color: '#506070', fontSize: '0.85rem' }}>{k}</span>
-                    <span style={{ color: k === 'Total' ? '#c3f400' : '#e2e8f0', fontWeight: k === 'Total' ? 900 : 700, fontSize: '0.85rem', fontFamily: k === 'Total' ? "'JetBrains Mono',monospace" : 'inherit' }}>{v}</span>
+                    <span style={{ color: k === 'Total' ? '#FBBF24' : '#e2e8f0', fontWeight: k === 'Total' ? 900 : 700, fontSize: '0.85rem', fontFamily: k === 'Total' ? "'JetBrains Mono',monospace" : 'inherit' }}>{v}</span>
                   </div>
                 ))}
               </div>
@@ -272,9 +272,9 @@ const QuickBookWidget = () => {
               <button type="button" onClick={() => setStep(s => s - 1)} style={{ flex: 1, padding: '0.85rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#94a3b8', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>Back</button>
             )}
             {step < 3 ? (
-              <button type="button" onClick={() => setStep(s => s + 1)} disabled={!canNext()} style={{ flex: 2, padding: '0.85rem', background: canNext() ? '#c3f400' : 'rgba(195,244,0,0.15)', border: 'none', borderRadius: 10, color: canNext() ? '#051424' : '#506070', fontWeight: 800, fontSize: '0.9rem', cursor: canNext() ? 'pointer' : 'not-allowed' }}>Continue</button>
+              <button type="button" onClick={() => setStep(s => s + 1)} disabled={!canNext()} style={{ flex: 2, padding: '0.85rem', background: canNext() ? '#FBBF24' : 'rgba(251,191,36,0.15)', border: 'none', borderRadius: 10, color: canNext() ? '#051424' : '#506070', fontWeight: 800, fontSize: '0.9rem', cursor: canNext() ? 'pointer' : 'not-allowed' }}>Continue</button>
             ) : (
-              <button type="button" onClick={handleConfirm} disabled={loading} style={{ flex: 2, padding: '0.85rem', background: loading ? 'rgba(195,244,0,0.15)' : '#c3f400', border: 'none', borderRadius: 10, color: loading ? '#506070' : '#051424', fontWeight: 800, fontSize: '0.9rem', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+              <button type="button" onClick={handleConfirm} disabled={loading} style={{ flex: 2, padding: '0.85rem', background: loading ? 'rgba(251,191,36,0.15)' : '#FBBF24', border: 'none', borderRadius: 10, color: loading ? '#506070' : '#051424', fontWeight: 800, fontSize: '0.9rem', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>bolt</span>
                 <span>{loading ? 'Booking…' : 'Confirm Booking'}</span>
               </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MOCK_TOURNAMENTS = [
@@ -10,7 +10,7 @@ const MOCK_TOURNAMENTS = [
 ];
 
 const STATUS_STYLE = {
-  ongoing:  { color:'#c3f400', bg:'rgba(195,244,0,0.12)', border:'rgba(195,244,0,0.3)',  label:'LIVE' },
+  ongoing:  { color:'#FBBF24', bg:'rgba(251,191,36,0.12)', border:'rgba(251,191,36,0.3)',  label:'LIVE' },
   open:     { color:'#7dd3fc', bg:'rgba(125,211,252,0.12)', border:'rgba(125,211,252,0.3)', label:'Open' },
   upcoming: { color:'#ff5e07', bg:'rgba(255,94,7,0.12)', border:'rgba(255,94,7,0.3)',  label:'Upcoming' },
   completed:{ color:'#506070', bg:'rgba(80,96,112,0.12)', border:'rgba(80,96,112,0.3)',  label:'Ended' },
@@ -21,9 +21,9 @@ function TournamentCard({ t, onSelect, selected }) {
   const spotsLeft = t.teams - t.registered;
   const fillPct = Math.round((t.registered / t.teams) * 100);
   return (
-    <button type="button" onClick={() => onSelect(t)} style={{ background:'rgba(13,28,45,0.72)', border:`1px solid ${selected ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.07)'}`, borderRadius:'16px', padding:'1.4rem 1.5rem', backdropFilter:'blur(14px)', cursor:'pointer', transition:'all 0.2s', width:'100%', textAlign:'left', display:'block' }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(195,244,0,0.25)'; e.currentTarget.style.transform='translateY(-2px)'; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = selected ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.07)'; e.currentTarget.style.transform='none'; }}>
+    <button type="button" onClick={() => onSelect(t)} style={{ background:'rgba(13,28,45,0.72)', border:`1px solid ${selected ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.07)'}`, borderRadius:'16px', padding:'1.4rem 1.5rem', backdropFilter:'blur(14px)', cursor:'pointer', transition:'all 0.2s', width:'100%', textAlign:'left', display:'block' }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(251,191,36,0.25)'; e.currentTarget.style.transform='translateY(-2px)'; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = selected ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.07)'; e.currentTarget.style.transform='none'; }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'0.75rem' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'0.65rem' }}>
           <span style={{ fontSize:'1.8rem' }}>{t.icon}</span>
@@ -43,11 +43,11 @@ function TournamentCard({ t, onSelect, selected }) {
         ))}
       </div>
       <div style={{ height:'4px', background:'rgba(255,255,255,0.06)', borderRadius:'999px', overflow:'hidden' }}>
-        <div style={{ height:'100%', width:`${fillPct}%`, background: fillPct >= 100 ? '#ff5e07' : '#c3f400', borderRadius:'999px' }} />
+        <div style={{ height:'100%', width:`${fillPct}%`, background: fillPct >= 100 ? '#ff5e07' : '#FBBF24', borderRadius:'999px' }} />
       </div>
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'0.35rem' }}>
         <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color:'#506070' }}>{fillPct}% filled</span>
-        {t.status === 'open' && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color: spotsLeft <= 2 ? '#ff5e07' : '#c3f400' }}>{spotsLeft} spots left</span>}
+        {t.status === 'open' && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color: spotsLeft <= 2 ? '#ff5e07' : '#FBBF24' }}>{spotsLeft} spots left</span>}
       </div>
     </button>
   );
@@ -71,7 +71,7 @@ const TournamentPage = () => {
         const res = await fetch('/api/v1/tournaments');
         if (!res.ok) throw new Error('api');
         const data = await res.json();
-        const list = data.data ?? data;
+        const list = Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : [];
         setTournaments(list);
         setSelected(list[0] ?? null);
       } catch {
@@ -89,14 +89,14 @@ const TournamentPage = () => {
       <div style={{ maxWidth:'1200px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ textAlign:'center', marginBottom:'2rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Compete</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Compete</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.8rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>Tournaments</h1>
         </div>
 
         <div style={{ display:'flex', gap:'0.45rem', marginBottom:'1.75rem', justifyContent:'center', flexWrap:'wrap' }}>
           {FILTERS.map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              style={{ padding:'0.38rem 1rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', background: filter === f ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.04)', color: filter === f ? '#c3f400' : '#506070', borderColor: filter === f ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>{f}</button>
+              style={{ padding:'0.38rem 1rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', background: filter === f ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)', color: filter === f ? '#FBBF24' : '#506070', borderColor: filter === f ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>{f}</button>
           ))}
         </div>
 
@@ -106,7 +106,7 @@ const TournamentPage = () => {
           </div>
 
           {selected && (
-            <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(195,244,0,0.15)', borderRadius:'20px', padding:'2rem', backdropFilter:'blur(14px)', position:'sticky', top:'6rem' }}>
+            <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(251,191,36,0.15)', borderRadius:'20px', padding:'2rem', backdropFilter:'blur(14px)', position:'sticky', top:'6rem' }}>
               <div style={{ fontSize:'2.5rem', marginBottom:'0.75rem' }}>{selected.icon}</div>
               <h2 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.2rem', color:'#f0f6ff', marginBottom:'0.35rem' }}>{selected.name}</h2>
               <p style={{ color:'#8ba3be', fontSize:'0.85rem', lineHeight:1.6, marginBottom:'1.25rem' }}>{selected.description}</p>
@@ -120,7 +120,7 @@ const TournamentPage = () => {
                 </div>
               ))}
               {selected.status === 'open' && (
-                <button style={{ width:'100%', padding:'0.75rem', background:'#c3f400', border:'none', borderRadius:'12px', color:'#0a1200', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'0.95rem', cursor:'pointer', marginTop:'1rem' }}>
+                <button style={{ width:'100%', padding:'0.75rem', background:'#FBBF24', border:'none', borderRadius:'12px', color:'#111111', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'0.95rem', cursor:'pointer', marginTop:'1rem' }}>
                   Register Team
                 </button>
               )}

@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MOCK_EVENTS = {
-  '2026-06-18': [{ id:1, title:'Football Match Day', sport:'Football', icon:'⚽', time:'5:00 PM', venue:'Bashundhara SC', type:'match', color:'#c3f400' }],
+  '2026-06-18': [{ id:1, title:'Football Match Day', sport:'Football', icon:'⚽', time:'5:00 PM', venue:'Bashundhara SC', type:'match', color:'#FBBF24' }],
   '2026-06-20': [{ id:2, title:'Tennis Coaching', sport:'Tennis', icon:'🎾', time:'7:00 AM', venue:'Dhanmondi TC', type:'coaching', color:'#7dd3fc' }],
   '2026-06-22': [
     { id:3, title:'Cricket Practice', sport:'Cricket', icon:'🏏', time:'6:00 PM', venue:'Elite Cricket', type:'practice', color:'#ff5e07' },
     { id:4, title:'Team Meeting', sport:'Football', icon:'⚽', time:'8:00 PM', venue:'Online', type:'meeting', color:'#a78bfa' },
   ],
-  '2026-06-25': [{ id:5, title:'Badminton Tournament', sport:'Badminton', icon:'🏸', time:'9:00 AM', venue:'Badminton Arena', type:'tournament', color:'#c3f400' }],
+  '2026-06-25': [{ id:5, title:'Badminton Tournament', sport:'Badminton', icon:'🏸', time:'9:00 AM', venue:'Badminton Arena', type:'tournament', color:'#FBBF24' }],
   '2026-06-28': [{ id:6, title:'3v3 Basketball Finals', sport:'Basketball', icon:'🏀', time:'3:00 PM', venue:'Mirpur Indoor', type:'tournament', color:'#ff5e07' }],
-  '2026-06-30': [{ id:7, title:'Monthly Awards Night', sport:'Multi', icon:'🏆', time:'7:00 PM', venue:'Grand Ballroom', type:'ceremony', color:'#c3f400' }],
+  '2026-06-30': [{ id:7, title:'Monthly Awards Night', sport:'Multi', icon:'🏆', time:'7:00 PM', venue:'Grand Ballroom', type:'ceremony', color:'#FBBF24' }],
   '2026-07-05': [{ id:8, title:'Smash Open — Day 1', sport:'Tennis', icon:'🎾', time:'8:00 AM', venue:'Dhanmondi TC', type:'tournament', color:'#7dd3fc' }],
 };
 
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const TYPE_COLORS = { match:'#c3f400', coaching:'#7dd3fc', practice:'#ff5e07', meeting:'#a78bfa', tournament:'#22d3ee', ceremony:'#fb923c' };
+const TYPE_COLORS = { match:'#FBBF24', coaching:'#7dd3fc', practice:'#ff5e07', meeting:'#a78bfa', tournament:'#22d3ee', ceremony:'#fb923c' };
 
 function DotRow({ events }) {
   return (
@@ -31,12 +31,12 @@ function DayCell({ day, events, isToday, isSelected, onClick }) {
   const hasEvents = events && events.length > 0;
   return (
     <button type="button" onClick={onClick}
-      style={{ aspectRatio:'1', borderRadius:'10px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background: isSelected ? 'rgba(195,244,0,0.15)' : isToday ? 'rgba(255,94,7,0.1)' : hasEvents ? 'rgba(255,255,255,0.03)' : 'transparent', border: isSelected ? '1px solid rgba(195,244,0,0.4)' : isToday ? '1px solid rgba(255,94,7,0.35)' : '1px solid transparent', cursor: day ? 'pointer' : 'default', transition:'all 0.15s', padding:'0.25rem' }}
+      style={{ aspectRatio:'1', borderRadius:'10px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background: isSelected ? 'rgba(251,191,36,0.15)' : isToday ? 'rgba(255,94,7,0.1)' : hasEvents ? 'rgba(255,255,255,0.03)' : 'transparent', border: isSelected ? '1px solid rgba(251,191,36,0.4)' : isToday ? '1px solid rgba(255,94,7,0.35)' : '1px solid transparent', cursor: day ? 'pointer' : 'default', transition:'all 0.15s', padding:'0.25rem' }}
       onMouseEnter={e => { if (day && !isSelected) e.currentTarget.style.background='rgba(255,255,255,0.05)'; }}
       onMouseLeave={e => { if (day && !isSelected) e.currentTarget.style.background = hasEvents ? 'rgba(255,255,255,0.03)' : 'transparent'; }}>
       {day && (
         <>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.82rem', fontWeight: isToday || isSelected ? 700 : 400, color: isSelected ? '#c3f400' : isToday ? '#ff5e07' : hasEvents ? '#f0f6ff' : '#506070' }}>{day}</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.82rem', fontWeight: isToday || isSelected ? 700 : 400, color: isSelected ? '#FBBF24' : isToday ? '#ff5e07' : hasEvents ? '#f0f6ff' : '#506070' }}>{day}</span>
           {hasEvents && <DotRow events={events} />}
         </>
       )}
@@ -89,7 +89,7 @@ const EventsCalendar = () => {
       <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ textAlign:'center', marginBottom:'2rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Schedule</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Schedule</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.8rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>Events Calendar</h1>
         </div>
 
@@ -169,7 +169,7 @@ const EventsCalendar = () => {
               </div>
             )}
 
-            <button style={{ width:'100%', marginTop:'1.25rem', padding:'0.7rem', background:'rgba(195,244,0,0.08)', border:'1px solid rgba(195,244,0,0.2)', borderRadius:'12px', color:'#c3f400', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.88rem', cursor:'pointer' }}>
+            <button style={{ width:'100%', marginTop:'1.25rem', padding:'0.7rem', background:'rgba(251,191,36,0.08)', border:'1px solid rgba(251,191,36,0.2)', borderRadius:'12px', color:'#FBBF24', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.88rem', cursor:'pointer' }}>
               <span className="material-symbols-outlined" style={{ fontSize:'1rem', verticalAlign:'middle', marginRight:'0.4rem' }}>add</span>
               Add Event
             </button>

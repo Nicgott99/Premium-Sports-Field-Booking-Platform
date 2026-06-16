@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MOCK_STATS = {
@@ -77,20 +77,20 @@ const AnalyticsDashboard = () => {
         {/* Header */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:'2rem', flexWrap:'wrap', gap:'1rem' }}>
           <div>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Overview</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Overview</span>
             <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.4rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>Analytics Dashboard</h1>
           </div>
           <div style={{ display:'flex', gap:'0.4rem' }}>
             {['7d','30d','12m'].map(r => (
               <button key={r} onClick={() => setRange(r)}
-                style={{ padding:'0.35rem 0.85rem', borderRadius:'999px', border:'1px solid', fontFamily:"'JetBrains Mono',monospace", fontSize:'0.75rem', fontWeight:700, cursor:'pointer', background: range === r ? 'rgba(195,244,0,0.15)' : 'transparent', color: range === r ? '#c3f400' : '#506070', borderColor: range === r ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>{r}</button>
+                style={{ padding:'0.35rem 0.85rem', borderRadius:'999px', border:'1px solid', fontFamily:"'JetBrains Mono',monospace", fontSize:'0.75rem', fontWeight:700, cursor:'pointer', background: range === r ? 'rgba(251,191,36,0.15)' : 'transparent', color: range === r ? '#FBBF24' : '#506070', borderColor: range === r ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>{r}</button>
             ))}
           </div>
         </div>
 
         {/* KPI row */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:'1rem', marginBottom:'1.5rem' }}>
-          <KpiCard icon="payments" label="Total Revenue" value={`৳${(d.totalRevenue/1000).toFixed(0)}K`} sub="+18.4% vs last period" color="#c3f400" />
+          <KpiCard icon="payments" label="Total Revenue" value={`৳${(d.totalRevenue/1000).toFixed(0)}K`} sub="+18.4% vs last period" color="#FBBF24" />
           <KpiCard icon="calendar_month" label="Bookings" value={d.totalBookings.toLocaleString()} sub="+12.1% vs last period" color="#ff5e07" />
           <KpiCard icon="group" label="Active Users" value={d.activeUsers.toLocaleString()} sub="+7.9% vs last period" color="#7dd3fc" />
           <KpiCard icon="speed" label="Utilization" value={`${d.fieldUtilization}%`} sub="Avg field occupancy rate" color="#a78bfa" />
@@ -103,7 +103,7 @@ const AnalyticsDashboard = () => {
             <div style={{ display:'flex', alignItems:'flex-end', gap:'0.5rem', height:'160px' }}>
               {d.revenueByMonth.map(m => (
                 <div key={m.month} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.35rem' }}>
-                  <div style={{ width:'100%', background:'linear-gradient(180deg,#c3f400,rgba(195,244,0,0.2))', borderRadius:'4px 4px 0 0', height:`${Math.round((m.value/maxRevenue)*100)}%`, minHeight:'4px', transition:'height 0.6s ease' }} />
+                  <div style={{ width:'100%', background:'linear-gradient(180deg,#FBBF24,rgba(251,191,36,0.2))', borderRadius:'4px 4px 0 0', height:`${Math.round((m.value/maxRevenue)*100)}%`, minHeight:'4px', transition:'height 0.6s ease' }} />
                   <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.6rem', color:'#506070' }}>{m.month}</span>
                 </div>
               ))}
@@ -121,7 +121,7 @@ const AnalyticsDashboard = () => {
                     <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#506070' }}>{s.pct}%</span>
                   </div>
                   <div style={{ height:'5px', background:'rgba(255,255,255,0.06)', borderRadius:'999px', overflow:'hidden' }}>
-                    <div style={{ height:'100%', width:`${s.pct}%`, background: i === 0 ? '#c3f400' : i === 1 ? '#ff5e07' : 'rgba(195,244,0,0.4)', borderRadius:'999px', transition:'width 0.8s ease' }} />
+                    <div style={{ height:'100%', width:`${s.pct}%`, background: i === 0 ? '#FBBF24' : i === 1 ? '#ff5e07' : 'rgba(251,191,36,0.4)', borderRadius:'999px', transition:'width 0.8s ease' }} />
                   </div>
                 </div>
               ))}
@@ -136,7 +136,7 @@ const AnalyticsDashboard = () => {
             {d.peakHours.map(h => (
               <div key={h.hour} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.4rem' }}>
                 <div style={{ width:'100%', height:'80px', display:'flex', alignItems:'flex-end', justifyContent:'center' }}>
-                  <div style={{ width:'80%', background: h.load > 80 ? '#c3f400' : h.load > 50 ? 'rgba(195,244,0,0.5)' : 'rgba(195,244,0,0.2)', borderRadius:'4px 4px 0 0', height:`${h.load}%`, transition:'height 0.6s ease' }} />
+                  <div style={{ width:'80%', background: h.load > 80 ? '#FBBF24' : h.load > 50 ? 'rgba(251,191,36,0.5)' : 'rgba(251,191,36,0.2)', borderRadius:'4px 4px 0 0', height:`${h.load}%`, transition:'height 0.6s ease' }} />
                 </div>
                 <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.62rem', color:'#506070', whiteSpace:'nowrap' }}>{h.hour}</span>
               </div>

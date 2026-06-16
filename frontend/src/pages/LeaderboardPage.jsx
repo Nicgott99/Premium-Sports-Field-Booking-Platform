@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const authFetch = (url, opts = {}) => {
@@ -31,8 +31,8 @@ const SPORTS  = ['All', 'Football', 'Cricket', 'Badminton', 'Basketball', 'Tenni
 const PERIODS = ['This Week', 'This Month', 'All Time'];
 
 const BADGE_COLORS = {
-  Platinum: '#c3f400', Gold: '#ff5e07', Silver: '#94a3b8',
-  Bronze: '#cd7f32', Champion: '#c3f400', Finalist: '#ff5e07', Semi: '#7dd3fc',
+  Platinum: '#FBBF24', Gold: '#ff5e07', Silver: '#94a3b8',
+  Bronze: '#cd7f32', Champion: '#FBBF24', Finalist: '#ff5e07', Semi: '#7dd3fc',
 };
 
 const RANK_ICONS = ['emoji_events', 'workspace_premium', 'military_tech'];
@@ -95,7 +95,7 @@ function PlayerRow({ player, index }) {
         <div style={{ color: '#506070', fontSize: '0.74rem' }}>{player.sport} · {player.wins} wins · 🔥 {player.streak}d streak</div>
       </div>
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-        <div style={{ color: '#c3f400', fontWeight: 900, fontSize: '0.9rem', fontFamily: "'JetBrains Mono',monospace" }}>{player.points.toLocaleString()}</div>
+        <div style={{ color: '#FBBF24', fontWeight: 900, fontSize: '0.9rem', fontFamily: "'JetBrains Mono',monospace" }}>{player.points.toLocaleString()}</div>
         <span style={{ background: `${badgeColor}18`, border: `1px solid ${badgeColor}44`, color: badgeColor, padding: '0.12rem 0.45rem', borderRadius: 8, fontSize: '0.66rem', fontWeight: 700 }}>{player.badge}</span>
       </div>
     </div>
@@ -130,7 +130,7 @@ function TeamRow({ team, index }) {
         <div style={{ color: '#506070', fontSize: '0.74rem' }}>{team.sport} · {team.members} members · {team.wins} wins</div>
       </div>
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-        <div style={{ color: '#c3f400', fontWeight: 900, fontSize: '0.9rem', fontFamily: "'JetBrains Mono',monospace" }}>{team.points.toLocaleString()}</div>
+        <div style={{ color: '#FBBF24', fontWeight: 900, fontSize: '0.9rem', fontFamily: "'JetBrains Mono',monospace" }}>{team.points.toLocaleString()}</div>
         <span style={{ background: `${badgeColor}18`, border: `1px solid ${badgeColor}44`, color: badgeColor, padding: '0.12rem 0.45rem', borderRadius: 8, fontSize: '0.66rem', fontWeight: 700 }}>{team.badge}</span>
       </div>
     </div>
@@ -170,21 +170,21 @@ const LeaderboardPage = () => {
   const PODIUM_ORDER = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : [];
   const PODIUM_HEIGHTS  = [190, 230, 170];
   const PODIUM_ICONS    = ['workspace_premium', 'emoji_events', 'military_tech'];
-  const PODIUM_COLORS   = [BADGE_COLORS.Gold, '#c3f400', BADGE_COLORS.Silver];
+  const PODIUM_COLORS   = [BADGE_COLORS.Gold, '#FBBF24', BADGE_COLORS.Silver];
 
   return (
     <div style={{ minHeight: '100vh', background: '#051424', padding: '2rem 1.5rem', fontFamily: "'Inter',sans-serif", color: '#e2e8f0', position: 'relative', overflow: 'hidden' }}>
       {/* ambient orbs */}
-      <div style={{ position: 'fixed', top: '-10%', left: '-5%', width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle,rgba(195,244,0,0.07) 0%,transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', top: '-10%', left: '-5%', width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle,rgba(251,191,36,0.07) 0%,transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '-10%', right: '-5%', width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle,rgba(255,94,7,0.06) 0%,transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative' }}>
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', background: 'rgba(195,244,0,0.08)', border: '1px solid rgba(195,244,0,0.2)', borderRadius: 20, padding: '0.35rem 1rem', marginBottom: '1rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c3f400' }}>emoji_events</span>
-            <span style={{ fontSize: '0.78rem', color: '#c3f400', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Leaderboard</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 20, padding: '0.35rem 1rem', marginBottom: '1rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#FBBF24' }}>emoji_events</span>
+            <span style={{ fontSize: '0.78rem', color: '#FBBF24', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Leaderboard</span>
           </div>
           <h1 style={{ fontFamily: "'Anybody',sans-serif", fontWeight: 900, fontSize: 'clamp(2rem,4vw,2.8rem)', color: '#f1f5f9', margin: '0 0 0.5rem', letterSpacing: '-0.02em' }}>
             Top Performers
@@ -194,16 +194,16 @@ const LeaderboardPage = () => {
 
         {/* My rank banner */}
         {myRank && (
-          <div style={{ ...glass, borderRadius: 14, padding: '1rem 1.5rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(195,244,0,0.2)' }}>
+          <div style={{ ...glass, borderRadius: 14, padding: '1rem 1.5rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(251,191,36,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.4rem', color: '#c3f400' }}>person</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.4rem', color: '#FBBF24' }}>person</span>
               <div>
-                <div style={{ color: '#c3f400', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.1rem' }}>Your Ranking</div>
+                <div style={{ color: '#FBBF24', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.1rem' }}>Your Ranking</div>
                 <div style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.4rem', fontFamily: "'JetBrains Mono',monospace" }}>#{myRank.rank}</div>
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ color: '#c3f400', fontWeight: 900, fontSize: '1.1rem', fontFamily: "'JetBrains Mono',monospace" }}>{myRank.points?.toLocaleString()} pts</div>
+              <div style={{ color: '#FBBF24', fontWeight: 900, fontSize: '1.1rem', fontFamily: "'JetBrains Mono',monospace" }}>{myRank.points?.toLocaleString()} pts</div>
               <div style={{ color: '#506070', fontSize: '0.78rem' }}>{myRank.wins} wins</div>
             </div>
           </div>
@@ -212,7 +212,7 @@ const LeaderboardPage = () => {
         {/* Filters */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.75rem' }}>
           {SPORTS.map(s => (
-            <button key={s} type="button" onClick={() => setSport(s)} style={{ background: sport === s ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${sport === s ? 'rgba(195,244,0,0.4)' : 'rgba(255,255,255,0.07)'}`, color: sport === s ? '#c3f400' : '#506070', padding: '0.35rem 0.9rem', borderRadius: 20, cursor: 'pointer', fontSize: '0.8rem', fontWeight: sport === s ? 700 : 500 }}>{s}</button>
+            <button key={s} type="button" onClick={() => setSport(s)} style={{ background: sport === s ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${sport === s ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.07)'}`, color: sport === s ? '#FBBF24' : '#506070', padding: '0.35rem 0.9rem', borderRadius: 20, cursor: 'pointer', fontSize: '0.8rem', fontWeight: sport === s ? 700 : 500 }}>{s}</button>
           ))}
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1.5rem' }}>
@@ -224,7 +224,7 @@ const LeaderboardPage = () => {
         {/* Tabs */}
         <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '2rem', ...glass, borderRadius: 12, padding: '0.3rem' }}>
           {[['players','person','Players'],['teams','groups','Teams']].map(([key, icon, label]) => (
-            <button key={key} type="button" onClick={() => setTab(key)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', background: tab === key ? 'rgba(195,244,0,0.12)' : 'transparent', border: `1px solid ${tab === key ? 'rgba(195,244,0,0.3)' : 'transparent'}`, color: tab === key ? '#c3f400' : '#506070', fontWeight: tab === key ? 700 : 500, padding: '0.55rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.85rem' }}>
+            <button key={key} type="button" onClick={() => setTab(key)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', background: tab === key ? 'rgba(251,191,36,0.12)' : 'transparent', border: `1px solid ${tab === key ? 'rgba(251,191,36,0.3)' : 'transparent'}`, color: tab === key ? '#FBBF24' : '#506070', fontWeight: tab === key ? 700 : 500, padding: '0.55rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.85rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>{icon}</span>
               <span>{label}</span>
             </button>

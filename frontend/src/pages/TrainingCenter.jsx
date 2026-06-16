@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MOCK_PROGRAMS = [
@@ -11,7 +11,7 @@ const MOCK_PROGRAMS = [
 ];
 
 const LEVELS = ['All', 'Beginner', 'Intermediate', 'Advanced'];
-const LEVEL_COLORS = { Beginner:'#22d3ee', Intermediate:'#ff5e07', Advanced:'#c3f400' };
+const LEVEL_COLORS = { Beginner:'#22d3ee', Intermediate:'#ff5e07', Advanced:'#FBBF24' };
 
 function ProgramCard({ program }) {
   const [enrolled, setEnrolled] = useState(false);
@@ -39,17 +39,17 @@ function ProgramCard({ program }) {
           </span>
         </div>
         <div style={{ display:'flex', flexWrap:'wrap', gap:'0.3rem', marginBottom:'1rem' }}>
-          {program.skills.map(s => <span key={s} style={{ background:'rgba(195,244,0,0.06)', border:'1px solid rgba(195,244,0,0.14)', color:'#8ba3be', padding:'0.1rem 0.45rem', borderRadius:'999px', fontSize:'0.68rem' }}>{s}</span>)}
+          {program.skills.map(s => <span key={s} style={{ background:'rgba(251,191,36,0.06)', border:'1px solid rgba(251,191,36,0.14)', color:'#8ba3be', padding:'0.1rem 0.45rem', borderRadius:'999px', fontSize:'0.68rem' }}>{s}</span>)}
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'0.4rem', marginBottom:'1.25rem' }}>
-          <span style={{ color:'#c3f400', fontSize:'0.85rem' }}>★ {program.rating}</span>
+          <span style={{ color:'#FBBF24', fontSize:'0.85rem' }}>★ {program.rating}</span>
           <span style={{ color:'rgba(255,255,255,0.15)' }}>·</span>
-          <span style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.3rem', color:'#c3f400' }}>৳{program.price.toLocaleString()}</span>
+          <span style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.3rem', color:'#FBBF24' }}>৳{program.price.toLocaleString()}</span>
         </div>
       </div>
       <div style={{ marginTop:'auto', padding:'0 1.5rem 1.5rem' }}>
         <button onClick={() => setEnrolled(v => !v)}
-          style={{ width:'100%', padding:'0.65rem', background: enrolled ? 'rgba(195,244,0,0.1)' : '#c3f400', color: enrolled ? '#c3f400' : '#0a1200', border: enrolled ? '1px solid rgba(195,244,0,0.3)' : 'none', borderRadius:'10px', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.88rem', cursor:'pointer', transition:'all 0.2s' }}>
+          style={{ width:'100%', padding:'0.65rem', background: enrolled ? 'rgba(251,191,36,0.1)' : '#FBBF24', color: enrolled ? '#FBBF24' : '#111111', border: enrolled ? '1px solid rgba(251,191,36,0.3)' : 'none', borderRadius:'10px', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.88rem', cursor:'pointer', transition:'all 0.2s' }}>
           {enrolled ? '✓ Enrolled' : 'Enroll Now'}
         </button>
       </div>
@@ -85,7 +85,7 @@ const TrainingCenter = () => {
       <div style={{ maxWidth:'1200px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ textAlign:'center', marginBottom:'2.5rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Level Up</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Level Up</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.8rem)', color:'#f0f6ff', margin:'0.4rem 0 0.5rem', letterSpacing:'-0.02em' }}>Training Center</h1>
           <p style={{ color:'#506070', fontSize:'0.95rem' }}>Expert-led programs to elevate your game to the next level</p>
         </div>
@@ -94,7 +94,7 @@ const TrainingCenter = () => {
         <div style={{ display:'flex', gap:'0.5rem', marginBottom:'2rem', justifyContent:'center', flexWrap:'wrap' }}>
           {LEVELS.map(l => (
             <button key={l} onClick={() => setLevel(l)}
-              style={{ padding:'0.38rem 1rem', borderRadius:'999px', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', border:'1px solid', background: level === l ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.04)', color: level === l ? '#c3f400' : '#506070', borderColor: level === l ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>
+              style={{ padding:'0.38rem 1rem', borderRadius:'999px', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', border:'1px solid', background: level === l ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)', color: level === l ? '#FBBF24' : '#506070', borderColor: level === l ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>
               {l}
             </button>
           ))}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -19,7 +19,7 @@ const QUOTES = [
 const dailyQuote = QUOTES[new Date().getDay() % QUOTES.length];
 
 const STATUS_STYLE = {
-  confirmed: { color: '#c3f400', bg: 'rgba(195,244,0,0.1)',   border: 'rgba(195,244,0,0.25)'   },
+  confirmed: { color: '#FBBF24', bg: 'rgba(251,191,36,0.1)',   border: 'rgba(251,191,36,0.25)'   },
   pending:   { color: '#ff5e07', bg: 'rgba(255,94,7,0.1)',    border: 'rgba(255,94,7,0.25)'    },
   cancelled: { color: '#506070', bg: 'rgba(80,96,112,0.1)',   border: 'rgba(80,96,112,0.25)'   },
   completed: { color: '#7dd3fc', bg: 'rgba(125,211,252,0.1)', border: 'rgba(125,211,252,0.25)' },
@@ -106,7 +106,7 @@ const Dashboard = () => {
     <div style={{ minHeight:'100vh', background:'#051424', paddingTop:'5.5rem', paddingBottom:'4rem' }}>
       {/* Orbs */}
       <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0 }}>
-        <div style={{ position:'absolute', top:'-10%', left:'-5%', width:'50vw', height:'50vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(195,244,0,0.06),transparent 70%)', filter:'blur(80px)' }} />
+        <div style={{ position:'absolute', top:'-10%', left:'-5%', width:'50vw', height:'50vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(251,191,36,0.06),transparent 70%)', filter:'blur(80px)' }} />
         <div style={{ position:'absolute', bottom:'-5%', right:'-5%', width:'40vw', height:'40vw', borderRadius:'50%', background:'radial-gradient(circle,rgba(255,94,7,0.07),transparent 70%)', filter:'blur(80px)' }} />
       </div>
 
@@ -115,18 +115,18 @@ const Dashboard = () => {
         {/* ── Welcome header ── */}
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:'1rem', marginBottom:'2rem' }}>
           <div>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Welcome back</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Welcome back</span>
             <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.6rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>
               {user.firstName} {user.lastName}
             </h1>
           </div>
           <div style={{ display:'flex', gap:'0.75rem', flexWrap:'wrap' }}>
             {user.role === 'admin' && (
-              <Link to="/admin" style={{ textDecoration:'none', padding:'0.6rem 1.25rem', borderRadius:'10px', background:'rgba(195,244,0,0.1)', border:'1px solid rgba(195,244,0,0.3)', color:'#c3f400', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.88rem', display:'flex', alignItems:'center', gap:'0.4rem' }}>
+              <Link to="/admin" style={{ textDecoration:'none', padding:'0.6rem 1.25rem', borderRadius:'10px', background:'rgba(251,191,36,0.1)', border:'1px solid rgba(251,191,36,0.3)', color:'#FBBF24', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.88rem', display:'flex', alignItems:'center', gap:'0.4rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize:'1rem' }}>admin_panel_settings</span><span>Admin Panel</span>
               </Link>
             )}
-            <Link to="/fields" style={{ textDecoration:'none', padding:'0.6rem 1.4rem', borderRadius:'10px', background:'#c3f400', color:'#0a1200', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'0.88rem' }}>
+            <Link to="/fields" style={{ textDecoration:'none', padding:'0.6rem 1.4rem', borderRadius:'10px', background:'#FBBF24', color:'#111111', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'0.88rem' }}>
               Book Now
             </Link>
           </div>
@@ -147,7 +147,7 @@ const Dashboard = () => {
 
         {/* ── Stat strip ── */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:'1rem', marginBottom:'1.5rem' }}>
-          <StatCard icon="calendar_month"  label="Total Bookings" value={totalBookings}                      color="#c3f400" />
+          <StatCard icon="calendar_month"  label="Total Bookings" value={totalBookings}                      color="#FBBF24" />
           <StatCard icon="event_available" label="Upcoming"        value={upcomingCount}                      color="#7dd3fc" />
           <StatCard icon="check_circle"    label="Completed"       value={completedCount}                     color="#a78bfa" />
           <StatCard icon="payments"        label="Total Spent"     value={`৳${totalSpent.toLocaleString()}`}  color="#ff5e07" />
@@ -162,14 +162,14 @@ const Dashboard = () => {
 
             {/* Next booking */}
             {nextBooking && (
-              <div style={{ background:'rgba(195,244,0,0.04)', border:'1px solid rgba(195,244,0,0.15)', borderRadius:'16px', backdropFilter:'blur(14px)', padding:'1.4rem' }}>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color:'#c3f400', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'0.6rem' }}>Next Upcoming</div>
+              <div style={{ background:'rgba(251,191,36,0.04)', border:'1px solid rgba(251,191,36,0.15)', borderRadius:'16px', backdropFilter:'blur(14px)', padding:'1.4rem' }}>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color:'#FBBF24', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'0.6rem' }}>Next Upcoming</div>
                 <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.05rem', color:'#f0f6ff', marginBottom:'0.35rem' }}>{nextBooking.field?.name || 'Field'}</div>
                 <div style={{ display:'flex', alignItems:'center', gap:'0.4rem', color:'#8ba3be', fontSize:'0.82rem', marginBottom:'1rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize:'0.9rem' }}>schedule</span>
                   {fmtDate(nextBooking.startTime)} · {fmtTime(nextBooking.startTime)}
                 </div>
-                <Link to="/bookings" style={{ textDecoration:'none', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.4rem', padding:'0.6rem', background:'rgba(195,244,0,0.1)', border:'1px solid rgba(195,244,0,0.25)', borderRadius:'10px', color:'#c3f400', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.85rem' }}>
+                <Link to="/bookings" style={{ textDecoration:'none', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.4rem', padding:'0.6rem', background:'rgba(251,191,36,0.1)', border:'1px solid rgba(251,191,36,0.25)', borderRadius:'10px', color:'#FBBF24', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.85rem' }}>
                   <span>View Details</span><span className="material-symbols-outlined" style={{ fontSize:'1rem' }}>arrow_forward</span>
                 </Link>
               </div>
@@ -181,10 +181,10 @@ const Dashboard = () => {
               <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem' }}>
                 {QUICK.map(q => (
                   <Link key={q.path} to={q.path} style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:'0.85rem', padding:'0.75rem 0.9rem', borderRadius:'10px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.05)', transition:'all 0.15s' }}
-                    onMouseEnter={e => { e.currentTarget.style.background='rgba(195,244,0,0.06)'; e.currentTarget.style.borderColor='rgba(195,244,0,0.15)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.background='rgba(251,191,36,0.06)'; e.currentTarget.style.borderColor='rgba(251,191,36,0.15)'; }}
                     onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.05)'; }}>
-                    <div style={{ width:'34px', height:'34px', borderRadius:'10px', background:'rgba(195,244,0,0.08)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                      <span className="material-symbols-outlined" style={{ fontSize:'1.05rem', color:'#c3f400' }}>{q.icon}</span>
+                    <div style={{ width:'34px', height:'34px', borderRadius:'10px', background:'rgba(251,191,36,0.08)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize:'1.05rem', color:'#FBBF24' }}>{q.icon}</span>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:800, color:'#f0f6ff', fontSize:'0.88rem' }}>{q.label}</div>
@@ -197,12 +197,12 @@ const Dashboard = () => {
             </div>
 
             {/* Daily quote */}
-            <div style={{ background:'rgba(195,244,0,0.03)', border:'1px solid rgba(195,244,0,0.1)', borderRadius:'16px', backdropFilter:'blur(14px)', padding:'1.4rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize:'1.4rem', color:'#c3f400', display:'block', marginBottom:'0.65rem' }}>format_quote</span>
+            <div style={{ background:'rgba(251,191,36,0.03)', border:'1px solid rgba(251,191,36,0.1)', borderRadius:'16px', backdropFilter:'blur(14px)', padding:'1.4rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize:'1.4rem', color:'#FBBF24', display:'block', marginBottom:'0.65rem' }}>format_quote</span>
               <p style={{ color:'#c8d8ea', fontStyle:'italic', fontSize:'0.9rem', fontWeight:600, lineHeight:1.6, margin:'0 0 0.5rem' }}>
                 &ldquo;{dailyQuote.text}&rdquo;
               </p>
-              <p style={{ fontFamily:"'JetBrains Mono',monospace", color:'#c3f400', fontSize:'0.72rem', margin:0 }}>— {dailyQuote.author}</p>
+              <p style={{ fontFamily:"'JetBrains Mono',monospace", color:'#FBBF24', fontSize:'0.72rem', margin:0 }}>— {dailyQuote.author}</p>
             </div>
 
             {/* Browse by sport */}
@@ -212,7 +212,7 @@ const Dashboard = () => {
                 {SPORTS.map(([icon, sport]) => (
                   <Link key={sport} to={`/fields?sport=${sport.toLowerCase()}`}
                     style={{ textDecoration:'none', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.3rem', padding:'0.75rem 0.5rem', borderRadius:'10px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.05)', transition:'all 0.15s' }}
-                    onMouseEnter={e => { e.currentTarget.style.background='rgba(195,244,0,0.06)'; e.currentTarget.style.borderColor='rgba(195,244,0,0.15)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.background='rgba(251,191,36,0.06)'; e.currentTarget.style.borderColor='rgba(251,191,36,0.15)'; }}
                     onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.05)'; }}>
                     <span style={{ fontSize:'1.3rem' }}>{icon}</span>
                     <span style={{ fontFamily:"'JetBrains Mono',monospace", color:'#8ba3be', fontSize:'0.65rem', textAlign:'center' }}>{sport}</span>
@@ -229,7 +229,7 @@ const Dashboard = () => {
                 <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.68rem', color:'#506070', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'0.2rem' }}>History</div>
                 <h2 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.1rem', color:'#f0f6ff', margin:0 }}>Recent Bookings</h2>
               </div>
-              <Link to="/bookings" style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:'0.3rem', color:'#c3f400', fontWeight:700, fontSize:'0.82rem' }}>
+              <Link to="/bookings" style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:'0.3rem', color:'#FBBF24', fontWeight:700, fontSize:'0.82rem' }}>
                 <span>View All</span><span className="material-symbols-outlined" style={{ fontSize:'1rem' }}>arrow_forward</span>
               </Link>
             </div>
@@ -246,7 +246,7 @@ const Dashboard = () => {
                 <span className="material-symbols-outlined" style={{ fontSize:'3rem', display:'block', marginBottom:'0.75rem' }}>event_busy</span>
                 <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'1rem', color:'#8ba3be', marginBottom:'0.5rem' }}>No bookings yet</div>
                 <div style={{ fontSize:'0.85rem', marginBottom:'1.5rem' }}>Start by browsing premium fields near you.</div>
-                <Link to="/fields" style={{ textDecoration:'none', display:'inline-flex', alignItems:'center', gap:'0.5rem', padding:'0.65rem 1.4rem', background:'#c3f400', borderRadius:'10px', color:'#0a1200', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'0.88rem' }}>
+                <Link to="/fields" style={{ textDecoration:'none', display:'inline-flex', alignItems:'center', gap:'0.5rem', padding:'0.65rem 1.4rem', background:'#FBBF24', borderRadius:'10px', color:'#111111', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'0.88rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize:'1rem' }}>stadium</span>
                   Browse Fields
                 </Link>
@@ -271,7 +271,7 @@ const Dashboard = () => {
                         <span style={{ background:st.bg, color:st.color, border:`1px solid ${st.border}`, borderRadius:'999px', padding:'0.15rem 0.65rem', fontSize:'0.7rem', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.05em' }}>
                           {b.status}
                         </span>
-                        <span style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, color:'#c3f400', fontSize:'0.92rem' }}>
+                        <span style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, color:'#FBBF24', fontSize:'0.92rem' }}>
                           ৳{b.pricing?.totalAmount?.toLocaleString() || 0}
                         </span>
                       </div>

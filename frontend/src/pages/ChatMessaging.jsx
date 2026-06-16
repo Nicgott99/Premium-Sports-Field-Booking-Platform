@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MOCK_CONTACTS = [
@@ -31,12 +31,12 @@ const MOCK_MESSAGES = {
 function ContactRow({ contact, selected, onClick }) {
   return (
     <button type="button" onClick={onClick}
-      style={{ width:'100%', textAlign:'left', display:'block', padding:'0.85rem 1rem', background: selected ? 'rgba(195,244,0,0.07)' : 'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.04)', cursor:'pointer', transition:'background 0.15s' }}
+      style={{ width:'100%', textAlign:'left', display:'block', padding:'0.85rem 1rem', background: selected ? 'rgba(251,191,36,0.07)' : 'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.04)', cursor:'pointer', transition:'background 0.15s' }}
       onMouseEnter={e => { if (!selected) e.currentTarget.style.background='rgba(255,255,255,0.03)'; }}
       onMouseLeave={e => { if (!selected) e.currentTarget.style.background='transparent'; }}>
       <div style={{ display:'flex', gap:'0.75rem', alignItems:'center' }}>
         <div style={{ position:'relative', flexShrink:0 }}>
-          <div style={{ width:'42px', height:'42px', borderRadius:'50%', background: selected ? 'rgba(195,244,0,0.12)' : 'rgba(255,255,255,0.06)', border:`1px solid ${selected ? 'rgba(195,244,0,0.25)' : 'rgba(255,255,255,0.08)'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem' }}>{contact.avatar}</div>
+          <div style={{ width:'42px', height:'42px', borderRadius:'50%', background: selected ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.06)', border:`1px solid ${selected ? 'rgba(251,191,36,0.25)' : 'rgba(255,255,255,0.08)'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem' }}>{contact.avatar}</div>
           {contact.online && <div style={{ position:'absolute', bottom:1, right:1, width:'10px', height:'10px', borderRadius:'50%', background:'#22d3ee', border:'2px solid #051424' }} />}
         </div>
         <div style={{ flex:1, minWidth:0 }}>
@@ -46,7 +46,7 @@ function ContactRow({ contact, selected, onClick }) {
           </div>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:'0.15rem' }}>
             <span style={{ color:'#506070', fontSize:'0.78rem', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1 }}>{contact.lastMsg}</span>
-            {contact.unread > 0 && <span style={{ background:'#c3f400', color:'#0a1200', borderRadius:'999px', fontSize:'0.65rem', fontWeight:900, minWidth:'18px', height:'18px', display:'flex', alignItems:'center', justifyContent:'center', marginLeft:'0.4rem', flexShrink:0, padding:'0 4px' }}>{contact.unread}</span>}
+            {contact.unread > 0 && <span style={{ background:'#FBBF24', color:'#111111', borderRadius:'999px', fontSize:'0.65rem', fontWeight:900, minWidth:'18px', height:'18px', display:'flex', alignItems:'center', justifyContent:'center', marginLeft:'0.4rem', flexShrink:0, padding:'0 4px' }}>{contact.unread}</span>}
           </div>
         </div>
       </div>
@@ -63,7 +63,7 @@ function MsgBubble({ msg }) {
   const isMe = msg.from === 'me';
   return (
     <div style={{ display:'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginBottom:'0.6rem' }}>
-      <div style={{ maxWidth:'70%', background: isMe ? 'rgba(195,244,0,0.15)' : 'rgba(13,28,45,0.9)', border: isMe ? '1px solid rgba(195,244,0,0.22)' : '1px solid rgba(255,255,255,0.08)', borderRadius: isMe ? '16px 4px 16px 16px' : '4px 16px 16px 16px', padding:'0.6rem 0.85rem' }}>
+      <div style={{ maxWidth:'70%', background: isMe ? 'rgba(251,191,36,0.15)' : 'rgba(13,28,45,0.9)', border: isMe ? '1px solid rgba(251,191,36,0.22)' : '1px solid rgba(255,255,255,0.08)', borderRadius: isMe ? '16px 4px 16px 16px' : '4px 16px 16px 16px', padding:'0.6rem 0.85rem' }}>
         <p style={{ margin:0, color: isMe ? '#e8ffb0' : '#c8d8ea', fontSize:'0.88rem', lineHeight:1.55 }}>{msg.text}</p>
         <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.62rem', color:'#506070', marginTop:'0.25rem', textAlign: isMe ? 'right' : 'left' }}>{msg.time}</div>
       </div>
@@ -102,7 +102,7 @@ const ChatMessaging = () => {
       <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ marginBottom:'1.5rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Inbox</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Inbox</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.6rem,3.5vw,2.2rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>Messages</h1>
         </div>
 
@@ -128,7 +128,7 @@ const ChatMessaging = () => {
             {/* Header */}
             {contact && (
               <div style={{ padding:'0.85rem 1.25rem', borderBottom:'1px solid rgba(255,255,255,0.06)', display:'flex', alignItems:'center', gap:'0.75rem', flexShrink:0 }}>
-                <div style={{ width:'40px', height:'40px', borderRadius:'50%', background:'rgba(195,244,0,0.1)', border:'1px solid rgba(195,244,0,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem' }}>{contact.avatar}</div>
+                <div style={{ width:'40px', height:'40px', borderRadius:'50%', background:'rgba(251,191,36,0.1)', border:'1px solid rgba(251,191,36,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem' }}>{contact.avatar}</div>
                 <div>
                   <div style={{ color:'#f0f6ff', fontWeight:700, fontSize:'0.95rem' }}>{contact.name}</div>
                   <div style={{ display:'flex', alignItems:'center', gap:'0.4rem' }}>
@@ -151,8 +151,8 @@ const ChatMessaging = () => {
               <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey} placeholder="Type a message…" rows={1}
                 style={{ flex:1, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'12px', color:'#f0f6ff', fontSize:'0.88rem', fontFamily:"'Inter',sans-serif", padding:'0.6rem 0.85rem', outline:'none', resize:'none', lineHeight:1.5, maxHeight:'100px', overflowY:'auto' }} />
               <button onClick={send} disabled={!input.trim()}
-                style={{ width:'40px', height:'40px', borderRadius:'50%', background: input.trim() ? '#c3f400' : 'rgba(195,244,0,0.1)', border:'none', cursor: input.trim() ? 'pointer' : 'not-allowed', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, transition:'background 0.15s' }}>
-                <span className="material-symbols-outlined" style={{ fontSize:'1.1rem', color: input.trim() ? '#0a1200' : '#506070' }}>send</span>
+                style={{ width:'40px', height:'40px', borderRadius:'50%', background: input.trim() ? '#FBBF24' : 'rgba(251,191,36,0.1)', border:'none', cursor: input.trim() ? 'pointer' : 'not-allowed', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, transition:'background 0.15s' }}>
+                <span className="material-symbols-outlined" style={{ fontSize:'1.1rem', color: input.trim() ? '#111111' : '#506070' }}>send</span>
               </button>
             </div>
           </div>

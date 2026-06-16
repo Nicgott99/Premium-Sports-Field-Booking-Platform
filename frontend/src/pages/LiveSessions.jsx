@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MOCK_SESSIONS = [
@@ -13,7 +13,7 @@ const MOCK_SESSIONS = [
 function SessionCard({ session }) {
   const isLive = session.status === 'live';
   return (
-    <article style={{ background:'rgba(13,28,45,0.72)', border:`1px solid ${isLive ? 'rgba(195,244,0,0.18)' : 'rgba(255,255,255,0.07)'}`, borderRadius:'16px', overflow:'hidden', backdropFilter:'blur(14px)', transition:'transform 0.25s,box-shadow 0.25s', cursor:'pointer' }}
+    <article style={{ background:'rgba(13,28,45,0.72)', border:`1px solid ${isLive ? 'rgba(251,191,36,0.18)' : 'rgba(255,255,255,0.07)'}`, borderRadius:'16px', overflow:'hidden', backdropFilter:'blur(14px)', transition:'transform 0.25s,box-shadow 0.25s', cursor:'pointer' }}
       onMouseEnter={e => { e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 12px 40px rgba(0,0,0,0.4)'; }}
       onMouseLeave={e => { e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; }}>
       {/* Thumbnail */}
@@ -26,7 +26,7 @@ function SessionCard({ session }) {
           </div>
         )}
         {!isLive && (
-          <div style={{ position:'absolute', top:'0.6rem', left:'0.6rem', background:'rgba(195,244,0,0.15)', color:'#c3f400', fontWeight:700, fontSize:'0.72rem', padding:'0.18rem 0.55rem', borderRadius:'999px', border:'1px solid rgba(195,244,0,0.3)', fontFamily:"'JetBrains Mono',monospace" }}>
+          <div style={{ position:'absolute', top:'0.6rem', left:'0.6rem', background:'rgba(251,191,36,0.15)', color:'#FBBF24', fontWeight:700, fontSize:'0.72rem', padding:'0.18rem 0.55rem', borderRadius:'999px', border:'1px solid rgba(251,191,36,0.3)', fontFamily:"'JetBrains Mono',monospace" }}>
             {session.startTime}
           </div>
         )}
@@ -49,7 +49,7 @@ function SessionCard({ session }) {
           )}
         </div>
         <div style={{ display:'flex', flexWrap:'wrap', gap:'0.3rem' }}>
-          {session.tags.map(t => <span key={t} style={{ background:'rgba(195,244,0,0.06)', border:'1px solid rgba(195,244,0,0.14)', color:'#8ba3be', padding:'0.1rem 0.45rem', borderRadius:'999px', fontSize:'0.68rem' }}>{t}</span>)}
+          {session.tags.map(t => <span key={t} style={{ background:'rgba(251,191,36,0.06)', border:'1px solid rgba(251,191,36,0.14)', color:'#8ba3be', padding:'0.1rem 0.45rem', borderRadius:'999px', fontSize:'0.68rem' }}>{t}</span>)}
         </div>
       </div>
     </article>
@@ -86,7 +86,7 @@ const LiveSessions = () => {
       <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ textAlign:'center', marginBottom:'2.5rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Watch Now</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Watch Now</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.8rem)', color:'#f0f6ff', margin:'0.4rem 0 0.5rem', letterSpacing:'-0.02em' }}>Live Sessions</h1>
           <p style={{ color:'#506070', fontSize:'0.95rem' }}>Watch matches, training sessions and masterclasses live</p>
         </div>
@@ -99,7 +99,7 @@ const LiveSessions = () => {
             <span>Live Now ({liveCount})</span>
           </button>
           <button onClick={() => setTab('upcoming')}
-            style={{ padding:'0.5rem 1.5rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.85rem', cursor:'pointer', background: tab === 'upcoming' ? 'rgba(195,244,0,0.15)' : 'transparent', color: tab === 'upcoming' ? '#c3f400' : '#506070', borderColor: tab === 'upcoming' ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>
+            style={{ padding:'0.5rem 1.5rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.85rem', cursor:'pointer', background: tab === 'upcoming' ? 'rgba(251,191,36,0.15)' : 'transparent', color: tab === 'upcoming' ? '#FBBF24' : '#506070', borderColor: tab === 'upcoming' ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>
             Upcoming
           </button>
         </div>
@@ -110,7 +110,7 @@ const LiveSessions = () => {
 
         {displayed.length === 0 && (
           <div style={{ textAlign:'center', padding:'5rem 1rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize:'3.5rem', color:'rgba(195,244,0,0.2)', display:'block', marginBottom:'1rem' }}>live_tv</span>
+            <span className="material-symbols-outlined" style={{ fontSize:'3.5rem', color:'rgba(251,191,36,0.2)', display:'block', marginBottom:'1rem' }}>live_tv</span>
             <p style={{ color:'#506070' }}>{tab === 'live' ? 'No live sessions right now. Check back soon!' : 'No upcoming sessions scheduled.'}</p>
           </div>
         )}

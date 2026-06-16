@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MOCK_REVIEWS = [
@@ -16,7 +16,7 @@ function StarRow({ n, filled }) {
   return (
     <div style={{ display:'flex', gap:'2px' }}>
       {Array.from({ length:5 }, (_,i) => (
-        <span key={i} style={{ color: i < (filled ?? n) ? '#c3f400' : 'rgba(255,255,255,0.12)', fontSize:'0.85rem' }}>★</span>
+        <span key={i} style={{ color: i < (filled ?? n) ? '#FBBF24' : 'rgba(255,255,255,0.12)', fontSize:'0.85rem' }}>★</span>
       ))}
     </div>
   );
@@ -26,10 +26,10 @@ StarRow.propTypes = { n: PropTypes.number, filled: PropTypes.number };
 function ReviewCard({ review }) {
   return (
     <article style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', padding:'1.4rem 1.5rem', backdropFilter:'blur(14px)', transition:'border-color 0.2s' }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(195,244,0,0.18)'; }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(251,191,36,0.18)'; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.07)'; }}>
       <div style={{ display:'flex', gap:'0.85rem', marginBottom:'0.85rem' }}>
-        <div style={{ width:'42px', height:'42px', borderRadius:'50%', background:'rgba(195,244,0,0.08)', border:'1px solid rgba(195,244,0,0.18)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem', flexShrink:0 }}>{review.avatar}</div>
+        <div style={{ width:'42px', height:'42px', borderRadius:'50%', background:'rgba(251,191,36,0.08)', border:'1px solid rgba(251,191,36,0.18)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.2rem', flexShrink:0 }}>{review.avatar}</div>
         <div style={{ flex:1 }}>
           <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', flexWrap:'wrap' }}>
             <span style={{ color:'#f0f6ff', fontWeight:700, fontSize:'0.9rem' }}>{review.author}</span>
@@ -46,7 +46,7 @@ function ReviewCard({ review }) {
       </div>
       <p style={{ color:'#c8d8ea', fontSize:'0.9rem', lineHeight:1.65, margin:0 }}>{review.comment}</p>
       <div style={{ marginTop:'0.85rem', display:'flex', alignItems:'center', gap:'0.5rem' }}>
-        <span style={{ background:'rgba(195,244,0,0.06)', border:'1px solid rgba(195,244,0,0.12)', color:'#506070', padding:'0.1rem 0.55rem', borderRadius:'999px', fontSize:'0.72rem' }}>{review.sport}</span>
+        <span style={{ background:'rgba(251,191,36,0.06)', border:'1px solid rgba(251,191,36,0.12)', color:'#506070', padding:'0.1rem 0.55rem', borderRadius:'999px', fontSize:'0.72rem' }}>{review.sport}</span>
       </div>
     </article>
   );
@@ -82,14 +82,14 @@ const ReviewsPage = () => {
       <div style={{ maxWidth:'900px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ textAlign:'center', marginBottom:'2.5rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Community Voice</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Community Voice</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.4rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>Reviews & Ratings</h1>
         </div>
 
         {/* Summary */}
         <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'20px', padding:'2rem', marginBottom:'1.5rem', backdropFilter:'blur(14px)', display:'grid', gridTemplateColumns:'auto 1fr', gap:'2.5rem', alignItems:'center' }}>
           <div style={{ textAlign:'center' }}>
-            <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'4rem', color:'#c3f400', lineHeight:1 }}>{avgRating}</div>
+            <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'4rem', color:'#FBBF24', lineHeight:1 }}>{avgRating}</div>
             <StarRow filled={Math.round(Number(avgRating))} />
             <div style={{ fontFamily:"'JetBrains Mono',monospace", color:'#506070', fontSize:'0.7rem', marginTop:'0.4rem' }}>{MOCK_REVIEWS.length} reviews</div>
           </div>
@@ -97,9 +97,9 @@ const ReviewsPage = () => {
             {STAR_STATS.map(({ stars, count }) => (
               <div key={stars} style={{ display:'flex', alignItems:'center', gap:'0.65rem' }}>
                 <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.75rem', color:'#506070', width:'8px', textAlign:'right' }}>{stars}</span>
-                <span style={{ color:'#c3f400', fontSize:'0.8rem' }}>★</span>
+                <span style={{ color:'#FBBF24', fontSize:'0.8rem' }}>★</span>
                 <div style={{ flex:1, height:'6px', background:'rgba(255,255,255,0.06)', borderRadius:'999px', overflow:'hidden' }}>
-                  <div style={{ height:'100%', width:`${(count/MOCK_REVIEWS.length)*100}%`, background:'#c3f400', borderRadius:'999px', transition:'width 0.6s ease' }} />
+                  <div style={{ height:'100%', width:`${(count/MOCK_REVIEWS.length)*100}%`, background:'#FBBF24', borderRadius:'999px', transition:'width 0.6s ease' }} />
                 </div>
                 <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#506070', width:'16px' }}>{count}</span>
               </div>
@@ -108,17 +108,17 @@ const ReviewsPage = () => {
         </div>
 
         {/* Write review */}
-        <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(195,244,0,0.1)', borderRadius:'16px', padding:'1.5rem', marginBottom:'1.5rem', backdropFilter:'blur(14px)' }}>
+        <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(251,191,36,0.1)', borderRadius:'16px', padding:'1.5rem', marginBottom:'1.5rem', backdropFilter:'blur(14px)' }}>
           <h3 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.95rem', color:'#f0f6ff', marginBottom:'0.85rem' }}>Leave a Review</h3>
           <div style={{ display:'flex', gap:'0.3rem', marginBottom:'0.85rem' }}>
             {[1,2,3,4,5].map(s => (
               <button key={s} onClick={() => setDraftRating(s)}
-                style={{ background:'none', border:'none', cursor:'pointer', color: s <= draftRating ? '#c3f400' : 'rgba(255,255,255,0.15)', fontSize:'1.5rem', padding:'0.15rem', transition:'color 0.15s' }}>★</button>
+                style={{ background:'none', border:'none', cursor:'pointer', color: s <= draftRating ? '#FBBF24' : 'rgba(255,255,255,0.15)', fontSize:'1.5rem', padding:'0.15rem', transition:'color 0.15s' }}>★</button>
             ))}
           </div>
           <textarea value={draft} onChange={e => setDraft(e.target.value)} placeholder="Share your experience…"
             style={{ width:'100%', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'10px', color:'#f0f6ff', fontSize:'0.88rem', fontFamily:"'Inter',sans-serif", resize:'none', height:'72px', lineHeight:1.6, padding:'0.6rem 0.75rem', outline:'none', boxSizing:'border-box' }} />
-          <button disabled={!draft.trim()} style={{ marginTop:'0.65rem', padding:'0.55rem 1.5rem', background: draft.trim() ? '#c3f400' : 'rgba(195,244,0,0.15)', color: draft.trim() ? '#0a1200' : '#506070', border:'none', borderRadius:'10px', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.85rem', cursor: draft.trim() ? 'pointer' : 'not-allowed', transition:'all 0.15s' }}>
+          <button disabled={!draft.trim()} style={{ marginTop:'0.65rem', padding:'0.55rem 1.5rem', background: draft.trim() ? '#FBBF24' : 'rgba(251,191,36,0.15)', color: draft.trim() ? '#111111' : '#506070', border:'none', borderRadius:'10px', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.85rem', cursor: draft.trim() ? 'pointer' : 'not-allowed', transition:'all 0.15s' }}>
             Submit Review
           </button>
         </div>
@@ -127,7 +127,7 @@ const ReviewsPage = () => {
         <div style={{ display:'flex', gap:'0.45rem', marginBottom:'1.25rem', flexWrap:'wrap' }}>
           {[0,5,4,3].map(s => (
             <button key={s} onClick={() => setFilter(s)}
-              style={{ padding:'0.35rem 0.9rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', background: filter === s ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.04)', color: filter === s ? '#c3f400' : '#506070', borderColor: filter === s ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>
+              style={{ padding:'0.35rem 0.9rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', background: filter === s ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)', color: filter === s ? '#FBBF24' : '#506070', borderColor: filter === s ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>
               {s === 0 ? 'All' : `${s}★`}
             </button>
           ))}

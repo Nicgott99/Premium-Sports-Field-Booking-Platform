@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -21,10 +21,10 @@ const MOCK_BOOKINGS = [
 ];
 
 const STATUS_STYLE = {
-  active:      { color: '#c3f400', bg: 'rgba(195,244,0,0.1)',  border: 'rgba(195,244,0,0.25)'  },
+  active:      { color: '#FBBF24', bg: 'rgba(251,191,36,0.1)',  border: 'rgba(251,191,36,0.25)'  },
   maintenance: { color: '#ff5e07', bg: 'rgba(255,94,7,0.1)',   border: 'rgba(255,94,7,0.25)'   },
   inactive:    { color: '#506070', bg: 'rgba(80,96,112,0.1)',  border: 'rgba(80,96,112,0.25)'  },
-  confirmed:   { color: '#c3f400', bg: 'rgba(195,244,0,0.1)',  border: 'rgba(195,244,0,0.25)'  },
+  confirmed:   { color: '#FBBF24', bg: 'rgba(251,191,36,0.1)',  border: 'rgba(251,191,36,0.25)'  },
   pending:     { color: '#ff5e07', bg: 'rgba(255,94,7,0.1)',   border: 'rgba(255,94,7,0.25)'   },
 };
 
@@ -59,7 +59,7 @@ function FieldRow({ field }) {
       </div>
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
         <span style={{ background: st.bg, border: `1px solid ${st.border}`, color: st.color, padding: '0.2rem 0.65rem', borderRadius: 20, fontSize: '0.72rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>{field.status}</span>
-        <div style={{ color: '#c3f400', fontWeight: 900, fontSize: '0.82rem', fontFamily: "'JetBrains Mono',monospace" }}>৳{field.revenue30d.toLocaleString()}<span style={{ color: '#506070', fontWeight: 400, fontSize: '0.68rem' }}> /30d</span></div>
+        <div style={{ color: '#FBBF24', fontWeight: 900, fontSize: '0.82rem', fontFamily: "'JetBrains Mono',monospace" }}>৳{field.revenue30d.toLocaleString()}<span style={{ color: '#506070', fontWeight: 400, fontSize: '0.68rem' }}> /30d</span></div>
       </div>
     </div>
   );
@@ -78,7 +78,7 @@ function BookingRow({ booking }) {
         <div style={{ color: '#506070', fontSize: '0.72rem' }}>{booking.fieldName} · {booking.date} {booking.startTime} · {booking.duration}h</div>
       </div>
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-        <div style={{ color: '#c3f400', fontWeight: 800, fontSize: '0.85rem', fontFamily: "'JetBrains Mono',monospace" }}>৳{booking.amount.toLocaleString()}</div>
+        <div style={{ color: '#FBBF24', fontWeight: 800, fontSize: '0.85rem', fontFamily: "'JetBrains Mono',monospace" }}>৳{booking.amount.toLocaleString()}</div>
         <span style={{ background: st.bg, border: `1px solid ${st.border}`, color: st.color, padding: '0.12rem 0.45rem', borderRadius: 8, fontSize: '0.66rem', fontWeight: 700 }}>{booking.status}</span>
       </div>
     </div>
@@ -120,7 +120,7 @@ const FieldOwnerPortal = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: '#051424', padding: '2rem 1.5rem', fontFamily: "'Inter',sans-serif", color: '#e2e8f0', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'fixed', top: '-10%', left: '-5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(195,244,0,0.06) 0%,transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', top: '-10%', left: '-5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(251,191,36,0.06) 0%,transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '-8%', right: '-5%', width: 460, height: 460, borderRadius: '50%', background: 'radial-gradient(circle,rgba(255,94,7,0.05) 0%,transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
@@ -128,15 +128,15 @@ const FieldOwnerPortal = () => {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(195,244,0,0.08)', border: '1px solid rgba(195,244,0,0.2)', borderRadius: 20, padding: '0.3rem 0.9rem', marginBottom: '0.75rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: '#c3f400' }}>business</span>
-              <span style={{ fontSize: '0.75rem', color: '#c3f400', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Owner Portal</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 20, padding: '0.3rem 0.9rem', marginBottom: '0.75rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: '#FBBF24' }}>business</span>
+              <span style={{ fontSize: '0.75rem', color: '#FBBF24', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Owner Portal</span>
             </div>
             <h1 style={{ fontFamily: "'Anybody',sans-serif", fontWeight: 900, fontSize: 'clamp(1.6rem,3.5vw,2.2rem)', color: '#f1f5f9', margin: 0, letterSpacing: '-0.02em' }}>
               {owner ? `${owner.name?.split(' ')[0]}'s Fields` : 'My Fields'}
             </h1>
           </div>
-          <Link to="/fields/add" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#c3f400', border: 'none', borderRadius: 10, padding: '0.7rem 1.25rem', color: '#051424', fontWeight: 800, fontSize: '0.88rem', textDecoration: 'none' }}>
+          <Link to="/fields/add" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#FBBF24', border: 'none', borderRadius: 10, padding: '0.7rem 1.25rem', color: '#051424', fontWeight: 800, fontSize: '0.88rem', textDecoration: 'none' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add_circle</span>
             <span>Add Field</span>
           </Link>
@@ -144,7 +144,7 @@ const FieldOwnerPortal = () => {
 
         {/* KPI strip */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          <StatCard icon="payments"       label="Revenue (30d)"   value={`৳${totalRevenue.toLocaleString()}`} sub="All fields combined" color="#c3f400" />
+          <StatCard icon="payments"       label="Revenue (30d)"   value={`৳${totalRevenue.toLocaleString()}`} sub="All fields combined" color="#FBBF24" />
           <StatCard icon="stadium"        label="Active Fields"   value={activeFields}                         sub={`of ${fields.length} total`}           color="#ff5e07" />
           <StatCard icon="calendar_month" label="Bookings Today"  value={todayBookings}                        sub="Across all fields"                     color="#7dd3fc" />
           <StatCard icon="star"           label="Avg Rating"      value={avgRating}                            sub="Customer satisfaction"                 color="#f59e0b" />
@@ -171,7 +171,7 @@ const FieldOwnerPortal = () => {
               <div style={{ ...glass, borderRadius: 16, padding: '3rem', textAlign: 'center' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: '#273647', display: 'block', marginBottom: '1rem' }}>stadium</span>
                 <p style={{ color: '#506070', marginBottom: '1.25rem' }}>No fields yet. Add your first one!</p>
-                <Link to="/fields/add" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#c3f400', padding: '0.7rem 1.25rem', borderRadius: 10, color: '#051424', fontWeight: 800, fontSize: '0.88rem', textDecoration: 'none' }}>
+                <Link to="/fields/add" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#FBBF24', padding: '0.7rem 1.25rem', borderRadius: 10, color: '#051424', fontWeight: 800, fontSize: '0.88rem', textDecoration: 'none' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add_circle</span>
                   <span>Add Field</span>
                 </Link>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -11,9 +11,9 @@ const CITIES = ['Dhaka','Chittagong','Sylhet','Rajshahi','Khulna','Barisal','Ran
 
 const S = {
   card:      { background:'rgba(13,28,45,0.72)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', overflow:'hidden', backdropFilter:'blur(14px)', transition:'all 280ms' },
-  detailBtn: { padding:'0.38rem 0.85rem', background:'rgba(195,244,0,0.08)', border:'1px solid rgba(195,244,0,0.25)', color:'#c3f400', borderRadius:'8px', fontSize:'0.78rem', fontWeight:700, cursor:'pointer', transition:'all 150ms' },
-  bookBtn:   { padding:'0.38rem 0.85rem', background:'#c3f400', border:'none', color:'#0a1200', borderRadius:'8px', fontSize:'0.78rem', fontWeight:800, cursor:'pointer', fontFamily:"'Anybody',sans-serif", transition:'all 150ms' },
-  chip: (active) => ({ padding:'0.38rem 1rem', borderRadius:'999px', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', border:'1px solid', transition:'all 180ms', background: active ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.04)', color: active ? '#c3f400' : '#506070', borderColor: active ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.08)' }),
+  detailBtn: { padding:'0.38rem 0.85rem', background:'rgba(251,191,36,0.08)', border:'1px solid rgba(251,191,36,0.25)', color:'#FBBF24', borderRadius:'8px', fontSize:'0.78rem', fontWeight:700, cursor:'pointer', transition:'all 150ms' },
+  bookBtn:   { padding:'0.38rem 0.85rem', background:'#FBBF24', border:'none', color:'#111111', borderRadius:'8px', fontSize:'0.78rem', fontWeight:800, cursor:'pointer', fontFamily:"'Anybody',sans-serif", transition:'all 150ms' },
+  chip: (active) => ({ padding:'0.38rem 1rem', borderRadius:'999px', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', border:'1px solid', transition:'all 180ms', background: active ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)', color: active ? '#FBBF24' : '#506070', borderColor: active ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.08)' }),
   label: { display:'block', color:'#506070', fontSize:'0.72rem', fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.07em', textTransform:'uppercase', marginBottom:'0.4rem' },
   input: { width:'100%', background:'rgba(13,28,45,0.6)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'8px', padding:'0.55rem 0.85rem', color:'#f0f6ff', fontSize:'0.875rem', outline:'none', fontFamily:"'Inter',sans-serif", boxSizing:'border-box' },
 };
@@ -43,18 +43,18 @@ function FieldCard({ field, onBook, onDetails, isFav, onToggleFav }) {
             className="field-card-img"
             onError={e => { e.currentTarget.style.display = 'none'; }} />
         ) : (
-          <div style={{ width:'100%', height:'100%', background:'linear-gradient(135deg,rgba(195,244,0,0.08),rgba(255,94,7,0.06))', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <span className="material-symbols-outlined" style={{ fontSize:'4rem', color:'rgba(195,244,0,0.3)' }}>stadium</span>
+          <div style={{ width:'100%', height:'100%', background:'linear-gradient(135deg,rgba(251,191,36,0.08),rgba(255,94,7,0.06))', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <span className="material-symbols-outlined" style={{ fontSize:'4rem', color:'rgba(251,191,36,0.3)' }}>stadium</span>
           </div>
         )}
         {/* Rating badge */}
         <div style={{ position:'absolute', top:'0.65rem', right:'0.65rem', background:'rgba(0,0,0,0.75)', backdropFilter:'blur(8px)', padding:'0.2rem 0.55rem', borderRadius:'999px', display:'flex', alignItems:'center', gap:'0.3rem' }}>
-          <span style={{ color:'#c3f400', fontSize:'0.72rem' }}>★</span>
+          <span style={{ color:'#FBBF24', fontSize:'0.72rem' }}>★</span>
           <span style={{ color:'#f0f6ff', fontSize:'0.78rem', fontWeight:700 }}>{rating}</span>
         </div>
         {/* Availability badge */}
         <div style={{ position:'absolute', top:'0.65rem', left:'0.65rem' }}>
-          <div style={{ background: isAvail ? 'rgba(195,244,0,0.2)' : 'rgba(255,94,7,0.2)', border:`1px solid ${isAvail ? 'rgba(195,244,0,0.4)' : 'rgba(255,94,7,0.4)'}`, padding:'0.18rem 0.55rem', borderRadius:'999px', color: isAvail ? '#c3f400' : '#ff5e07', fontSize:'0.72rem', fontWeight:700 }}>
+          <div style={{ background: isAvail ? 'rgba(251,191,36,0.2)' : 'rgba(255,94,7,0.2)', border:`1px solid ${isAvail ? 'rgba(251,191,36,0.4)' : 'rgba(255,94,7,0.4)'}`, padding:'0.18rem 0.55rem', borderRadius:'999px', color: isAvail ? '#FBBF24' : '#ff5e07', fontSize:'0.72rem', fontWeight:700 }}>
             {isAvail ? 'Available' : 'Unavailable'}
           </div>
         </div>
@@ -73,7 +73,7 @@ function FieldCard({ field, onBook, onDetails, isFav, onToggleFav }) {
           <span className="material-symbols-outlined" style={{ fontSize:'0.85rem', color:'#506070' }}>location_on</span>
           <span style={{ color:'#8ba3be', fontSize:'0.82rem' }}>{location}</span>
           {(field.totalBookings ?? 0) > 0 && (
-            <span style={{ background:'rgba(195,244,0,0.08)', border:'1px solid rgba(195,244,0,0.18)', color:'#c3f400', fontSize:'0.68rem', fontWeight:700, padding:'0.1rem 0.45rem', borderRadius:'999px' }}>
+            <span style={{ background:'rgba(251,191,36,0.08)', border:'1px solid rgba(251,191,36,0.18)', color:'#FBBF24', fontSize:'0.68rem', fontWeight:700, padding:'0.1rem 0.45rem', borderRadius:'999px' }}>
               {field.totalBookings} bookings
             </span>
           )}
@@ -93,19 +93,19 @@ function FieldCard({ field, onBook, onDetails, isFav, onToggleFav }) {
         {features.length > 0 && (
           <div style={{ display:'flex', flexWrap:'wrap', gap:'0.3rem', marginBottom:'0.75rem' }}>
             {features.slice(0,3).map(f => (
-              <span key={f} style={{ background:'rgba(195,244,0,0.07)', border:'1px solid rgba(195,244,0,0.15)', color:'#8ba3be', padding:'0.1rem 0.45rem', borderRadius:'999px', fontSize:'0.68rem' }}>{f}</span>
+              <span key={f} style={{ background:'rgba(251,191,36,0.07)', border:'1px solid rgba(251,191,36,0.15)', color:'#8ba3be', padding:'0.1rem 0.45rem', borderRadius:'999px', fontSize:'0.68rem' }}>{f}</span>
             ))}
           </div>
         )}
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:'0.25rem' }}>
           <div>
-            <span style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.35rem', color:'#c3f400' }}>৳{price}</span>
+            <span style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.35rem', color:'#FBBF24' }}>৳{price}</span>
             <span style={{ color:'#506070', fontSize:'0.75rem' }}>/hr</span>
           </div>
           <div style={{ display:'flex', gap:'0.4rem' }}>
             <button onClick={() => onDetails(fieldId)} style={S.detailBtn}
-              onMouseEnter={e => { e.currentTarget.style.background='rgba(195,244,0,0.15)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background='rgba(195,244,0,0.08)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background='rgba(251,191,36,0.15)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background='rgba(251,191,36,0.08)'; }}
             >Details</button>
             <button onClick={() => onBook(fieldId)} style={S.bookBtn}
               onMouseEnter={e => { e.currentTarget.style.transform='scale(1.04)'; }}
@@ -188,7 +188,7 @@ const WorkingFields = () => {
   const [favorites,      setFavorites]     = useState(getFavorites);
   const [showSaved,      setShowSaved]     = useState(false);
 
-  const canManageFields = MANAGER_ROLES.includes(pageUser?.role);
+  const canManageFields = MANAGER_ROLES.has(pageUser?.role);
 
   useEffect(() => {
     const raw = localStorage.getItem('user');
@@ -244,9 +244,9 @@ const WorkingFields = () => {
     return (
       <div style={{ minHeight:'100vh', background:'#051424', display:'flex', alignItems:'center', justifyContent:'center' }}>
         <div style={{ textAlign:'center' }}>
-          <span className="material-symbols-outlined" style={{ fontSize:'4rem', color:'rgba(195,244,0,0.3)', display:'block', marginBottom:'1.5rem' }}>stadium</span>
+          <span className="material-symbols-outlined" style={{ fontSize:'4rem', color:'rgba(251,191,36,0.3)', display:'block', marginBottom:'1.5rem' }}>stadium</span>
           <h2 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.8rem', color:'#f0f6ff', marginBottom:'1rem' }}>Loading Fields…</h2>
-          <div style={{ width:'40px', height:'40px', border:'3px solid rgba(195,244,0,0.2)', borderTop:'3px solid #c3f400', borderRadius:'50%', animation:'spin 0.8s linear infinite', margin:'0 auto' }} />
+          <div style={{ width:'40px', height:'40px', border:'3px solid rgba(251,191,36,0.2)', borderTop:'3px solid #FBBF24', borderRadius:'50%', animation:'spin 0.8s linear infinite', margin:'0 auto' }} />
         </div>
       </div>
     );
@@ -259,7 +259,7 @@ const WorkingFields = () => {
           <span className="material-symbols-outlined" style={{ fontSize:'3rem', color:'#f87171', display:'block', marginBottom:'1rem' }}>error</span>
           <h2 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.6rem', color:'#f87171', marginBottom:'0.75rem' }}>Failed to Load Fields</h2>
           <p style={{ color:'#506070', marginBottom:'1.5rem' }}>{error}</p>
-          <button onClick={() => fetchFields(1)} style={{ background:'#c3f400', color:'#0a1200', border:'none', borderRadius:'10px', padding:'0.7rem 1.75rem', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.9rem', cursor:'pointer' }}>Try Again</button>
+          <button onClick={() => fetchFields(1)} style={{ background:'#FBBF24', color:'#111111', border:'none', borderRadius:'10px', padding:'0.7rem 1.75rem', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.9rem', cursor:'pointer' }}>Try Again</button>
         </div>
       </div>
     );
@@ -270,7 +270,7 @@ const WorkingFields = () => {
   return (
     <div style={{ minHeight:'100vh', background:'#051424', paddingTop:'5.5rem', paddingBottom:'4rem' }}>
       <style>{`
-        .field-card:hover { transform:translateY(-4px); box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(195,244,0,0.18); }
+        .field-card:hover { transform:translateY(-4px); box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(251,191,36,0.18); }
         .field-card:hover .field-card-img { transform:scale(1.06); }
         @keyframes spin { to { transform:rotate(360deg); } }
       `}</style>
@@ -279,13 +279,13 @@ const WorkingFields = () => {
 
         {/* Header */}
         <div style={{ textAlign:'center', marginBottom:'3rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Explore Venues</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Explore Venues</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(2rem,5vw,3.2rem)', color:'#f0f6ff', margin:'0.5rem 0 0.75rem', letterSpacing:'-0.025em' }}>Premium Sports Fields</h1>
           <p style={{ color:'#506070', fontSize:'1rem', marginBottom: canManageFields ? '1.25rem' : 0 }}>
             Discover and book the finest sports facilities in Bangladesh
           </p>
           {canManageFields && (
-            <button onClick={() => navigate('/add-field')} style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', background:'#c3f400', color:'#0a1200', border:'none', borderRadius:'10px', padding:'0.65rem 1.5rem', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.9rem', cursor:'pointer', boxShadow:'0 4px 20px rgba(195,244,0,0.3)' }}>
+            <button onClick={() => navigate('/add-field')} style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', background:'#FBBF24', color:'#111111', border:'none', borderRadius:'10px', padding:'0.65rem 1.5rem', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.9rem', cursor:'pointer', boxShadow:'0 4px 20px rgba(251,191,36,0.3)' }}>
               <span className="material-symbols-outlined" style={{ fontSize:'1rem' }}>add_location_alt</span>
               <span>Add New Field</span>
             </button>
@@ -345,21 +345,21 @@ const WorkingFields = () => {
               <span style={{ fontFamily:"'JetBrains Mono',monospace", color:'#506070', fontSize:'0.72rem' }}>৳0</span>
               <input id="price-range" type="range" min="500" max="10000" step="500" value={priceMax}
                 onChange={e => setPriceMax(Number.parseInt(e.target.value, 10))}
-                style={{ flex:1, accentColor:'#c3f400', cursor:'pointer' }} />
+                style={{ flex:1, accentColor:'#FBBF24', cursor:'pointer' }} />
               <span style={{ fontFamily:"'JetBrains Mono',monospace", color:'#506070', fontSize:'0.72rem' }}>৳10,000</span>
             </div>
           </div>
 
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:'0.75rem' }}>
             <span style={{ fontFamily:"'JetBrains Mono',monospace", color:'#506070', fontSize:'0.78rem' }}>
-              <span style={{ color:'#c3f400', fontWeight:700 }}>{filteredFields.length}</span> of {fields.length} fields
+              <span style={{ color:'#FBBF24', fontWeight:700 }}>{filteredFields.length}</span> of {fields.length} fields
             </span>
             <div style={{ display:'flex', gap:'0.4rem', alignItems:'center' }}>
               <button onClick={clearFilters} style={{ padding:'0.42rem 0.9rem', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.1)', background:'transparent', color:'#506070', fontSize:'0.8rem', fontWeight:600, cursor:'pointer' }}>Clear</button>
-              <button onClick={() => setViewMode('grid')} style={{ padding:'0.42rem 0.75rem', borderRadius:'8px', border:'none', background: viewMode==='grid' ? 'rgba(195,244,0,0.12)' : 'rgba(255,255,255,0.05)', color: viewMode==='grid' ? '#c3f400' : '#506070', cursor:'pointer', fontSize:'0.85rem' }}>
+              <button onClick={() => setViewMode('grid')} style={{ padding:'0.42rem 0.75rem', borderRadius:'8px', border:'none', background: viewMode==='grid' ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)', color: viewMode==='grid' ? '#FBBF24' : '#506070', cursor:'pointer', fontSize:'0.85rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize:'1rem', display:'block' }}>grid_view</span>
               </button>
-              <button onClick={() => setViewMode('list')} style={{ padding:'0.42rem 0.75rem', borderRadius:'8px', border:'none', background: viewMode==='list' ? 'rgba(195,244,0,0.12)' : 'rgba(255,255,255,0.05)', color: viewMode==='list' ? '#c3f400' : '#506070', cursor:'pointer', fontSize:'0.85rem' }}>
+              <button onClick={() => setViewMode('list')} style={{ padding:'0.42rem 0.75rem', borderRadius:'8px', border:'none', background: viewMode==='list' ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)', color: viewMode==='list' ? '#FBBF24' : '#506070', cursor:'pointer', fontSize:'0.85rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize:'1rem', display:'block' }}>view_list</span>
               </button>
             </div>
@@ -381,10 +381,10 @@ const WorkingFields = () => {
           </div>
         ) : (
           <div style={{ textAlign:'center', padding:'6rem 1rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize:'4rem', color:'rgba(195,244,0,0.2)', display:'block', marginBottom:'1rem' }}>search_off</span>
+            <span className="material-symbols-outlined" style={{ fontSize:'4rem', color:'rgba(251,191,36,0.2)', display:'block', marginBottom:'1rem' }}>search_off</span>
             <h3 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1.5rem', color:'#f0f6ff', marginBottom:'0.5rem' }}>No Fields Found</h3>
             <p style={{ color:'#506070', marginBottom:'1.5rem' }}>Try adjusting your search or filters</p>
-            <button onClick={clearFilters} style={{ background:'#c3f400', color:'#0a1200', border:'none', borderRadius:'10px', padding:'0.65rem 1.5rem', fontFamily:"'Anybody',sans-serif", fontWeight:800, cursor:'pointer' }}>Clear Filters</button>
+            <button onClick={clearFilters} style={{ background:'#FBBF24', color:'#111111', border:'none', borderRadius:'10px', padding:'0.65rem 1.5rem', fontFamily:"'Anybody',sans-serif", fontWeight:800, cursor:'pointer' }}>Clear Filters</button>
           </div>
         )}
 

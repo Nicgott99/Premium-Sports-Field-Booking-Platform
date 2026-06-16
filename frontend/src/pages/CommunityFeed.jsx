@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MOCK_POSTS = [
@@ -9,16 +9,16 @@ const MOCK_POSTS = [
   { id:5, author:'Tanvir Islam', avatar:'⚽', sport:'Football', time:'5h ago', content:'Looking for a goalkeeper for our Saturday league. Experience preferred but beginners welcome. DM me!', likes:15, comments:22, tags:['#Football','#LookingForPlayer'], type:'invite' },
 ];
 
-const TYPE_COLORS = { invite:'#c3f400', achievement:'#ff5e07', event:'#7dd3fc' };
+const TYPE_COLORS = { invite:'#FBBF24', achievement:'#ff5e07', event:'#7dd3fc' };
 const TYPE_ICONS  = { invite:'group_add', achievement:'emoji_events', event:'event' };
 
 function PostCard({ post, onLike, liked }) {
   return (
     <article style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', padding:'1.4rem 1.5rem', backdropFilter:'blur(14px)', transition:'border-color 0.2s' }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(195,244,0,0.18)'; }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(251,191,36,0.18)'; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.07)'; }}>
       <div style={{ display:'flex', gap:'0.85rem', marginBottom:'0.85rem' }}>
-        <div style={{ width:'42px', height:'42px', borderRadius:'50%', background:'rgba(195,244,0,0.08)', border:'1px solid rgba(195,244,0,0.18)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.3rem', flexShrink:0 }}>{post.avatar}</div>
+        <div style={{ width:'42px', height:'42px', borderRadius:'50%', background:'rgba(251,191,36,0.08)', border:'1px solid rgba(251,191,36,0.18)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.3rem', flexShrink:0 }}>{post.avatar}</div>
         <div style={{ flex:1 }}>
           <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', flexWrap:'wrap' }}>
             <span style={{ color:'#f0f6ff', fontWeight:700, fontSize:'0.9rem' }}>{post.author}</span>
@@ -32,10 +32,10 @@ function PostCard({ post, onLike, liked }) {
       </div>
       <p style={{ color:'#c8d8ea', fontSize:'0.92rem', lineHeight:1.6, marginBottom:'0.85rem' }}>{post.content}</p>
       <div style={{ display:'flex', flexWrap:'wrap', gap:'0.35rem', marginBottom:'1rem' }}>
-        {post.tags.map(t => <span key={t} style={{ color:'#c3f400', fontSize:'0.75rem', fontFamily:"'JetBrains Mono',monospace" }}>{t}</span>)}
+        {post.tags.map(t => <span key={t} style={{ color:'#FBBF24', fontSize:'0.75rem', fontFamily:"'JetBrains Mono',monospace" }}>{t}</span>)}
       </div>
       <div style={{ display:'flex', gap:'1rem', alignItems:'center' }}>
-        <button onClick={() => onLike(post.id)} style={{ display:'flex', alignItems:'center', gap:'0.4rem', background:'none', border:'none', cursor:'pointer', color: liked ? '#c3f400' : '#506070', fontSize:'0.85rem', fontWeight:600, padding:0, transition:'color 0.15s' }}>
+        <button onClick={() => onLike(post.id)} style={{ display:'flex', alignItems:'center', gap:'0.4rem', background:'none', border:'none', cursor:'pointer', color: liked ? '#FBBF24' : '#506070', fontSize:'0.85rem', fontWeight:600, padding:0, transition:'color 0.15s' }}>
           <span className="material-symbols-outlined" style={{ fontSize:'1.1rem' }}>{liked ? 'favorite' : 'favorite_border'}</span>
           <span>{post.likes + (liked ? 1 : 0)}</span>
         </button>
@@ -107,17 +107,17 @@ const CommunityFeed = () => {
       <div style={{ maxWidth:'720px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ textAlign:'center', marginBottom:'2.5rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Social Hub</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Social Hub</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.8rem)', color:'#f0f6ff', margin:'0.4rem 0 0', letterSpacing:'-0.02em' }}>Community Feed</h1>
         </div>
 
         {/* Compose */}
-        <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(195,244,0,0.12)', borderRadius:'16px', padding:'1.25rem', marginBottom:'1.5rem', backdropFilter:'blur(14px)' }}>
+        <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(251,191,36,0.12)', borderRadius:'16px', padding:'1.25rem', marginBottom:'1.5rem', backdropFilter:'blur(14px)' }}>
           <textarea value={draft} onChange={e => setDraft(e.target.value)} placeholder="Share a match result, invite players, or post an event…"
             style={{ width:'100%', background:'transparent', border:'none', outline:'none', color:'#f0f6ff', fontSize:'0.92rem', fontFamily:"'Inter',sans-serif", resize:'none', height:'72px', lineHeight:1.6, boxSizing:'border-box' }} />
           <div style={{ display:'flex', justifyContent:'flex-end', marginTop:'0.5rem' }}>
             <button onClick={handlePost} disabled={posting || !draft.trim()}
-              style={{ background: draft.trim() ? '#c3f400' : 'rgba(195,244,0,0.15)', color: draft.trim() ? '#0a1200' : '#506070', border:'none', borderRadius:'10px', padding:'0.5rem 1.25rem', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.85rem', cursor: draft.trim() ? 'pointer' : 'not-allowed', transition:'all 0.15s' }}>
+              style={{ background: draft.trim() ? '#FBBF24' : 'rgba(251,191,36,0.15)', color: draft.trim() ? '#111111' : '#506070', border:'none', borderRadius:'10px', padding:'0.5rem 1.25rem', fontFamily:"'Anybody',sans-serif", fontWeight:800, fontSize:'0.85rem', cursor: draft.trim() ? 'pointer' : 'not-allowed', transition:'all 0.15s' }}>
               {posting ? 'Posting…' : 'Post'}
             </button>
           </div>
@@ -127,7 +127,7 @@ const CommunityFeed = () => {
         <div style={{ display:'flex', gap:'0.5rem', marginBottom:'1.5rem', flexWrap:'wrap' }}>
           {FILTERS.map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              style={{ padding:'0.38rem 1rem', borderRadius:'999px', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', border:'1px solid', background: filter === f ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.04)', color: filter === f ? '#c3f400' : '#506070', borderColor: filter === f ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>
+              style={{ padding:'0.38rem 1rem', borderRadius:'999px', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', border:'1px solid', background: filter === f ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)', color: filter === f ? '#FBBF24' : '#506070', borderColor: filter === f ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>
               {f}
             </button>
           ))}

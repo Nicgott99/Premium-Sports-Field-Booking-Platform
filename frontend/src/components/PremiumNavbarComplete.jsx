@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const NAV_LINKS = [
@@ -24,7 +24,7 @@ const S = {
     background: scrolled ? 'rgba(5,20,36,0.97)' : 'rgba(5,20,36,0.75)',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
-    borderBottom: `1px solid ${scrolled ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.06)'}`,
+    borderBottom: `1px solid ${scrolled ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.06)'}`,
     boxShadow: scrolled ? '0 4px 40px rgba(0,0,0,0.6)' : 'none',
   }),
   inner: {
@@ -36,7 +36,7 @@ const S = {
   },
   logoMark: {
     width: '38px', height: '38px',
-    background: '#c3f400',
+    background: '#FBBF24',
     borderRadius: '10px',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     flexShrink: 0,
@@ -52,7 +52,7 @@ const S = {
   logoSub: {
     fontFamily: "'JetBrains Mono', monospace",
     fontSize: '0.58rem',
-    color: '#c3f400',
+    color: '#FBBF24',
     letterSpacing: '0.12em',
     fontWeight: 600,
     textTransform: 'uppercase',
@@ -117,8 +117,8 @@ export default function PremiumNavbarComplete() {
         borderRadius: '8px',
         fontSize: '0.875rem',
         fontWeight: isActive(path) ? 700 : 500,
-        color: isActive(path) ? '#c3f400' : '#8ba3be',
-        background: isActive(path) ? 'rgba(195,244,0,0.1)' : 'transparent',
+        color: isActive(path) ? '#FBBF24' : '#8ba3be',
+        background: isActive(path) ? 'rgba(251,191,36,0.1)' : 'transparent',
         transition: 'all 200ms',
         fontFamily: "'Inter', sans-serif",
         letterSpacing: '0.01em',
@@ -147,13 +147,13 @@ export default function PremiumNavbarComplete() {
         display: 'flex', alignItems: 'center', gap: '0.55rem',
         padding: '0.55rem 0.85rem', borderRadius: '8px',
         textDecoration: 'none',
-        color: isActive(path) ? '#c3f400' : '#8ba3be',
-        background: isActive(path) ? 'rgba(195,244,0,0.08)' : 'transparent',
+        color: isActive(path) ? '#FBBF24' : '#8ba3be',
+        background: isActive(path) ? 'rgba(251,191,36,0.08)' : 'transparent',
         fontSize: '0.875rem', fontWeight: 500,
         transition: 'all 150ms',
       }}
       onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#f0f6ff'; }}
-      onMouseLeave={e => { e.currentTarget.style.background = isActive(path) ? 'rgba(195,244,0,0.08)' : 'transparent'; e.currentTarget.style.color = isActive(path) ? '#c3f400' : '#8ba3be'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = isActive(path) ? 'rgba(251,191,36,0.08)' : 'transparent'; e.currentTarget.style.color = isActive(path) ? '#FBBF24' : '#8ba3be'; }}
     >
       <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>{icon}</span>
       {label}
@@ -172,7 +172,7 @@ export default function PremiumNavbarComplete() {
             </svg>
           </div>
           <div>
-            <div style={S.logoText}>KINETIC<span style={{ color: '#c3f400' }}>ELITE</span></div>
+            <div style={S.logoText}>KINETIC<span style={{ color: '#FBBF24' }}>ELITE</span></div>
             <div style={S.logoSub}>Sports Platform</div>
           </div>
         </Link>
@@ -206,7 +206,7 @@ export default function PremiumNavbarComplete() {
                 transform: 'translateX(-50%)',
                 minWidth: '200px',
                 background: 'rgba(13,28,45,0.98)',
-                border: '1px solid rgba(195,244,0,0.15)',
+                border: '1px solid rgba(251,191,36,0.15)',
                 borderRadius: '14px', padding: '0.4rem',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
                 backdropFilter: 'blur(20px)',
@@ -225,18 +225,18 @@ export default function PremiumNavbarComplete() {
           <Link to="/booking" style={{
             display: 'flex', alignItems: 'center', gap: '0.4rem',
             padding: '0.45rem 1.1rem',
-            background: '#c3f400',
+            background: '#FBBF24',
             borderRadius: '8px',
             textDecoration: 'none',
-            color: '#0a1200',
+            color: '#111111',
             fontFamily: "'Anybody', sans-serif",
             fontWeight: 800, fontSize: '0.82rem',
             letterSpacing: '0.02em',
-            boxShadow: '0 4px 20px rgba(195,244,0,0.3)',
+            boxShadow: '0 4px 20px rgba(251,191,36,0.3)',
             transition: 'all 200ms',
           }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(195,244,0,0.4)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(195,244,0,0.3)'; }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(251,191,36,0.4)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(251,191,36,0.3)'; }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '0.95rem' }}>bolt</span>
             <span>Book Now</span>
@@ -249,8 +249,8 @@ export default function PremiumNavbarComplete() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '0.5rem',
                   padding: '0.35rem 0.35rem 0.35rem 0.5rem',
-                  background: 'rgba(195,244,0,0.08)',
-                  border: '1px solid rgba(195,244,0,0.2)',
+                  background: 'rgba(251,191,36,0.08)',
+                  border: '1px solid rgba(251,191,36,0.2)',
                   borderRadius: '10px',
                   color: '#f0f6ff',
                   fontWeight: 600, fontSize: '0.875rem',
@@ -260,9 +260,9 @@ export default function PremiumNavbarComplete() {
               >
                 <div style={{
                   width: '28px', height: '28px', borderRadius: '50%',
-                  background: '#c3f400',
+                  background: '#FBBF24',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.8rem', fontWeight: 900, color: '#0a1200',
+                  fontSize: '0.8rem', fontWeight: 900, color: '#111111',
                 }}>
                   {(user.firstName?.[0] || user.email?.[0] || 'U').toUpperCase()}
                 </div>
@@ -275,7 +275,7 @@ export default function PremiumNavbarComplete() {
                   position: 'absolute', top: 'calc(100% + 8px)', right: 0,
                   minWidth: '210px',
                   background: 'rgba(13,28,45,0.98)',
-                  border: '1px solid rgba(195,244,0,0.15)',
+                  border: '1px solid rgba(251,191,36,0.15)',
                   borderRadius: '14px', padding: '0.5rem',
                   boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
                   backdropFilter: 'blur(20px)',
@@ -339,12 +339,12 @@ export default function PremiumNavbarComplete() {
               <Link to="/register" style={{
                 textDecoration: 'none', padding: '0.45rem 1rem',
                 borderRadius: '8px', fontSize: '0.875rem', fontWeight: 700,
-                background: 'rgba(195,244,0,0.1)',
-                border: '1px solid rgba(195,244,0,0.25)',
-                color: '#c3f400', transition: 'all 200ms',
+                background: 'rgba(251,191,36,0.1)',
+                border: '1px solid rgba(251,191,36,0.25)',
+                color: '#FBBF24', transition: 'all 200ms',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(195,244,0,0.18)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(195,244,0,0.1)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.18)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.1)'; }}
               >Sign Up</Link>
             </div>
           )}
@@ -372,7 +372,7 @@ export default function PremiumNavbarComplete() {
       {/* Mobile menu */}
       {open && (
         <div style={{
-          borderTop: '1px solid rgba(195,244,0,0.1)',
+          borderTop: '1px solid rgba(251,191,36,0.1)',
           background: 'rgba(5,20,36,0.99)',
           padding: '1rem 1.5rem 1.5rem',
           backdropFilter: 'blur(20px)',
@@ -383,8 +383,8 @@ export default function PremiumNavbarComplete() {
               <Link key={l.path} to={l.path} style={{
                 textDecoration: 'none', padding: '0.65rem 0.85rem',
                 borderRadius: '8px', fontSize: '0.9rem', fontWeight: 600,
-                color: isActive(l.path) ? '#c3f400' : '#8ba3be',
-                background: isActive(l.path) ? 'rgba(195,244,0,0.08)' : 'transparent',
+                color: isActive(l.path) ? '#FBBF24' : '#8ba3be',
+                background: isActive(l.path) ? 'rgba(251,191,36,0.08)' : 'transparent',
                 transition: 'all 150ms',
               }}>{l.label}</Link>
             ))}
@@ -394,7 +394,7 @@ export default function PremiumNavbarComplete() {
             ) : (
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <Link to="/login" style={{ flex:1, textAlign:'center', padding:'0.7rem', borderRadius:'8px', textDecoration:'none', color:'#8ba3be', border:'1px solid rgba(255,255,255,0.08)', fontWeight:600 }}>Log In</Link>
-                <Link to="/register" style={{ flex:1, textAlign:'center', padding:'0.7rem', borderRadius:'8px', textDecoration:'none', color:'#0a1200', background:'#c3f400', fontWeight:800, fontFamily:"'Anybody',sans-serif" }}>Sign Up</Link>
+                <Link to="/register" style={{ flex:1, textAlign:'center', padding:'0.7rem', borderRadius:'8px', textDecoration:'none', color:'#111111', background:'#FBBF24', fontWeight:800, fontFamily:"'Anybody',sans-serif" }}>Sign Up</Link>
               </div>
             )}
           </div>

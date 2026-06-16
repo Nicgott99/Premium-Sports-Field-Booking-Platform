@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MOCK_ACHIEVEMENTS = [
@@ -20,7 +20,7 @@ const RARITY_COLORS = {
   common:   { color:'#8ba3be', bg:'rgba(139,163,190,0.1)', border:'rgba(139,163,190,0.2)' },
   rare:     { color:'#7dd3fc', bg:'rgba(125,211,252,0.1)', border:'rgba(125,211,252,0.2)' },
   epic:     { color:'#a78bfa', bg:'rgba(167,139,250,0.1)', border:'rgba(167,139,250,0.2)' },
-  legendary:{ color:'#c3f400', bg:'rgba(195,244,0,0.1)',   border:'rgba(195,244,0,0.3)'   },
+  legendary:{ color:'#FBBF24', bg:'rgba(251,191,36,0.1)',   border:'rgba(251,191,36,0.3)'   },
 };
 
 function Badge({ achievement }) {
@@ -30,8 +30,8 @@ function Badge({ achievement }) {
     <article style={{ background:'rgba(13,28,45,0.72)', border:`1px solid ${achievement.unlocked ? rc.border : 'rgba(255,255,255,0.06)'}`, borderRadius:'16px', padding:'1.4rem', backdropFilter:'blur(14px)', display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', opacity: achievement.unlocked ? 1 : 0.65, transition:'all 0.2s', position:'relative', overflow:'hidden' }}
       onMouseEnter={e => { e.currentTarget.style.opacity='1'; e.currentTarget.style.transform='translateY(-2px)'; }}
       onMouseLeave={e => { e.currentTarget.style.opacity = achievement.unlocked ? '1' : '0.65'; e.currentTarget.style.transform='none'; }}>
-      {achievement.unlocked && <div style={{ position:'absolute', top:'0.5rem', right:'0.5rem', width:'18px', height:'18px', borderRadius:'50%', background:'#c3f400', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <span className="material-symbols-outlined" style={{ fontSize:'0.7rem', color:'#0a1200', fontWeight:900 }}>check</span>
+      {achievement.unlocked && <div style={{ position:'absolute', top:'0.5rem', right:'0.5rem', width:'18px', height:'18px', borderRadius:'50%', background:'#FBBF24', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <span className="material-symbols-outlined" style={{ fontSize:'0.7rem', color:'#111111', fontWeight:900 }}>check</span>
       </div>}
       <div style={{ width:'60px', height:'60px', borderRadius:'50%', background: achievement.unlocked ? rc.bg : 'rgba(255,255,255,0.04)', border:`2px solid ${achievement.unlocked ? rc.border : 'rgba(255,255,255,0.08)'}`, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:'0.85rem' }}>
         <span className="material-symbols-outlined" style={{ fontSize:'1.6rem', color: achievement.unlocked ? rc.color : '#506070' }}>{achievement.icon}</span>
@@ -47,7 +47,7 @@ function Badge({ achievement }) {
         </>
       )}
       <div style={{ marginTop:'auto', paddingTop:'0.65rem', display:'flex', alignItems:'center', gap:'0.3rem' }}>
-        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.7rem', fontWeight:700, color: achievement.unlocked ? '#c3f400' : '#506070' }}>+{achievement.xp} XP</span>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.7rem', fontWeight:700, color: achievement.unlocked ? '#FBBF24' : '#506070' }}>+{achievement.xp} XP</span>
         <span style={{ fontSize:'0.65rem', padding:'0.08rem 0.4rem', borderRadius:'999px', background:rc.bg, color:rc.color, border:`1px solid ${rc.border}`, fontWeight:700, textTransform:'capitalize' }}>{achievement.rarity}</span>
       </div>
     </article>
@@ -93,23 +93,23 @@ const AchievementsPage = () => {
       <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ textAlign:'center', marginBottom:'1.5rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Milestones</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Milestones</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.4rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>Achievements</h1>
         </div>
 
         {/* Progress summary */}
         <div style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', padding:'1.5rem 2rem', marginBottom:'1.75rem', backdropFilter:'blur(14px)', display:'flex', gap:'3rem', alignItems:'center', flexWrap:'wrap' }}>
           <div>
-            <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'2.8rem', color:'#c3f400', lineHeight:1 }}>{unlocked}<span style={{ fontSize:'1.5rem', color:'#506070' }}>/{achievements.length}</span></div>
+            <div style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'2.8rem', color:'#FBBF24', lineHeight:1 }}>{unlocked}<span style={{ fontSize:'1.5rem', color:'#506070' }}>/{achievements.length}</span></div>
             <div style={{ fontFamily:"'JetBrains Mono',monospace", color:'#506070', fontSize:'0.72rem', textTransform:'uppercase', marginTop:'0.25rem' }}>Achievements Unlocked</div>
           </div>
           <div style={{ flex:1, minWidth:'200px' }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.4rem' }}>
               <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#8ba3be' }}>Overall Progress</span>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400' }}>{Math.round((unlocked/Math.max(achievements.length,1))*100)}%</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24' }}>{Math.round((unlocked/Math.max(achievements.length,1))*100)}%</span>
             </div>
             <div style={{ height:'8px', background:'rgba(255,255,255,0.06)', borderRadius:'999px', overflow:'hidden' }}>
-              <div style={{ height:'100%', width:`${Math.round((unlocked/Math.max(achievements.length,1))*100)}%`, background:'linear-gradient(90deg,#c3f400,#ff5e07)', borderRadius:'999px', transition:'width 0.8s ease' }} />
+              <div style={{ height:'100%', width:`${Math.round((unlocked/Math.max(achievements.length,1))*100)}%`, background:'linear-gradient(90deg,#FBBF24,#ff5e07)', borderRadius:'999px', transition:'width 0.8s ease' }} />
             </div>
           </div>
           <div>
@@ -122,7 +122,7 @@ const AchievementsPage = () => {
         <div style={{ display:'flex', gap:'0.45rem', marginBottom:'1.5rem', flexWrap:'wrap' }}>
           {FILTERS.map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              style={{ padding:'0.38rem 1rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', background: filter === f ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.04)', color: filter === f ? '#c3f400' : '#506070', borderColor: filter === f ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>{f}</button>
+              style={{ padding:'0.38rem 1rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', background: filter === f ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)', color: filter === f ? '#FBBF24' : '#506070', borderColor: filter === f ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>{f}</button>
           ))}
         </div>
 

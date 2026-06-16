@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 function Toggle({ on, onChange }) {
   return (
     <button onClick={() => onChange(!on)}
-      style={{ width:'44px', height:'24px', borderRadius:'999px', border:'none', background: on ? '#c3f400' : 'rgba(255,255,255,0.12)', cursor:'pointer', position:'relative', transition:'background 0.2s', flexShrink:0 }}>
-      <span style={{ position:'absolute', top:'3px', left: on ? '23px' : '3px', width:'18px', height:'18px', borderRadius:'50%', background: on ? '#0a1200' : '#506070', transition:'left 0.2s' }} />
+      style={{ width:'44px', height:'24px', borderRadius:'999px', border:'none', background: on ? '#FBBF24' : 'rgba(255,255,255,0.12)', cursor:'pointer', position:'relative', transition:'background 0.2s', flexShrink:0 }}>
+      <span style={{ position:'absolute', top:'3px', left: on ? '23px' : '3px', width:'18px', height:'18px', borderRadius:'50%', background: on ? '#111111' : '#506070', transition:'left 0.2s' }} />
     </button>
   );
 }
@@ -58,7 +58,7 @@ const SettingsPage = () => {
       <div style={{ maxWidth:'720px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ marginBottom:'2rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Preferences</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Preferences</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.4rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>Settings</h1>
         </div>
 
@@ -66,8 +66,8 @@ const SettingsPage = () => {
         <Section title="Profile">
           <div style={{ padding:'1.25rem' }}>
             <div style={{ display:'flex', gap:'1.5rem', alignItems:'center', marginBottom:'1.25rem', flexWrap:'wrap' }}>
-              <div style={{ width:'72px', height:'72px', borderRadius:'50%', background:'linear-gradient(135deg,rgba(195,244,0,0.15),rgba(255,94,7,0.1))', border:'2px solid rgba(195,244,0,0.25)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2rem', flexShrink:0 }}>🏃</div>
-              <button style={{ background:'rgba(195,244,0,0.08)', border:'1px solid rgba(195,244,0,0.2)', color:'#c3f400', borderRadius:'10px', padding:'0.5rem 1rem', fontWeight:700, fontSize:'0.82rem', cursor:'pointer' }}>Change Photo</button>
+              <div style={{ width:'72px', height:'72px', borderRadius:'50%', background:'linear-gradient(135deg,rgba(251,191,36,0.15),rgba(255,94,7,0.1))', border:'2px solid rgba(251,191,36,0.25)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2rem', flexShrink:0 }}>🏃</div>
+              <button style={{ background:'rgba(251,191,36,0.08)', border:'1px solid rgba(251,191,36,0.2)', color:'#FBBF24', borderRadius:'10px', padding:'0.5rem 1rem', fontWeight:700, fontSize:'0.82rem', cursor:'pointer' }}>Change Photo</button>
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.85rem' }}>
               {[['Full Name','Hasibullah Khan'],['Username','@hk_elite'],['Email','hasibullah@example.com'],['Phone','+880 1XXXXXXXXX']].map(([label, val]) => (
@@ -122,7 +122,7 @@ const SettingsPage = () => {
           </SettingRow>
         </Section>
 
-        <button onClick={handleSave} style={{ width:'100%', padding:'0.8rem', background: saved ? 'rgba(195,244,0,0.15)' : '#c3f400', color: saved ? '#c3f400' : '#0a1200', border: saved ? '1px solid rgba(195,244,0,0.3)' : 'none', borderRadius:'12px', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1rem', cursor:'pointer', transition:'all 0.2s' }}>
+        <button onClick={handleSave} style={{ width:'100%', padding:'0.8rem', background: saved ? 'rgba(251,191,36,0.15)' : '#FBBF24', color: saved ? '#FBBF24' : '#111111', border: saved ? '1px solid rgba(251,191,36,0.3)' : 'none', borderRadius:'12px', fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'1rem', cursor:'pointer', transition:'all 0.2s' }}>
           {saved ? '✓ Saved' : 'Save Changes'}
         </button>
       </div>

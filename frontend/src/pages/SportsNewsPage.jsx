@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const MOCK_NEWS = [
@@ -12,7 +12,7 @@ const MOCK_NEWS = [
 ];
 
 const CATEGORY_COLORS = {
-  League:       { color:'#c3f400', bg:'rgba(195,244,0,0.1)',  border:'rgba(195,244,0,0.2)'  },
+  League:       { color:'#FBBF24', bg:'rgba(251,191,36,0.1)',  border:'rgba(251,191,36,0.2)'  },
   Infrastructure:{ color:'#7dd3fc', bg:'rgba(125,211,252,0.1)', border:'rgba(125,211,252,0.2)' },
   Achievement:  { color:'#ff5e07', bg:'rgba(255,94,7,0.1)',   border:'rgba(255,94,7,0.2)'   },
   Tournament:   { color:'#a78bfa', bg:'rgba(167,139,250,0.1)', border:'rgba(167,139,250,0.2)' },
@@ -26,7 +26,7 @@ function NewsCard({ article, featured }) {
   const cc = CATEGORY_COLORS[article.category] ?? CATEGORY_COLORS.Milestone;
   return (
     <article style={{ background:'rgba(13,28,45,0.72)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'16px', padding: featured ? '1.75rem' : '1.25rem', backdropFilter:'blur(14px)', transition:'border-color 0.2s, transform 0.2s', display:'flex', flexDirection:'column', gap:'0.75rem' }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(195,244,0,0.18)'; e.currentTarget.style.transform='translateY(-2px)'; }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(251,191,36,0.18)'; e.currentTarget.style.transform='translateY(-2px)'; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.07)'; e.currentTarget.style.transform='none'; }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:'0.75rem' }}>
         <div style={{ display:'flex', gap:'0.5rem', flexWrap:'wrap' }}>
@@ -82,14 +82,14 @@ const SportsNewsPage = () => {
       <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ textAlign:'center', marginBottom:'2rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Latest Updates</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Latest Updates</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.8rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>Sports News</h1>
         </div>
 
         <div style={{ display:'flex', gap:'0.45rem', marginBottom:'1.75rem', justifyContent:'center', flexWrap:'wrap' }}>
           {SPORTS_FILTER.map(s => (
             <button key={s} onClick={() => setSport(s)}
-              style={{ padding:'0.38rem 1rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', background: sport === s ? 'rgba(195,244,0,0.15)' : 'rgba(255,255,255,0.04)', color: sport === s ? '#c3f400' : '#506070', borderColor: sport === s ? 'rgba(195,244,0,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>{s}</button>
+              style={{ padding:'0.38rem 1rem', borderRadius:'999px', border:'1px solid', fontWeight:700, fontSize:'0.8rem', cursor:'pointer', background: sport === s ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.04)', color: sport === s ? '#FBBF24' : '#506070', borderColor: sport === s ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.08)', transition:'all 0.18s' }}>{s}</button>
           ))}
         </div>
 

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-const STATUS_COLORS = { available:'#c3f400', booked:'#ff5e07', pending:'#7dd3fc' };
+const STATUS_COLORS = { available:'#FBBF24', booked:'#ff5e07', pending:'#7dd3fc' };
 
 const MOCK_BOOKINGS = {
   '2026-06-10':{ status:'booked',   field:'Bashundhara SC',     time:'6:00 PM',  sport:'Football' },
@@ -20,7 +20,7 @@ function DayCell({ day, booking, isToday, isSelected, onClick }) {
   const dotColor = booking ? STATUS_COLORS[booking.status] : null;
   return (
     <button onClick={() => onClick(day)}
-      style={{ aspectRatio:'1', borderRadius:'10px', border: isSelected ? '1px solid rgba(195,244,0,0.5)' : '1px solid transparent', background: isSelected ? 'rgba(195,244,0,0.12)' : isToday ? 'rgba(255,94,7,0.08)' : 'transparent', color: isToday ? '#ff5e07' : '#c8d8ea', fontWeight: isToday || isSelected ? 800 : 400, fontSize:'0.85rem', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'3px', position:'relative', transition:'all 0.15s', padding:'0.2rem' }}>
+      style={{ aspectRatio:'1', borderRadius:'10px', border: isSelected ? '1px solid rgba(251,191,36,0.5)' : '1px solid transparent', background: isSelected ? 'rgba(251,191,36,0.12)' : isToday ? 'rgba(255,94,7,0.08)' : 'transparent', color: isToday ? '#ff5e07' : '#c8d8ea', fontWeight: isToday || isSelected ? 800 : 400, fontSize:'0.85rem', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'3px', position:'relative', transition:'all 0.15s', padding:'0.2rem' }}>
       <span>{day}</span>
       {hasEvent && <span style={{ width:'5px', height:'5px', borderRadius:'50%', background:dotColor, flexShrink:0 }} />}
     </button>
@@ -80,7 +80,7 @@ const BookingCalendar = () => {
       <div style={{ maxWidth:'860px', margin:'0 auto', padding:'0 1.25rem' }}>
 
         <div style={{ textAlign:'center', marginBottom:'2.5rem' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#c3f400', letterSpacing:'0.12em', textTransform:'uppercase' }}>Schedule</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'0.72rem', color:'#FBBF24', letterSpacing:'0.12em', textTransform:'uppercase' }}>Schedule</span>
           <h1 style={{ fontFamily:"'Anybody',sans-serif", fontWeight:900, fontSize:'clamp(1.8rem,4vw,2.4rem)', color:'#f0f6ff', margin:'0.3rem 0 0', letterSpacing:'-0.02em' }}>Booking Calendar</h1>
         </div>
 
@@ -146,14 +146,14 @@ const BookingCalendar = () => {
                         </div>
                       ))}
                     </div>
-                    <button style={{ marginTop:'auto', paddingTop:'1.5rem', padding:'0.65rem', background:'rgba(195,244,0,0.1)', border:'1px solid rgba(195,244,0,0.2)', borderRadius:'10px', color:'#c3f400', fontWeight:700, fontSize:'0.85rem', cursor:'pointer', fontFamily:"'Anybody',sans-serif" }}>
+                    <button style={{ marginTop:'auto', paddingTop:'1.5rem', padding:'0.65rem', background:'rgba(251,191,36,0.1)', border:'1px solid rgba(251,191,36,0.2)', borderRadius:'10px', color:'#FBBF24', fontWeight:700, fontSize:'0.85rem', cursor:'pointer', fontFamily:"'Anybody',sans-serif" }}>
                       View Details
                     </button>
                   </>
                 ) : (
                   <>
                     <p style={{ color:'#506070', fontSize:'0.88rem', marginTop:'0.5rem' }}>No booking on this date.</p>
-                    <button style={{ marginTop:'auto', padding:'0.65rem', background:'#c3f400', border:'none', borderRadius:'10px', color:'#0a1200', fontWeight:800, fontSize:'0.88rem', cursor:'pointer', fontFamily:"'Anybody',sans-serif" }}>
+                    <button style={{ marginTop:'auto', padding:'0.65rem', background:'#FBBF24', border:'none', borderRadius:'10px', color:'#111111', fontWeight:800, fontSize:'0.88rem', cursor:'pointer', fontFamily:"'Anybody',sans-serif" }}>
                       Book This Day
                     </button>
                   </>
@@ -161,7 +161,7 @@ const BookingCalendar = () => {
               </>
             ) : (
               <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', textAlign:'center', gap:'0.75rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize:'2.5rem', color:'rgba(195,244,0,0.2)' }}>touch_app</span>
+                <span className="material-symbols-outlined" style={{ fontSize:'2.5rem', color:'rgba(251,191,36,0.2)' }}>touch_app</span>
                 <p style={{ color:'#506070', fontSize:'0.88rem' }}>Select a date to see booking details</p>
               </div>
             )}

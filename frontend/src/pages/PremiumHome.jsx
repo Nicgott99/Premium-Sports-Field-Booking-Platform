@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -61,17 +61,17 @@ function StatCard({ value, suffix, label, icon }) {
   return (
     <article ref={ref} style={{
       background: 'rgba(18,33,49,0.6)',
-      border: '1px solid rgba(195,244,0,0.12)',
+      border: '1px solid rgba(251,191,36,0.12)',
       borderRadius: '16px',
       padding: '1.5rem',
       textAlign: 'center',
       backdropFilter: 'blur(12px)',
       transition: 'all 300ms',
     }}
-    onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(195,244,0,0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
-    onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(195,244,0,0.12)'; e.currentTarget.style.transform = 'none'; }}
+    onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(251,191,36,0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+    onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(251,191,36,0.12)'; e.currentTarget.style.transform = 'none'; }}
     >
-      <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: '#c3f400', display: 'block', marginBottom: '0.5rem' }}>{icon}</span>
+      <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: '#FBBF24', display: 'block', marginBottom: '0.5rem' }}>{icon}</span>
       <div style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: '2.2rem', color: '#f0f6ff', lineHeight: 1 }}>
         {count}{suffix}
       </div>
@@ -105,17 +105,17 @@ export default function PremiumHome() {
 
       {/* ── Ambient orbs ── */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-        <div style={{ position: 'absolute', top: '-15%', left: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(195,244,0,0.07) 0%,transparent 65%)', filter: 'blur(40px)' }} />
+        <div style={{ position: 'absolute', top: '-15%', left: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(251,191,36,0.07) 0%,transparent 65%)', filter: 'blur(40px)' }} />
         <div style={{ position: 'absolute', bottom: '10%', right: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(255,94,7,0.06) 0%,transparent 65%)', filter: 'blur(40px)' }} />
-        <div style={{ position: 'absolute', top: '45%', left: '40%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(195,244,0,0.04) 0%,transparent 65%)', filter: 'blur(50px)' }} />
+        <div style={{ position: 'absolute', top: '45%', left: '40%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(251,191,36,0.04) 0%,transparent 65%)', filter: 'blur(50px)' }} />
       </div>
 
       {/* ── HERO ── */}
       <section style={{ position: 'relative', zIndex: 1, paddingTop: 'clamp(6rem,14vh,10rem)', paddingBottom: 'clamp(4rem,8vh,7rem)', textAlign: 'center', padding: 'clamp(6rem,14vh,10rem) 1.5rem clamp(4rem,8vh,7rem)' }}>
         {/* Badge */}
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 1rem', borderRadius: '99px', background: 'rgba(195,244,0,0.1)', border: '1px solid rgba(195,244,0,0.25)', marginBottom: '2rem' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#c3f400', display: 'inline-block', animation: 'pulse-lime 2s ease-in-out infinite' }} />
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Bangladesh #1 Sports Platform</span>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 1rem', borderRadius: '99px', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)', marginBottom: '2rem' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#FBBF24', display: 'inline-block', animation: 'pulse-lime 2s ease-in-out infinite' }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#FBBF24', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Bangladesh #1 Sports Platform</span>
         </div>
 
         {/* Headline */}
@@ -132,10 +132,10 @@ export default function PremiumHome() {
         }}>
           Book Premium
           <br />
-          <span style={{ color: '#c3f400', display: 'inline-block', position: 'relative' }}>
+          <span style={{ color: '#FBBF24', display: 'inline-block', position: 'relative' }}>
             Sports Fields
             <svg style={{ position: 'absolute', bottom: '-8px', left: 0, right: 0, width: '100%' }} viewBox="0 0 400 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2 9C80 3 160 1 200 3C240 5 320 9 398 5" stroke="#c3f400" strokeWidth="3" strokeLinecap="round" opacity="0.6"/>
+              <path d="M2 9C80 3 160 1 200 3C240 5 320 9 398 5" stroke="#FBBF24" strokeWidth="3" strokeLinecap="round" opacity="0.6"/>
             </svg>
           </span>
           <br />
@@ -147,7 +147,7 @@ export default function PremiumHome() {
         </p>
 
         {/* Search bar */}
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', maxWidth: '640px', margin: '0 auto 2.5rem', background: 'rgba(13,28,45,0.8)', border: '1px solid rgba(195,244,0,0.2)', borderRadius: '14px', padding: '0.4rem', backdropFilter: 'blur(16px)' }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', maxWidth: '640px', margin: '0 auto 2.5rem', background: 'rgba(13,28,45,0.8)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: '14px', padding: '0.4rem', backdropFilter: 'blur(16px)' }}>
           <span className="material-symbols-outlined" style={{ color: '#506070', fontSize: '1.1rem', alignSelf: 'center', marginLeft: '0.5rem' }}>search</span>
           <input
             value={search}
@@ -158,12 +158,12 @@ export default function PremiumHome() {
           <select
             value={sport}
             onChange={e => setSport(e.target.value)}
-            style={{ background: 'rgba(195,244,0,0.08)', border: 'none', outline: 'none', color: '#c3f400', fontSize: '0.85rem', padding: '0.4rem 0.7rem', borderRadius: '8px', fontFamily: "'Inter', sans-serif", cursor: 'pointer' }}
+            style={{ background: 'rgba(251,191,36,0.08)', border: 'none', outline: 'none', color: '#FBBF24', fontSize: '0.85rem', padding: '0.4rem 0.7rem', borderRadius: '8px', fontFamily: "'Inter', sans-serif", cursor: 'pointer' }}
           >
             <option value="">All Sports</option>
             {SPORTS.map(s => <option key={s.sport} value={s.sport}>{s.name}</option>)}
           </select>
-          <button type="submit" style={{ background: '#c3f400', color: '#0a1200', border: 'none', borderRadius: '10px', padding: '0.6rem 1.3rem', fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 200ms' }}
+          <button type="submit" style={{ background: '#FBBF24', color: '#111111', border: 'none', borderRadius: '10px', padding: '0.6rem 1.3rem', fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 200ms' }}
             onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'none'; }}
           >Search</button>
@@ -171,9 +171,9 @@ export default function PremiumHome() {
 
         {/* CTA group */}
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/fields" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 2rem', background: '#c3f400', color: '#0a1200', borderRadius: '10px', textDecoration: 'none', fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '0.95rem', boxShadow: '0 8px 32px rgba(195,244,0,0.35)', transition: 'all 200ms' }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(195,244,0,0.45)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(195,244,0,0.35)'; }}
+          <Link to="/fields" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 2rem', background: '#FBBF24', color: '#111111', borderRadius: '10px', textDecoration: 'none', fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '0.95rem', boxShadow: '0 8px 32px rgba(251,191,36,0.35)', transition: 'all 200ms' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(251,191,36,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(251,191,36,0.35)'; }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>explore</span>
             <span>Browse Fields</span>
@@ -198,7 +198,7 @@ export default function PremiumHome() {
       {/* ── SPORTS CAROUSEL ── */}
       <section style={{ position: 'relative', zIndex: 1, padding: '0 1.5rem 6rem', maxWidth: '72rem', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.12em', textTransform: 'uppercase' }}>What we offer</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#FBBF24', letterSpacing: '0.12em', textTransform: 'uppercase' }}>What we offer</span>
           <h2 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f0f6ff', margin: '0.5rem 0 0', letterSpacing: '-0.02em' }}>Pick Your Sport</h2>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: '0.75rem' }}>
@@ -214,7 +214,7 @@ export default function PremiumHome() {
                 borderRadius: '14px', textDecoration: 'none',
                 transition: 'all 250ms',
               }}
-              onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(195,244,0,0.3)'; e.currentTarget.style.background = 'rgba(195,244,0,0.06)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+              onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(251,191,36,0.3)'; e.currentTarget.style.background = 'rgba(251,191,36,0.06)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
               onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.06)'; e.currentTarget.style.background = 'rgba(18,33,49,0.55)'; e.currentTarget.style.transform = 'none'; }}
             >
               <span style={{ fontSize: '2rem', lineHeight: 1 }}>{s.icon}</span>
@@ -227,7 +227,7 @@ export default function PremiumHome() {
       {/* ── FEATURES ── */}
       <section style={{ position: 'relative', zIndex: 1, padding: '0 1.5rem 7rem', maxWidth: '72rem', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Why Kinetic Elite</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#FBBF24', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Why Kinetic Elite</span>
           <h2 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f0f6ff', margin: '0.5rem 0 0.75rem', letterSpacing: '-0.02em' }}>Built for Athletes</h2>
           <p style={{ color: '#506070', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>Every feature designed with the player experience first. Fast, reliable, premium.</p>
         </div>
@@ -241,11 +241,11 @@ export default function PremiumHome() {
               transition: 'all 300ms',
               animationDelay: `${i * 60}ms`,
             }}
-            onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(195,244,0,0.2)'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'rgba(18,33,49,0.85)'; }}
+            onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(251,191,36,0.2)'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'rgba(18,33,49,0.85)'; }}
             onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.background = 'rgba(18,33,49,0.6)'; }}
             >
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(195,244,0,0.1)', border: '1px solid rgba(195,244,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-                <span className="material-symbols-outlined" style={{ color: '#c3f400', fontSize: '1.2rem' }}>{f.icon}</span>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+                <span className="material-symbols-outlined" style={{ color: '#FBBF24', fontSize: '1.2rem' }}>{f.icon}</span>
               </div>
               <h3 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '1.1rem', color: '#f0f6ff', marginBottom: '0.5rem' }}>{f.title}</h3>
               <p style={{ color: '#506070', fontSize: '0.875rem', lineHeight: 1.65, margin: 0 }}>{f.desc}</p>
@@ -257,7 +257,7 @@ export default function PremiumHome() {
       {/* ── HOW IT WORKS ── */}
       <section style={{ position: 'relative', zIndex: 1, padding: '0 1.5rem 7rem', maxWidth: '72rem', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Simple Process</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#FBBF24', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Simple Process</span>
           <h2 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f0f6ff', margin: '0.5rem 0 0', letterSpacing: '-0.02em' }}>Book in 3 Steps</h2>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '1.5rem' }}>
@@ -268,8 +268,8 @@ export default function PremiumHome() {
           ].map(item => (
             <div key={item.step} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
               <div style={{ flexShrink: 0 }}>
-                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(195,244,0,0.08)', border: '1px solid rgba(195,244,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span className="material-symbols-outlined" style={{ color: '#c3f400', fontSize: '1.3rem' }}>{item.icon}</span>
+                <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span className="material-symbols-outlined" style={{ color: '#FBBF24', fontSize: '1.3rem' }}>{item.icon}</span>
                 </div>
               </div>
               <div>
@@ -285,7 +285,7 @@ export default function PremiumHome() {
       {/* ── TESTIMONIALS ── */}
       <section style={{ position: 'relative', zIndex: 1, padding: '0 1.5rem 7rem', maxWidth: '72rem', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Real Players</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#FBBF24', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Real Players</span>
           <h2 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f0f6ff', margin: '0.5rem 0 0', letterSpacing: '-0.02em' }}>What Athletes Say</h2>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: '1rem' }}>
@@ -297,13 +297,13 @@ export default function PremiumHome() {
               backdropFilter: 'blur(12px)',
               transition: 'all 250ms',
             }}
-            onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(195,244,0,0.18)'; }}
+            onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(251,191,36,0.18)'; }}
             onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.06)'; }}
             >
-              <div style={{ color: '#c3f400', fontSize: '1.2rem', marginBottom: '0.75rem' }}>★★★★★</div>
+              <div style={{ color: '#FBBF24', fontSize: '1.2rem', marginBottom: '0.75rem' }}>★★★★★</div>
               <p style={{ color: '#8ba3be', fontSize: '0.875rem', lineHeight: 1.7, margin: '0 0 1.25rem', fontStyle: 'italic' }}>"{t.text}"</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#c3f400', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: '0.9rem', color: '#0a1200', flexShrink: 0 }}>{t.init}</div>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#FBBF24', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: '0.9rem', color: '#111111', flexShrink: 0 }}>{t.init}</div>
                 <div>
                   <div style={{ fontWeight: 700, color: '#f0f6ff', fontSize: '0.875rem' }}>{t.name}</div>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: '#506070', letterSpacing: '0.05em' }}>{t.sport}</div>
@@ -317,17 +317,17 @@ export default function PremiumHome() {
       {/* ── CTA BANNER ── */}
       <section style={{ position: 'relative', zIndex: 1, padding: '0 1.5rem 8rem', maxWidth: '72rem', margin: '0 auto' }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(195,244,0,0.08) 0%, rgba(255,94,7,0.06) 100%)',
-          border: '1px solid rgba(195,244,0,0.2)',
+          background: 'linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(255,94,7,0.06) 100%)',
+          border: '1px solid rgba(251,191,36,0.2)',
           borderRadius: '24px', padding: 'clamp(2.5rem,6vw,4rem)',
           textAlign: 'center', position: 'relative', overflow: 'hidden',
         }}>
-          <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(195,244,0,0.1) 0%,transparent 65%)', pointerEvents: 'none' }} />
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#c3f400', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'block', marginBottom: '1rem' }}>Get Started Today</span>
+          <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(251,191,36,0.1) 0%,transparent 65%)', pointerEvents: 'none' }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', color: '#FBBF24', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'block', marginBottom: '1rem' }}>Get Started Today</span>
           <h2 style={{ fontFamily: "'Anybody', sans-serif", fontWeight: 900, fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f0f6ff', margin: '0 0 1rem', letterSpacing: '-0.02em' }}>Ready to Play?</h2>
           <p style={{ color: '#8ba3be', maxWidth: '420px', margin: '0 auto 2rem', lineHeight: 1.7 }}>Join thousands of athletes who book smarter. Create your free account today.</p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 2.2rem', background: '#c3f400', color: '#0a1200', borderRadius: '10px', textDecoration: 'none', fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '0.95rem', boxShadow: '0 8px 32px rgba(195,244,0,0.35)' }}>
+            <Link to="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 2.2rem', background: '#FBBF24', color: '#111111', borderRadius: '10px', textDecoration: 'none', fontFamily: "'Anybody', sans-serif", fontWeight: 800, fontSize: '0.95rem', boxShadow: '0 8px 32px rgba(251,191,36,0.35)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>rocket_launch</span>
               <span>Create Free Account</span>
             </Link>
