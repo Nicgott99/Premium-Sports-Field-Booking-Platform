@@ -36,9 +36,9 @@ function FieldCard({ field, onBook, onDetails, isFav, onToggleFav }) {
 
   return (
     <article style={S.card} className="field-card">
-      <div style={{ position:'relative', height:'180px', overflow:'hidden' }}>
+      <div style={{ position:'relative', height:'180px', overflow:'hidden', background:'rgba(255,255,255,0.04)' }}>
         {imageUrl ? (
-          <img src={imageUrl} alt={fieldName}
+          <img src={imageUrl} alt={fieldName} loading="lazy"
             style={{ width:'100%', height:'100%', objectFit:'cover', transition:'transform 0.4s' }}
             className="field-card-img"
             onError={e => { e.currentTarget.style.display = 'none'; }} />
