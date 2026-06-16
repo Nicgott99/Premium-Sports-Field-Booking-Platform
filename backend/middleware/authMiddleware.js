@@ -112,8 +112,8 @@ export const protect = asyncHandler(async (req, res, next) => {
       // Fetch user from database using decoded token ID
       req.user = await User.findById(decoded.id)
         .select('-password') // Exclude password field for security
-        .populate('profile')
-        .populate('subscription');
+        .populate({ path: 'profile', strictPopulate: false })
+        .populate({ path: 'subscription', strictPopulate: false });
 
       // Verify user exists in database
       if (!req.user) {
@@ -191,8 +191,8 @@ export const protectFirebase = asyncHandler(async (req, res, next) => {
       // Retrieve user from database using Firebase UID
       req.user = await User.findOne({ firebaseUid: decodedToken.uid })
         .select('-password')
-        .populate('profile')
-        .populate('subscription');
+        .populate({ path: 'profile', strictPopulate: false })
+        .populate({ path: 'subscription', strictPopulate: false });
 
       // Verify user exists
       if (!req.user) {
