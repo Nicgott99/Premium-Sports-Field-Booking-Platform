@@ -30,6 +30,24 @@ import SchedulePage from './pages/SchedulePage';
 import PromotionsPage from './pages/PromotionsPage';
 import SportsStatsPage from './pages/SportsStatsPage';
 import MapView from './pages/MapView';
+import QuickBookWidget from './pages/QuickBookWidget';
+import FieldOwnerPortal from './pages/FieldOwnerPortal';
+import VenueDashboard from './pages/VenueDashboard';
+import ReservationManagement from './pages/ReservationManagement';
+import EventsCalendar from './pages/EventsCalendar';
+import AchievementsPage from './pages/AchievementsPage';
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
+import BookingCalendar from './pages/BookingCalendar';
+import ChatMessaging from './pages/ChatMessaging';
+import CoachConnect from './pages/CoachConnect';
+import CommunityFeed from './pages/CommunityFeed';
+import LiveSessions from './pages/LiveSessions';
+import PlayerProfilePage from './pages/PlayerProfilePage';
+import ReviewsPage from './pages/ReviewsPage';
+import SettingsPage from './pages/SettingsPage';
+import SportsNewsPage from './pages/SportsNewsPage';
+import TrainingCenter from './pages/TrainingCenter';
+import WalletPage from './pages/WalletPage';
 
 const App = () => {
   return (
@@ -70,6 +88,24 @@ const App = () => {
             <Route path="/promotions" element={<PromotionsPage />} />
             <Route path="/stats" element={<SportsStatsPage />} />
             <Route path="/map" element={<MapView />} />
+            <Route path="/quick-book" element={<QuickBookWidget />} />
+            <Route path="/owner-portal" element={<FieldOwnerPortal />} />
+            <Route path="/venue-dashboard" element={<VenueDashboard />} />
+            <Route path="/reservations" element={<ReservationManagement />} />
+            <Route path="/events" element={<EventsCalendar />} />
+            <Route path="/achievements" element={<AchievementsPage />} />
+            <Route path="/analytics" element={<AnalyticsDashboard />} />
+            <Route path="/book-calendar" element={<BookingCalendar />} />
+            <Route path="/chat" element={<ChatMessaging />} />
+            <Route path="/coaches" element={<CoachConnect />} />
+            <Route path="/community" element={<CommunityFeed />} />
+            <Route path="/live" element={<LiveSessions />} />
+            <Route path="/players/:id" element={<PlayerProfilePage />} />
+            <Route path="/reviews" element={<ReviewsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/news" element={<SportsNewsPage />} />
+            <Route path="/training" element={<TrainingCenter />} />
+            <Route path="/wallet" element={<WalletPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
