@@ -14,14 +14,6 @@ A comprehensive, premium sports booking and community platform built with the ME
 
 ## 🌟 Features
 
-### 🔐 Advanced Authentication & Security
-- **Firebase Authentication** integration with email/password, Google, Facebook
-- **JWT Token** management with refresh tokens and automatic renewal
-- **Two-Factor Authentication** (2FA) support
-- **Role-based Access Control** (RBAC) with multiple user roles
-- **Account lockout** protection against brute force attacks
-- **Email verification** and password reset functionality
-
 ### 🏟️ Premium Field Management
 - **Comprehensive field listings** with advanced search and filtering
 - **Real-time availability** checking and booking
@@ -110,8 +102,6 @@ A comprehensive, premium sports booking and community platform built with the ME
 - **Stripe** - Payment processing
 - **Cloudinary** - Media storage and optimization
 - **Winston** - Logging system
-- **Helmet** - Security middleware
-- **Rate limiting** - DDoS protection
 
 ### Frontend
 - **React.js** v18+ - UI framework with lazy-loaded pages
@@ -323,19 +313,6 @@ POST   /api/payments/refund        - Process refund
 - System configuration
 - Advanced analytics
 - Platform maintenance
-
-## 🔒 Security Features
-
-- **Data encryption** at rest and in transit
-- **HTTPS enforcement** with security headers
-- **Input validation** and sanitization
-- **SQL injection** prevention with parameterized queries
-- **XSS protection** with content security policies
-- **CSRF protection** with tokens
-- **Rate limiting** to prevent abuse
-- **Account lockout** after failed attempts
-- **Session management** with secure cookies
-- **Regular security audits** and updates
 
 ## 📊 Performance Optimizations
 
