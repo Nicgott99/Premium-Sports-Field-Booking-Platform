@@ -1,53 +1,56 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './layouts/Layout';
-import PremiumHome from './pages/PremiumHome';
-import Dashboard from './pages/Dashboard';
-import PremiumRegister from './pages/PremiumRegister';
-import PremiumLogin from './pages/PremiumLogin';
-import PremiumBooking from './pages/PremiumBooking';
-import AddField from './pages/AddField';
-import AdminDashboard from './pages/AdminDashboard';
-import WorkingFields from './pages/WorkingFields';
-import FieldDetails from './pages/FieldDetails';
-import WorkingBookings from './pages/WorkingBookings';
-import Profile from './pages/Profile';
-import WorkingContact from './pages/WorkingContact';
-import WorkingAbout from './pages/WorkingAbout';
-import NotFound from './pages/NotFound';
-import SearchPage from './pages/SearchPage';
-import LoyaltyProgram from './pages/LoyaltyProgram';
-import TournamentPage from './pages/TournamentPage';
-import TeamManagement from './pages/TeamManagement';
-import PricingCalculator from './pages/PricingCalculator';
-import MembershipPlans from './pages/MembershipPlans';
-import NotificationsPage from './pages/NotificationsPage';
-import HelpCenter from './pages/HelpCenter';
-import FieldComparison from './pages/FieldComparison';
-import ReferralProgram from './pages/ReferralProgram';
-import LeaderboardPage from './pages/LeaderboardPage';
-import SchedulePage from './pages/SchedulePage';
-import PromotionsPage from './pages/PromotionsPage';
-import SportsStatsPage from './pages/SportsStatsPage';
-import MapView from './pages/MapView';
-import QuickBookWidget from './pages/QuickBookWidget';
-import FieldOwnerPortal from './pages/FieldOwnerPortal';
-import VenueDashboard from './pages/VenueDashboard';
-import ReservationManagement from './pages/ReservationManagement';
-import EventsCalendar from './pages/EventsCalendar';
-import AchievementsPage from './pages/AchievementsPage';
-import AnalyticsDashboard from './pages/AnalyticsDashboard';
-import BookingCalendar from './pages/BookingCalendar';
-import ChatMessaging from './pages/ChatMessaging';
-import CoachConnect from './pages/CoachConnect';
-import CommunityFeed from './pages/CommunityFeed';
-import LiveSessions from './pages/LiveSessions';
-import PlayerProfilePage from './pages/PlayerProfilePage';
-import ReviewsPage from './pages/ReviewsPage';
-import SettingsPage from './pages/SettingsPage';
-import SportsNewsPage from './pages/SportsNewsPage';
-import TrainingCenter from './pages/TrainingCenter';
-import WalletPage from './pages/WalletPage';
+
+const PremiumHome = React.lazy(() => import('./pages/PremiumHome'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const PremiumRegister = React.lazy(() => import('./pages/PremiumRegister'));
+const PremiumLogin = React.lazy(() => import('./pages/PremiumLogin'));
+const PremiumBooking = React.lazy(() => import('./pages/PremiumBooking'));
+const AddField = React.lazy(() => import('./pages/AddField'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const WorkingFields = React.lazy(() => import('./pages/WorkingFields'));
+const FieldDetails = React.lazy(() => import('./pages/FieldDetails'));
+const WorkingBookings = React.lazy(() => import('./pages/WorkingBookings'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const WorkingContact = React.lazy(() => import('./pages/WorkingContact'));
+const WorkingAbout = React.lazy(() => import('./pages/WorkingAbout'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
+const SearchPage = React.lazy(() => import('./pages/SearchPage'));
+const LoyaltyProgram = React.lazy(() => import('./pages/LoyaltyProgram'));
+const TournamentPage = React.lazy(() => import('./pages/TournamentPage'));
+const TeamManagement = React.lazy(() => import('./pages/TeamManagement'));
+const PricingCalculator = React.lazy(() => import('./pages/PricingCalculator'));
+const MembershipPlans = React.lazy(() => import('./pages/MembershipPlans'));
+const NotificationsPage = React.lazy(() => import('./pages/NotificationsPage'));
+const HelpCenter = React.lazy(() => import('./pages/HelpCenter'));
+const FieldComparison = React.lazy(() => import('./pages/FieldComparison'));
+const ReferralProgram = React.lazy(() => import('./pages/ReferralProgram'));
+const LeaderboardPage = React.lazy(() => import('./pages/LeaderboardPage'));
+const SchedulePage = React.lazy(() => import('./pages/SchedulePage'));
+const PromotionsPage = React.lazy(() => import('./pages/PromotionsPage'));
+const SportsStatsPage = React.lazy(() => import('./pages/SportsStatsPage'));
+const MapView = React.lazy(() => import('./pages/MapView'));
+const QuickBookWidget = React.lazy(() => import('./pages/QuickBookWidget'));
+const FieldOwnerPortal = React.lazy(() => import('./pages/FieldOwnerPortal'));
+const VenueDashboard = React.lazy(() => import('./pages/VenueDashboard'));
+const ReservationManagement = React.lazy(() => import('./pages/ReservationManagement'));
+const EventsCalendar = React.lazy(() => import('./pages/EventsCalendar'));
+const AchievementsPage = React.lazy(() => import('./pages/AchievementsPage'));
+const AnalyticsDashboard = React.lazy(() => import('./pages/AnalyticsDashboard'));
+const BookingCalendar = React.lazy(() => import('./pages/BookingCalendar'));
+const ChatMessaging = React.lazy(() => import('./pages/ChatMessaging'));
+const CoachConnect = React.lazy(() => import('./pages/CoachConnect'));
+const CommunityFeed = React.lazy(() => import('./pages/CommunityFeed'));
+const LiveSessions = React.lazy(() => import('./pages/LiveSessions'));
+const PlayerProfilePage = React.lazy(() => import('./pages/PlayerProfilePage'));
+const ReviewsPage = React.lazy(() => import('./pages/ReviewsPage'));
+const SettingsPage = React.lazy(() => import('./pages/SettingsPage'));
+const SportsNewsPage = React.lazy(() => import('./pages/SportsNewsPage'));
+const TrainingCenter = React.lazy(() => import('./pages/TrainingCenter'));
+const WalletPage = React.lazy(() => import('./pages/WalletPage'));
+
+const PageLoader = () => <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#506070' }}>Loading...</div>;
 
 const App = () => {
   return (
@@ -59,7 +62,8 @@ const App = () => {
         }}
       >
         <Layout>
-          <Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
             <Route path="/" element={<PremiumHome />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/register" element={<PremiumRegister />} />
@@ -107,7 +111,8 @@ const App = () => {
             <Route path="/training" element={<TrainingCenter />} />
             <Route path="/wallet" element={<WalletPage />} />
             <Route path="*" element={<NotFound />} />
-          </Routes>
+            </Routes>
+          </Suspense>
         </Layout>
       </Router>
     </div>
