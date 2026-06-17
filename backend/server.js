@@ -35,6 +35,7 @@ import pricingRoutes from './routes/pricingRoutes.js';
 import loyaltyRoutes from './routes/loyaltyRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import { validateEnvironment, logEnvironmentStatus } from './utils/envValidator.js';
+import { requestLogger, errorLogger } from './middleware/requestLogger.js';
 
 // Load environment variables
 dotenv.config();
@@ -263,6 +264,9 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 }
 
+// Request Logger Middleware
+app.use(requestLogger);
+
 // Health Check Route
 app.get('/api/health', (req, res) => {
   res.status(200).json({
@@ -342,6 +346,8 @@ app.set('notificationNamespace', notificationNamespace);
 app.use(notFound);
 // Multer errors -> friendly JSON
 app.use(multerErrorHandler);
+// Error Logger
+app.use(errorLogger);
 app.use(errorHandler);
 
 // Start Server
