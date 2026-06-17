@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/database.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 import { setupFirebase } from './config/firebase.js';
-import { createRedisClient, getRedisClient, getRedisHealth, pingRedis } from './config/redis.js';
+import { createRedisClient, getRedisClient } from './config/redis.js';
 import { multerErrorHandler } from './middleware/uploadMiddleware.js';
 import mongoose from 'mongoose';
 import { createIndexes } from './models/index.js';
@@ -36,6 +36,7 @@ import loyaltyRoutes from './routes/loyaltyRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import { validateEnvironment, logEnvironmentStatus } from './utils/envValidator.js';
 import { requestLogger, errorLogger } from './middleware/requestLogger.js';
+import { getSystemHealth, isHealthy } from './utils/healthCheck.js';
 
 // Load environment variables
 dotenv.config();
@@ -279,23 +280,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Extended health status endpoint - checks MongoDB and Redis connectivity
+// Extended health status endpoint - checks all services
 app.get('/api/health/status', async (req, res) => {
   try {
-    const dbState = mongoose?.connection?.readyState ?? 0; // 0 = disconnected, 1 = connected
-    const redisHealth = typeof getRedisHealth === 'function' ? getRedisHealth() : { connected: false };
-    const redisPing = typeof pingRedis === 'function' ? await pingRedis(1500) : false;
+    const health = await getSystemHealth();
+    const healthy = await isHealthy();
+    const statusCode = healthy ? 200 : 503;
 
-    return res.status(200).json({
-      success: true,
-      message: 'Service health status',
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV,
-      database: {
-        readyState: dbState,
-        connected: dbState === 1
-      },
-      redis: redisHealth
+    return res.status(statusCode).json({
+      success: healthy,
+      message: healthy ? 'All systems operational' : 'Some systems degraded',
+      ...health
     });
   } catch (err) {
     logger.error(`Health status check failed: ${err.message}`);
