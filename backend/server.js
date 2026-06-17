@@ -34,9 +34,14 @@ import teamRoutes from './routes/teamRoutes.js';
 import pricingRoutes from './routes/pricingRoutes.js';
 import loyaltyRoutes from './routes/loyaltyRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+import { validateEnvironment, logEnvironmentStatus } from './utils/envValidator.js';
 
 // Load environment variables
 dotenv.config();
+
+// Validate environment
+validateEnvironment();
+logEnvironmentStatus();
 
 // Create Express app
 const app = express();
