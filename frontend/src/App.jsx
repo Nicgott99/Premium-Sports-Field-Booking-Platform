@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './layouts/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const PremiumHome = React.lazy(() => import('./pages/PremiumHome'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -54,15 +55,16 @@ const PageLoader = () => <div style={{ minHeight: '100vh', display: 'flex', alig
 
 const App = () => {
   return (
-    <div style={{ minHeight: '100vh', background: '#051424' }}>
-      <Router
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        <Layout>
-          <Suspense fallback={<PageLoader />}>
+    <ErrorBoundary>
+      <div style={{ minHeight: '100vh', background: '#051424' }}>
+        <Router
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <Layout>
+            <Suspense fallback={<PageLoader />}>
             <Routes>
             <Route path="/" element={<PremiumHome />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -115,7 +117,8 @@ const App = () => {
           </Suspense>
         </Layout>
       </Router>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 };
 
