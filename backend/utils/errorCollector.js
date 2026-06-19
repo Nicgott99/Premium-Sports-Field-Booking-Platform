@@ -1,0 +1,1 @@
+﻿export class ErrorCollector { constructor() { this.errors = []; } collect(error, context = {}) { this.errors.push({ message: error.message, stack: error.stack, context, timestamp: new Date() }); } getAll() { return this.errors; } clear() { this.errors = []; } report() { return { total: this.errors.length, errors: this.errors }; } }
