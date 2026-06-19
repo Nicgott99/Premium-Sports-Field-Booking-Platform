@@ -1,0 +1,14 @@
+warning: git-credential-manager-core was renamed to git-credential-manager
+warning: see https://aka.ms/gcm/rename for more information
+warning: git-credential-manager-core was renamed to git-credential-manager
+warning: see https://aka.ms/gcm/rename for more information
+To https://github.com/Nicgott99/Premium-Sports-Field-Booking-Platform.git
+   28acfe5..4f1a8f2  4f1a8f2 -> main
+Push 1 done at  6:12:02.66 
+warning: git-credential-manager-core was renamed to git-credential-manager
+warning: see https://aka.ms/gcm/rename for more information
+warning: git-credential-manager-core was renamed to git-credential-manager
+warning: see https://aka.ms/gcm/rename for more information
+To https://github.com/Nicgott99/Premium-Sports-Field-Booking-Platform.git
+   4f1a8f2..a33843c  main -> main
+Push 2 done at  6:15:02.19 
