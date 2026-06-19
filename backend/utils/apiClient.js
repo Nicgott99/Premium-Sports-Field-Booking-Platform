@@ -1,0 +1,16 @@
+﻿export class APIClient {
+  constructor(baseURL) { this.baseURL = baseURL; }
+  async request(method, path, data = null) {
+    const options = {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: data ? JSON.stringify(data) : undefined
+    };
+    const res = await fetch(`${this.baseURL}${path}`, options);
+    return res.json();
+  }
+  get(path) { return this.request("GET", path); }
+  post(path, data) { return this.request("POST", path, data); }
+  put(path, data) { return this.request("PUT", path, data); }
+  delete(path) { return this.request("DELETE", path); }
+}
