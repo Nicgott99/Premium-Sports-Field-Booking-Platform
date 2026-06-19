@@ -1,0 +1,12 @@
+﻿export class JobScheduler {
+  constructor() { this.jobs = new Map(); }
+  schedule(name, fn, intervalMs) {
+    const id = setInterval(fn, intervalMs);
+    this.jobs.set(name, id);
+  }
+  cancel(name) {
+    clearInterval(this.jobs.get(name));
+    this.jobs.delete(name);
+  }
+  cancelAll() { this.jobs.forEach(id => clearInterval(id)); this.jobs.clear(); }
+}

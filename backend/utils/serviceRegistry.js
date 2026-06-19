@@ -1,0 +1,7 @@
+﻿const services = {};
+export const serviceRegistry = {
+  register(name, service) { services[name] = service; },
+  get(name) { return services[name]; },
+  all() { return services; },
+  exists(name) { return name in services; }
+};
