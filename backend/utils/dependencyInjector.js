@@ -1,0 +1,1 @@
+﻿const dependencies = {}; export const di = { register(key, factory) { dependencies[key] = factory; }, get(key) { if (!dependencies[key]) throw new Error(`Dependency ${key} not found`); return dependencies[key](); }, resolve(keys) { return keys.map(k => this.get(k)); } };
