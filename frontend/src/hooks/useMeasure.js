@@ -1,0 +1,11 @@
+﻿import { useRef, useState, useEffect } from 'react';
+export const useMeasure = () => {
+  const ref = useRef(null);
+  const [bounds, setBounds] = useState(null);
+  useEffect(() => {
+    if (ref.current) {
+      setBounds(ref.current.getBoundingClientRect());
+    }
+  }, []);
+  return [ref, bounds];
+};
