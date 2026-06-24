@@ -245,3 +245,10 @@ Desktop.ini
 *.bak
 *.old
 *.orig
+
+# Root scripts and AI assistant files
+*.bat
+.aider*
+agent*.log
+agent.py
+send_email.py
