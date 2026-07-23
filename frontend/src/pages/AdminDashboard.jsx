@@ -16,7 +16,7 @@ const STATUS_COLOR = {
   inactive:  { bg: 'rgba(100,116,139,0.15)', color: '#94a3b8', border: 'rgba(100,116,139,0.3)' },
   suspended: { bg: 'rgba(239,68,68,0.15)',   color: '#fca5a5', border: 'rgba(239,68,68,0.3)'  },
   admin:     { bg: 'rgba(167,139,250,0.15)', color: '#a78bfa', border: 'rgba(167,139,250,0.3)' },
-  user:      { bg: 'rgba(100,116,139,0.15)', color: '#94a3b8', border: 'rgba(100,116,139,0.3)' },
+  user:      { bg: 'rgba(100,116,139,0.15)', color: '#94a3b8', border: 'rgba(100,116,139,0.3)' }
 };
 
 const TD = { padding: '1rem', color: '#cbd5e1', fontSize: '0.88rem', borderBottom: '1px solid rgba(255,255,255,0.06)' };
@@ -46,14 +46,14 @@ Tile.propTypes = {
   icon:  PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  color: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired
 };
 
 const Spinner = () => <div className="spinner" style={{ width: '32px', height: '32px', margin: '0 auto' }} />;
 
 const PageNav = ({ page, total, limit, onChange }) => {
   const pages      = Math.ceil(total / limit);
-  if (pages <= 1) return null;
+  if (pages <= 1) {return null;}
   const prevDis    = page === 1;
   const nextDis    = page >= pages;
   const prevColor  = prevDis ? '#334155' : '#94a3b8';
@@ -73,7 +73,7 @@ const PageNav = ({ page, total, limit, onChange }) => {
 };
 PageNav.propTypes = {
   page: PropTypes.number.isRequired, total: PropTypes.number.isRequired,
-  limit: PropTypes.number.isRequired, onChange: PropTypes.func.isRequired,
+  limit: PropTypes.number.isRequired, onChange: PropTypes.func.isRequired
 };
 
 const ToastBar = ({ toasts }) => (
@@ -93,14 +93,14 @@ const fmtTime = (t) => t ? new Date(t).toLocaleTimeString('en-US', { hour: '2-di
 /* ── Tab: Overview ── */
 const OverviewTab = ({ data, loading, onRetry }) => {
   const H2 = { fontSize: '1rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 1.25rem' };
-  if (loading) return <div className="card" style={{ textAlign: 'center', padding: '3rem' }}><Spinner /></div>;
-  if (!data) return (
+  if (loading) {return <div className="card" style={{ textAlign: 'center', padding: '3rem' }}><Spinner /></div>;}
+  if (!data) {return (
     <div className="card" style={{ textAlign: 'center', padding: '3.5rem' }}>
       <p style={{ color: '#64748b' }}>Could not load stats.{' '}
         <button onClick={onRetry} style={{ color: '#a78bfa', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Retry</button>
       </p>
     </div>
-  );
+  );}
   return (
     <>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
@@ -146,7 +146,7 @@ const OverviewTab = ({ data, loading, onRetry }) => {
 OverviewTab.propTypes = {
   data:    PropTypes.object,
   loading: PropTypes.bool.isRequired,
-  onRetry: PropTypes.func.isRequired,
+  onRetry: PropTypes.func.isRequired
 };
 OverviewTab.defaultProps = { data: null };
 
@@ -156,7 +156,7 @@ const actBtnStyle = (border, bgBase, bgActive, color, key, acting) => ({
   background: acting === key ? bgActive : bgBase,
   color,
   cursor: acting ? 'not-allowed' : 'pointer',
-  opacity: acting && acting !== key ? 0.5 : 1,
+  opacity: acting && acting !== key ? 0.5 : 1
 });
 
 /* ── Tab: Users ── */
@@ -166,7 +166,7 @@ const UsersTab = ({ users, total, page, loading, query, onQueryChange, onSearch,
       <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Users ({total})</h2>
       <div style={{ display: 'flex', gap: '0.6rem' }}>
         <input value={query} onChange={e => onQueryChange(e.target.value)} placeholder="Search name / email…"
-          onKeyDown={e => { if (e.key === 'Enter') onSearch(); }}
+          onKeyDown={e => { if (e.key === 'Enter') {onSearch();} }}
           className="input-field" style={{ padding: '0.5rem 0.9rem', fontSize: '0.85rem', maxWidth: '240px' }} />
         <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }} onClick={onSearch}>Search</button>
       </div>
@@ -227,7 +227,7 @@ UsersTab.propTypes = {
   page: PropTypes.number.isRequired, loading: PropTypes.bool.isRequired,
   query: PropTypes.string.isRequired, onQueryChange: PropTypes.func.isRequired,
   onSearch: PropTypes.func.isRequired, onPageChange: PropTypes.func.isRequired,
-  onAction: PropTypes.func.isRequired, acting: PropTypes.string,
+  onAction: PropTypes.func.isRequired, acting: PropTypes.string
 };
 UsersTab.defaultProps = { acting: null };
 
@@ -238,7 +238,7 @@ const FieldsTab = ({ fields, total, page, loading, onPageChange, onAction, onSea
       <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Fields ({total})</h2>
       <div style={{ display: 'flex', gap: '0.6rem' }}>
         <input value={query} onChange={e => onQueryChange(e.target.value)} placeholder="Search name…"
-          onKeyDown={e => { if (e.key === 'Enter') onSearch(); }}
+          onKeyDown={e => { if (e.key === 'Enter') {onSearch();} }}
           className="input-field" style={{ padding: '0.5rem 0.9rem', fontSize: '0.85rem', maxWidth: '200px' }} />
         <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }} onClick={onSearch}>Search</button>
       </div>
@@ -288,7 +288,7 @@ FieldsTab.propTypes = {
   page: PropTypes.number.isRequired, loading: PropTypes.bool.isRequired,
   onPageChange: PropTypes.func.isRequired, onAction: PropTypes.func.isRequired,
   onSearch: PropTypes.func.isRequired, query: PropTypes.string.isRequired,
-  onQueryChange: PropTypes.func.isRequired,
+  onQueryChange: PropTypes.func.isRequired
 };
 
 /* ── Tab: Bookings ── */
@@ -355,7 +355,7 @@ BookingsTab.propTypes = {
   page: PropTypes.number.isRequired, statusFilter: PropTypes.string.isRequired,
   loading: PropTypes.bool.isRequired, onStatusChange: PropTypes.func.isRequired,
   onPageChange: PropTypes.func.isRequired, onCancel: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired
 };
 
 /* ── Tab: Pending Fields ── */
@@ -413,19 +413,19 @@ const PendingFieldsTab = ({ fields, total, page, loading, onPageChange, onAction
 PendingFieldsTab.propTypes = {
   fields: PropTypes.array.isRequired, total: PropTypes.number.isRequired,
   page: PropTypes.number.isRequired, loading: PropTypes.bool.isRequired,
-  onPageChange: PropTypes.func.isRequired, onAction: PropTypes.func.isRequired,
+  onPageChange: PropTypes.func.isRequired, onAction: PropTypes.func.isRequired
 };
 
 /* ── Tab: Analytics ── */
 const AnalyticsTab = ({ data, loading, onRetry }) => {
-  if (loading) return <div className="card" style={{ textAlign: 'center', padding: '3rem' }}><Spinner /></div>;
-  if (!data) return (
+  if (loading) {return <div className="card" style={{ textAlign: 'center', padding: '3rem' }}><Spinner /></div>;}
+  if (!data) {return (
     <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
       <p style={{ color: '#64748b' }}>Could not load analytics.{' '}
         <button onClick={onRetry} style={{ color: '#a78bfa', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>Retry</button>
       </p>
     </div>
-  );
+  );}
   const statRows = [
     { icon: '👥', label: 'Total Users',        value: data.totalUsers    ?? 0, color: '#a78bfa' },
     { icon: '🏟️', label: 'Active Fields',      value: data.activeFields  ?? 0, color: '#6ee7b7' },
@@ -434,7 +434,7 @@ const AnalyticsTab = ({ data, loading, onRetry }) => {
     { icon: '💰', label: 'Total Revenue',      value: `৳${(data.totalRevenue ?? 0).toLocaleString()}`, color: '#f9a8d4' },
     { icon: '🆕', label: 'New Users (7d)',     value: data.newUsersWeek  ?? 0, color: '#67e8f9' },
     { icon: '📈', label: 'New Bookings (7d)',  value: data.newBookingsWeek ?? 0, color: '#86efac' },
-    { icon: '🏗️', label: 'Total Fields',       value: data.totalFields   ?? 0, color: '#c4b5fd' },
+    { icon: '🏗️', label: 'Total Fields',       value: data.totalFields   ?? 0, color: '#c4b5fd' }
   ];
   return (
     <div>
@@ -454,7 +454,7 @@ const AnalyticsTab = ({ data, loading, onRetry }) => {
 AnalyticsTab.propTypes = {
   data:    PropTypes.object,
   loading: PropTypes.bool.isRequired,
-  onRetry: PropTypes.func.isRequired,
+  onRetry: PropTypes.func.isRequired
 };
 AnalyticsTab.defaultProps = { data: null };
 
@@ -465,7 +465,7 @@ const TABS = [
   { id: 'users',      label: '👥 Users' },
   { id: 'fields',   label: '🏟️ Fields' },
   { id: 'bookings', label: '📅 Bookings' },
-  { id: 'pending',  label: '⏳ Pending Fields' },
+  { id: 'pending',  label: '⏳ Pending Fields' }
 ];
 
 const AdminDashboard = () => {
@@ -529,7 +529,7 @@ const AdminDashboard = () => {
     try {
       const res  = await authFetch('/api/v1/admin/dashboard');
       const data = await res.json();
-      if (data.success) setOverview(data.data);
+      if (data.success) {setOverview(data.data);}
     } catch { /* network error */ }
     finally { setOvLoading(false); }
   }, []);
@@ -539,7 +539,7 @@ const AdminDashboard = () => {
     try {
       const res  = await authFetch('/api/v1/analytics/dashboard');
       const data = await res.json();
-      if (data.success) setAnalytics(data.data);
+      if (data.success) {setAnalytics(data.data);}
     } catch { /* network error */ }
     finally { setAnLoading(false); }
   }, []);
@@ -588,14 +588,14 @@ const AdminDashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (!adminUser) return;
-    if (tab === 'overview')   loadOverview();
-    if (tab === 'analytics')  loadAnalytics();
-    if (tab === 'users')      loadUsers(usersPage, usersQ);
-    if (tab === 'fields')     loadFields(fieldsPage);
-    if (tab === 'bookings')   loadBookings(bookingsPage, bookingsStatus);
-    if (tab === 'pending')    loadPendingFields(pendingPage);
-  }, [tab, adminUser]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!adminUser) {return;}
+    if (tab === 'overview')   {loadOverview();}
+    if (tab === 'analytics')  {loadAnalytics();}
+    if (tab === 'users')      {loadUsers(usersPage, usersQ);}
+    if (tab === 'fields')     {loadFields(fieldsPage);}
+    if (tab === 'bookings')   {loadBookings(bookingsPage, bookingsStatus);}
+    if (tab === 'pending')    {loadPendingFields(pendingPage);}
+  }, [tab, adminUser]);
 
   const [userActing, setUserActing] = useState(null);
 
@@ -608,7 +608,7 @@ const AdminDashboard = () => {
         const labels = { ban: 'banned', suspend: 'suspended', activate: 'activated', verify: 'verified', restore: 'restored', deactivate: 'deactivated' };
         toast(`User ${labels[action] ?? `${action}d`} successfully`);
         loadUsers(usersPage, usersQ);
-      } else toast(data.message || `Failed to ${action} user`, 'error');
+      } else {toast(data.message || `Failed to ${action} user`, 'error');}
     } catch { toast('Network error', 'error'); }
     finally { setUserActing(null); }
   };
@@ -621,7 +621,7 @@ const AdminDashboard = () => {
         toast(`Field ${action}d`);
         loadFields(fieldsPage);
         loadPendingFields(pendingPage);
-      } else toast(data.message || `Failed to ${action}`, 'error');
+      } else {toast(data.message || `Failed to ${action}`, 'error');}
     } catch { toast('Network error', 'error'); }
   };
 
@@ -630,7 +630,7 @@ const AdminDashboard = () => {
       const res  = await authFetch(`/api/v1/admin/bookings/${bookingId}/cancel`, { method: 'PUT', body: JSON.stringify({ reason: 'Cancelled by admin' }) });
       const data = await res.json();
       if (data.success) { toast('Booking cancelled'); loadBookings(bookingsPage, bookingsStatus); }
-      else toast(data.message || 'Cancel failed', 'error');
+      else {toast(data.message || 'Cancel failed', 'error');}
     } catch { toast('Network error', 'error'); }
   };
 
@@ -639,11 +639,11 @@ const AdminDashboard = () => {
       const res  = await authFetch(`/api/v1/admin/bookings/${bookingId}/confirm`, { method: 'PUT' });
       const data = await res.json();
       if (data.success) { toast('Booking confirmed'); loadBookings(bookingsPage, bookingsStatus); }
-      else toast(data.message || 'Confirm failed', 'error');
+      else {toast(data.message || 'Confirm failed', 'error');}
     } catch { toast('Network error', 'error'); }
   };
 
-  if (!adminUser) return null;
+  if (!adminUser) {return null;}
 
   return (
     <div className="pg-bg" style={{ minHeight: '100vh', paddingTop: '5.5rem' }}>

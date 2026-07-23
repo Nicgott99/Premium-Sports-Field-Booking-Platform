@@ -105,15 +105,15 @@ const usePagination = (options = {}) => {
 
   const goToPage = useCallback((page) => {
     dispatch({ type: ACTIONS.GO_TO_PAGE, page: clamp(page) });
-  }, [totalPages]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [totalPages]);
 
   const nextPage = useCallback(() => {
     dispatch({ type: ACTIONS.GO_TO_PAGE, page: clamp(state.page + 1) });
-  }, [state.page, totalPages]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.page, totalPages]);
 
   const prevPage = useCallback(() => {
     dispatch({ type: ACTIONS.GO_TO_PAGE, page: clamp(state.page - 1) });
-  }, [state.page, totalPages]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.page, totalPages]);
 
   const setPageSize = useCallback((size) => {
     dispatch({ type: ACTIONS.SET_PAGE_SIZE, pageSize: Math.max(1, size) });

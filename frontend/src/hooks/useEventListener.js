@@ -45,7 +45,6 @@ const useEventListener = (eventName, handler, target = window, options = {}) => 
     element.addEventListener(eventName, listener, options);
 
     return () => element.removeEventListener(eventName, listener, options);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventName, target]);
 };
 

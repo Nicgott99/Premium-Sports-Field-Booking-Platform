@@ -15,15 +15,15 @@ const MOCK_PROMOS = [
   { _id: 'p3', title: 'Football Fiesta',      code: 'FOOTBALL500',discount: 500,type: 'flat',     minBooking: 3, sport: 'Football',  endsAt: addDays(5),  uses: 56,  maxUses: 100, desc: 'Flat ৳500 off on Football field bookings of 3+ hours.', badge: '⚽ Sport',  color: '#10b981' },
   { _id: 'p4', title: 'First Booking Free',   code: 'FIRST1HR',   discount: 100,type: 'percent',  minBooking: 1, sport: 'All',       endsAt: addDays(30), uses: 34,  maxUses: 500, desc: 'New users get their first 1-hour booking at any standard field completely free.', badge: '🎁 New',  color: '#7c3aed' },
   { _id: 'p5', title: 'Bulk Booking Deal',    code: 'BULK15',     discount: 15, type: 'percent',  minBooking: 5, sport: 'All',       endsAt: addDays(14), uses: 27,  maxUses: 80,  desc: 'Book 5+ hours at once and save 15% automatically.', badge: '📦 Bulk',   color: '#06b6d4' },
-  { _id: 'p6', title: 'Cricket Season',       code: 'CRICKET10',  discount: 10, type: 'percent',  minBooking: 2, sport: 'Cricket',   endsAt: addDays(10), uses: 18,  maxUses: 60,  desc: '10% off all Cricket ground bookings this season.', badge: '🏏 Sport',  color: '#f97316' },
+  { _id: 'p6', title: 'Cricket Season',       code: 'CRICKET10',  discount: 10, type: 'percent',  minBooking: 2, sport: 'Cricket',   endsAt: addDays(10), uses: 18,  maxUses: 60,  desc: '10% off all Cricket ground bookings this season.', badge: '🏏 Sport',  color: '#f97316' }
 ];
 
 const countdown = (endsAt) => {
   const diff = new Date(endsAt) - new Date();
-  if (diff <= 0) return 'Expired';
+  if (diff <= 0) {return 'Expired';}
   const days  = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
-  if (days > 0) return `${days}d ${hours}h left`;
+  if (days > 0) {return `${days}d ${hours}h left`;}
   const mins = Math.floor((diff % 3600000) / 60000);
   return `${hours}h ${mins}m left`;
 };
@@ -72,7 +72,7 @@ const PromotionsPage = () => {
     setTimeout(() => setToast(''), 4000);
   }, [navigate]);
 
-  const usePct = (p) => Math.min(100, Math.round((p.uses / p.maxUses) * 100));
+  const getPct = (p) => Math.min(100, Math.round((p.uses / p.maxUses) * 100));
 
   const S = {
     page:   { minHeight: '100vh', background: 'linear-gradient(135deg,#030712 0%,#0d0525 50%,#030712 100%)', padding: '2rem 1.5rem', fontFamily: "'Inter',sans-serif", color: '#f1f5f9' },
@@ -87,7 +87,7 @@ const PromotionsPage = () => {
     disc:   (c) => ({ fontSize: '2rem', fontWeight: 900, color: c, lineHeight: 1, margin: '0.25rem 0' }),
     code:   { display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '0.5rem 0.85rem', margin: '0.75rem 0', cursor: 'pointer' },
     prog:   { background: 'rgba(255,255,255,0.08)', borderRadius: '20px', height: 6, overflow: 'hidden', marginBottom: '0.4rem' },
-    claimBtn:(done, c) => ({ width: '100%', background: done ? 'rgba(16,185,129,0.15)' : `linear-gradient(135deg,${c},${c}cc)`, border: done ? '1px solid rgba(16,185,129,0.3)' : 'none', color: done ? '#6ee7b7' : '#fff', fontWeight: 800, padding: '0.7rem', borderRadius: '10px', cursor: done ? 'default' : 'pointer', fontSize: '0.875rem', marginTop: 'auto' }),
+    claimBtn:(done, c) => ({ width: '100%', background: done ? 'rgba(16,185,129,0.15)' : `linear-gradient(135deg,${c},${c}cc)`, border: done ? '1px solid rgba(16,185,129,0.3)' : 'none', color: done ? '#6ee7b7' : '#fff', fontWeight: 800, padding: '0.7rem', borderRadius: '10px', cursor: done ? 'default' : 'pointer', fontSize: '0.875rem', marginTop: 'auto' })
   };
 
   return (
@@ -124,7 +124,7 @@ const PromotionsPage = () => {
             {filtered.map(promo => {
               const done = claimed[promo._id] === 'done';
               const busy = claimed[promo._id] === 'loading';
-              const pct  = usePct(promo);
+              const pct  = getPct(promo);
               return (
                 <div key={promo._id} style={S.card(promo.color)}>
                   <div style={S.top(promo.color)}>

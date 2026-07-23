@@ -36,7 +36,6 @@ const useOptimistic = (initialState, updateFn) => {
         setOptimisticState((current) => updateFn(current, optimisticValue));
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [updateFn]
   );
 

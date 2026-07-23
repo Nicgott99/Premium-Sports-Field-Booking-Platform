@@ -48,7 +48,6 @@ const useIntersectionObserver = (options = {}, triggerOnce = false) => {
     observer.observe(node);
 
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options.root, options.rootMargin, options.threshold, triggerOnce]);
 
   return [ref, isVisible, entry];

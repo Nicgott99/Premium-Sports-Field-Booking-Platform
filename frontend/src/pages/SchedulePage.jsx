@@ -10,7 +10,7 @@ const HOURS = Array.from({ length: 18 }, (_, i) => i + 5); // 5 AM – 10 PM
 const DAYS  = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SPORT_COLORS = {
   Football: '#10b981', Cricket: '#f59e0b', Badminton: '#7c3aed',
-  Basketball: '#ec4899', Tennis: '#06b6d4', Volleyball: '#f97316',
+  Basketball: '#ec4899', Tennis: '#06b6d4', Volleyball: '#f97316'
 };
 
 const getWeekDates = (base) => {
@@ -27,7 +27,7 @@ const MOCK_BOOKINGS = [
   { _id: 'b1', fieldName: 'Champions Arena', sport: 'Football',  date: fmt(new Date()), startHour: 8,  duration: 2, status: 'confirmed' },
   { _id: 'b2', fieldName: 'Badminton Palace', sport: 'Badminton', date: fmt(new Date()), startHour: 17, duration: 1, status: 'confirmed' },
   { _id: 'b3', fieldName: 'Elite Turf',       sport: 'Football',  date: (() => { const d = new Date(); d.setDate(d.getDate() + 2); return fmt(d); })(), startHour: 10, duration: 3, status: 'pending' },
-  { _id: 'b4', fieldName: 'Tennis Hub',       sport: 'Tennis',    date: (() => { const d = new Date(); d.setDate(d.getDate() + 4); return fmt(d); })(), startHour: 7,  duration: 1, status: 'confirmed' },
+  { _id: 'b4', fieldName: 'Tennis Hub',       sport: 'Tennis',    date: (() => { const d = new Date(); d.setDate(d.getDate() + 4); return fmt(d); })(), startHour: 7,  duration: 1, status: 'confirmed' }
 ];
 
 const SchedulePage = () => {
@@ -52,7 +52,7 @@ const SchedulePage = () => {
       .then(d => setBookings(d.success ? (d.data?.bookings ?? d.data ?? []) : MOCK_BOOKINGS))
       .catch(() => setBookings(MOCK_BOOKINGS))
       .finally(() => setLoading(false));
-  }, [baseDate]);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [baseDate]);
 
   const prevWeek = () => { const d = new Date(baseDate); d.setDate(d.getDate() - 7); setBaseDate(d); };
   const nextWeek = () => { const d = new Date(baseDate); d.setDate(d.getDate() + 7); setBaseDate(d); };
@@ -76,7 +76,7 @@ const SchedulePage = () => {
     cell:    (isToday) => ({ borderBottom: '1px solid rgba(255,255,255,0.04)', borderRight: '1px solid rgba(255,255,255,0.05)', background: isToday ? 'rgba(124,58,237,0.04)' : 'transparent', minHeight: 48, position: 'relative', padding: '2px' }),
     booking: (color, status) => ({ background: `${color}22`, border: `1px solid ${color}66`, borderRadius: '6px', padding: '2px 5px', fontSize: '0.65rem', fontWeight: 700, color, opacity: status === 'pending' ? 0.7 : 1, cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }),
     modal:   { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' },
-    mCard:   { background: '#0d0525', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '20px', padding: '2rem', width: '100%', maxWidth: 420 },
+    mCard:   { background: '#0d0525', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '20px', padding: '2rem', width: '100%', maxWidth: 420 }
   };
 
   return (
@@ -203,7 +203,7 @@ const SchedulePage = () => {
               ['Date',    selected.date],
               ['Time',    `${selected.startHour}:00 – ${selected.startHour + selected.duration}:00`],
               ['Duration',`${selected.duration} hour${selected.duration !== 1 ? 's' : ''}`],
-              ['Status',  selected.status],
+              ['Status',  selected.status]
             ].map(([l, v]) => (
               <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{l}</span>
