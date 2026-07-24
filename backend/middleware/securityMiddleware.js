@@ -152,40 +152,6 @@ import logger from '../utils/logger.js';
  * - Burp Suite testing
  * - Penetration testing
  */
- * - CORS configuration for cross-origin requests
- * - XSS protection headers
- * - CSRF token validation
- * 
- * Rate Limiting Tiers:
- * - Standard: 100 requests per 15 minutes
- * - Authentication: 5 attempts per 15 minutes
- * - Payment: 10 requests per hour
- * - File Upload: 20 requests per hour
- * 
- * API Key Strategy:
- * - Header: X-API-Key
- * - Format: 32-character alphanumeric string
- * - Rotation: Every 90 days
- * - Revocation: Immediate on compromise
- * 
- * CORS Allowed Origins:
- * - localhost:3000 (development)
- * - frontend production domain
- * - Mobile app schemes (if applicable)
- * 
- * Security Headers Applied:
- * - X-Content-Type-Options: nosniff
- * - X-Frame-Options: DENY
- * - X-XSS-Protection: 1; mode=block
- * - Strict-Transport-Security: max-age=31536000
- * 
- * Attack Prevention:
- * - DoS: Rate limiting with Redis
- * - Brute Force: Login attempt limiting
- * - SQL Injection: Mongoose input validation
- * - XSS: Response header sanitization
- * - CSRF: Token-based verification
- */
 
 /**
  * Rate limiting middleware to prevent abuse

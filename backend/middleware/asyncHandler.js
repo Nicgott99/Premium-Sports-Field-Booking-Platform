@@ -113,25 +113,6 @@
  * - 422: Unprocessable entity
  * - 500: Server error
  */
- *   res.json(user);
- * });
- * 
- * Error Flow:
- * 1. Async function throws error or rejects Promise
- * 2. asyncHandler catches rejection
- * 3. Error passed to next() middleware
- * 4. Express error handling middleware processes error
- * 5. errorMiddleware formats and returns error response
- * 
- * Compatible With:
- * - Database operations (Mongoose queries)
- * - File operations (fs, multer)
- * - HTTP requests (fetch, axios)
- * - Any Promise-based operations
- * 
- * @param {Function} fn - Express route handler function (async or sync)
- * @returns {Function} Wrapped middleware function with error handling
- */
 export const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
