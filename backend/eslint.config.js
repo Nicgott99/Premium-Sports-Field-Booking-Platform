@@ -5,6 +5,9 @@
  * ESLint v9+ no longer reads legacy .eslintrc.* files, so this flat
  * config file is required. Rules are calibrated to pass CI without
  * requiring changes to existing application code.
+ *
+ * Note: the legacy .eslintrc.json is retained for IDE plugin compatibility
+ * only; ESLint itself uses this file exclusively.
  */
 
 /** @type {import('eslint').Linter.Config[]} */
