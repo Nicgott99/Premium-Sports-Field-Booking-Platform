@@ -207,8 +207,7 @@ docs/build/
 .env.test.local
 .env.production.local
 
-# Package managers
-package-lock.json
+# Package managers — yarn and pnpm locks ignored; npm lock is committed for CI
 yarn.lock
 pnpm-lock.yaml
 
